@@ -14,16 +14,17 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, xml, ctype, json, curl, fileinfo, openssl, pdo_mysql, tokenizer, zip
+          extensions: mbstring, xml, ctype, json, curl, fileinfo, openssl, pdo_mysql, pdo_sqlite, sqlite3, tokenizer, zip
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-progress
+      - run: composer install --prefer-dist --no-progress
       - run: npm ci
       - run: npm run build
       - run: test -f public/build/manifest.json
       - run: php artisan test --filter=Deploy
+      - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-progress
       - name: Assemble production env
         run: |
           cat > .env <<EOF
