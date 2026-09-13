@@ -20,6 +20,7 @@ use App\Models\ReservationSchedule;
 use App\Support\PageMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Internal\DeployController;
 use Illuminate\Support\Facades\Schema;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -135,6 +136,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('update-password-recovery-questions', [AdminController::class, 'updatePasswordRecoveryQuestion'])->name('updatePasswordRecoveryQuestion');
     });
 });
+
+Route::post('/internal/deploy', [DeployController::class, 'run'])->middleware('throttle:5,1');
 
 Route::fallback(function (Request $request) {
     if ($request->is('admin/*') || $request->is('api/*')) {

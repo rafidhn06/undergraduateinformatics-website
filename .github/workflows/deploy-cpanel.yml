@@ -1,0 +1,73 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, json, curl, fileinfo, openssl, pdo_mysql, tokenizer, zip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-progress
+      - run: npm ci
+      - run: npm run build
+      - run: test -f public/build/manifest.json
+      - run: php artisan test --filter=Deploy
+      - name: Assemble production env
+        run: |
+          cat > .env <<EOF
+          APP_NAME=UndergraduateInformatics
+          APP_ENV=production
+          APP_DEBUG=false
+          APP_URL=${{ secrets.APP_URL }}
+          APP_KEY=${{ secrets.APP_KEY }}
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          CACHE_DRIVER=file
+          SESSION_DRIVER=file
+          QUEUE_CONNECTION=sync
+          FILESYSTEM_DISK=local
+          DEPLOY_TOKEN=${{ secrets.DEPLOY_TOKEN }}
+          EOF
+      - name: Package app archive
+        run: |
+          rm -rf /tmp/cpanel-pkg && mkdir -p /tmp/cpanel-pkg/app-stage /tmp/cpanel-pkg/public-stage
+          rsync -a --delete --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='tests' --exclude='public' --exclude='build' --exclude='.env.example' ./ /tmp/cpanel-pkg/app-stage/
+          cp .env /tmp/cpanel-pkg/app-stage/.env
+          rm -rf /tmp/cpanel-pkg/app-stage/storage/app/public
+          mkdir -p /tmp/cpanel-pkg/app-stage/storage/app/public
+          (cd /tmp/cpanel-pkg/app-stage && zip -qr /tmp/cpanel-pkg/app.zip .)
+      - name: Package public archive
+        run: |
+          rsync -a --delete ./public/ /tmp/cpanel-pkg/public-stage/
+          php -r '$p = "/tmp/cpanel-pkg/public-stage/index.php"; $s = file_get_contents($p); $s = str_replace("__DIR__.'"'"'/../vendor/autoload.php'"'"'", "__DIR__.'"'"'/../app/vendor/autoload.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../bootstrap/app.php'"'"'", "__DIR__.'"'"'/../app/bootstrap/app.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../storage/framework/maintenance.php'"'"'", "__DIR__.'"'"'/../app/storage/framework/maintenance.php'"'"'", $s); file_put_contents($p, $s);'
+          grep -q "app/vendor/autoload.php" /tmp/cpanel-pkg/public-stage/index.php
+          grep -q "app/bootstrap/app.php" /tmp/cpanel-pkg/public-stage/index.php
+          (cd /tmp/cpanel-pkg/public-stage && zip -qr /tmp/cpanel-pkg/public.zip .)
+      - name: Upload archives over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          local-dir: /tmp/cpanel-pkg/
+          server-dir: ./deploy/
+          include: '["app.zip", "public.zip"]'
+      - name: Trigger server finalize
+        run: 'curl --fail --retry 3 --retry-delay 10 -X POST "${{ secrets.APP_URL }}/internal/deploy" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" -H "Accept: application/json"'
