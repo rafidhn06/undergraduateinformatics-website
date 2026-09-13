@@ -64,6 +64,10 @@ jobs:
           grep -q "app/vendor/autoload.php" /tmp/cpanel-pkg/public-stage/index.php
           grep -q "app/bootstrap/app.php" /tmp/cpanel-pkg/public-stage/index.php
           (cd /tmp/cpanel-pkg/public-stage && zip -qr /tmp/cpanel-pkg/public.zip .)
+      - name: Stage upload payload
+        run: |
+          rm -rf /tmp/cpanel-upload && mkdir -p /tmp/cpanel-upload
+          cp /tmp/cpanel-pkg/app.zip /tmp/cpanel-pkg/public.zip /tmp/cpanel-upload/
       - name: Upload archives over FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -71,8 +75,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           protocol: ftps
-          local-dir: /tmp/cpanel-pkg/
+          local-dir: /tmp/cpanel-upload/
           server-dir: ./deploy/
-          include: '["app.zip", "public.zip"]'
       - name: Trigger server finalize
         run: 'curl --fail --retry 3 --retry-delay 10 -X POST "${{ secrets.APP_URL }}/internal/deploy" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" -H "Accept: application/json"'
