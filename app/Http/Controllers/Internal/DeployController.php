@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
@@ -18,6 +19,10 @@ class DeployController extends Controller
 
         if ($expected === '' || !hash_equals($expected, $provided)) {
             return response()->json(['ok' => false, 'error' => 'Unauthorized'], 401);
+        }
+
+        if ($request->boolean('seed')) {
+            return $this->runSeed($request);
         }
 
         $rollback = $request->boolean('rollback');
@@ -112,6 +117,31 @@ class DeployController extends Controller
         ]);
 
         return response()->json(['ok' => $succeeded, 'steps' => $steps], $succeeded ? 200 : 500);
+    }
+
+    private function runSeed(Request $request): JsonResponse
+    {
+        try {
+            $existing = DB::table('users')->count();
+        } catch (\Throwable $throwable) {
+            return response()->json(['ok' => false, 'error' => 'Seed check failed'], 500);
+        }
+
+        if ($existing > 0) {
+            return response()->json(['ok' => false, 'error' => 'Already seeded'], 422);
+        }
+
+        try {
+            Artisan::call('db:seed', ['--force' => true]);
+        } catch (\Throwable $throwable) {
+            Log::info('deploy-seed', ['ip' => $request->ip(), 'succeeded' => false]);
+
+            return response()->json(['ok' => false, 'error' => 'Seed failed', 'detail' => substr($throwable->getMessage(), 0, 2000)], 500);
+        }
+
+        Log::info('deploy-seed', ['ip' => $request->ip(), 'succeeded' => true]);
+
+        return response()->json(['ok' => true, 'steps' => [['name' => 'seed', 'ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)]]]);
     }
 
     private function extractArchive(string $archive, string $target): array
