@@ -9,7 +9,7 @@ class ReservationLinkSeeder extends Seeder
 {
     public function run(): void
     {
-        $link = env('FEEDBACK_FORM_LINK', 'https://forms.office.com/pages/responsepage.aspx?id=D_6vkKPCCEG7mGzrTpTvFX8cu6Jzq2tJlX2QoRxK9bJUMFlTUkJFWlcxSjRFQ0RGSFhIVUM0Wk4zSC4u&route=shorturl');
+        $link = env('DUMMY_FORM_LINK', 'https://forms.cloud.microsoft/pages/responsepage.aspx?id=D_6vkKPCCEG7mGzrTpTvFX8cu6Jzq2tJlX2QoRxK9bJUMFlTUkJFWlcxSjRFQ0RGSFhIVUM0Wk4zSC4u&route=shorturl');
 
         $existing = ReservationLink::query()->first();
 
