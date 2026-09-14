@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, json, curl, fileinfo, openssl, pdo_mysql, pdo_sqlite, sqlite3, tokenizer, zip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: composer install --prefer-dist --no-progress
+      - run: npm ci
+      - run: npm run build
+      - run: test -f public/build/manifest.json
+      - name: Prepare test env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - run: php artisan test --filter=Deploy
+      - run: composer install --no-dev --prefer-dist --optimize-autoloader --no-progress
+      - name: Package app archive
+        run: |
+          rm -rf /tmp/deploy-pkg && mkdir -p /tmp/deploy-pkg/app-stage /tmp/deploy-pkg/public-stage
+          rsync -a --delete --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='tests' --exclude='public' --exclude='build' --exclude='.env' --exclude='.env.example' ./ /tmp/deploy-pkg/app-stage/
+          rm -rf /tmp/deploy-pkg/app-stage/storage/app/public
+          mkdir -p /tmp/deploy-pkg/app-stage/storage/app/public
+          (cd /tmp/deploy-pkg/app-stage && zip -qr /tmp/deploy-pkg/app.zip .)
+      - name: Package public archive
+        run: |
+          rsync -a --delete ./public/ /tmp/deploy-pkg/public-stage/
+          php -r '$p = "/tmp/deploy-pkg/public-stage/index.php"; $s = file_get_contents($p); $s = str_replace("__DIR__.'"'"'/../vendor/autoload.php'"'"'", "__DIR__.'"'"'/../app/vendor/autoload.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../bootstrap/app.php'"'"'", "__DIR__.'"'"'/../app/bootstrap/app.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../storage/framework/maintenance.php'"'"'", "__DIR__.'"'"'/../app/storage/framework/maintenance.php'"'"'", $s); file_put_contents($p, $s);'
+          grep -q "app/vendor/autoload.php" /tmp/deploy-pkg/public-stage/index.php
+          grep -q "app/bootstrap/app.php" /tmp/deploy-pkg/public-stage/index.php
+          (cd /tmp/deploy-pkg/public-stage && zip -qr /tmp/deploy-pkg/public.zip .)
+      - name: Stage upload payload
+        run: |
+          rm -rf /tmp/deploy-upload && mkdir -p /tmp/deploy-upload
+          cp /tmp/deploy-pkg/app.zip /tmp/deploy-pkg/public.zip /tmp/deploy-upload/
+      - name: Upload archives over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          local-dir: /tmp/deploy-upload/
+          server-dir: ./deploy/
+      - name: Trigger server finalize
+        run: 'curl --fail --retry 3 --retry-delay 10 -X POST "${{ secrets.APP_URL }}/internal/deploy" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" -H "Accept: application/json"'

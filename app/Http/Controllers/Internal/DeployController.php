@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
@@ -90,6 +89,17 @@ class DeployController extends Controller
         }
         $steps[] = ['name' => 'storage-link', 'ok' => $link['ok'], 'detail' => $link['detail']];
 
+        $seeded = ['ok' => false, 'detail' => 'Skipped'];
+        if ($migrated['ok']) {
+            try {
+                Artisan::call('db:seed', ['--force' => true]);
+                $seeded = ['ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)];
+            } catch (\Throwable $throwable) {
+                $seeded = ['ok' => false, 'detail' => substr($throwable->getMessage(), 0, 2000)];
+            }
+        }
+        $steps[] = ['name' => 'seed', 'ok' => $seeded['ok'], 'detail' => $seeded['detail']];
+
         if ($migrated['ok']) {
             foreach (['config:clear', 'config:cache', 'route:cache', 'view:cache'] as $command) {
                 try {
@@ -121,16 +131,6 @@ class DeployController extends Controller
 
     private function runSeed(Request $request): JsonResponse
     {
-        try {
-            $existing = DB::table('users')->count();
-        } catch (\Throwable $throwable) {
-            return response()->json(['ok' => false, 'error' => 'Seed check failed'], 500);
-        }
-
-        if ($existing > 0) {
-            return response()->json(['ok' => false, 'error' => 'Already seeded'], 422);
-        }
-
         try {
             Artisan::call('db:seed', ['--force' => true]);
         } catch (\Throwable $throwable) {

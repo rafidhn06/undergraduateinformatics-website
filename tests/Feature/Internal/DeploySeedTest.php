@@ -2,11 +2,8 @@
 
 namespace Tests\Feature\Internal;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class DeploySeedTest extends TestCase
@@ -20,22 +17,34 @@ class DeploySeedTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_refuses_seed_when_users_exist(): void
+    public function test_runs_seed_on_fresh_database(): void
     {
         Config::set('deploy.token', 'secret-token');
-        Schema::disableForeignKeyConstraints();
-        DB::table('users')->insert([
-            'password_recovery_id' => 1,
-            'email' => 'seeded@example.com',
-            'password' => 'secret',
-        ]);
-        Schema::enableForeignKeyConstraints();
 
         $response = $this->postJson('/internal/deploy', ['seed' => true], [
             'Authorization' => 'Bearer secret-token',
         ]);
 
-        $response->assertStatus(422);
-        $response->assertJson(['ok' => false, 'error' => 'Already seeded']);
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => true]);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('feedback_links', 1);
+        $this->assertDatabaseCount('reservation_links', 1);
+    }
+
+    public function test_repeats_seed_when_users_exist(): void
+    {
+        Config::set('deploy.token', 'secret-token');
+        $this->seed();
+
+        $response = $this->postJson('/internal/deploy', ['seed' => true], [
+            'Authorization' => 'Bearer secret-token',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['ok' => true]);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('feedback_links', 1);
+        $this->assertDatabaseCount('reservation_links', 1);
     }
 }
