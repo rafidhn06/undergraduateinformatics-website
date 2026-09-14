@@ -43,14 +43,14 @@ class ReservationControllerTest extends TestCase
         $response->assertSee('"link":null', false);
     }
 
-    public function test_reservation_page_injects_null_link_when_no_definition_is_stored(): void
+    public function test_reservation_page_auto_refreshes_when_no_definition_is_stored(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $response = $this->get('/reservation');
 
         $response->assertStatus(200);
-        $response->assertSee('"link":null', false);
+        $response->assertSee('Reservation Form', false);
     }
 
     public function test_reservation_page_injects_form_definition_when_configured(): void

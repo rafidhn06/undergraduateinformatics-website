@@ -128,12 +128,14 @@ class FeedbackControllerTest extends TestCase
         $response->assertJsonPath('status', 'error');
     }
 
-    public function test_get_feedback_returns_404_when_no_definition_is_stored(): void
+    public function test_get_feedback_auto_refreshes_when_no_definition_is_stored(): void
     {
         $response = $this->getJson('/api/feedback');
 
-        $response->assertStatus(404);
-        $response->assertJsonPath('status', 'error');
+        $response->assertStatus(200);
+        $response->assertJsonPath('status', 'success');
+        $response->assertJsonPath('data.title.text', 'this is form title');
+        $this->assertDatabaseHas('ms_form_definitions', ['kind' => 'feedback']);
     }
 
     public function test_form_returns_404_when_no_link_configured(): void

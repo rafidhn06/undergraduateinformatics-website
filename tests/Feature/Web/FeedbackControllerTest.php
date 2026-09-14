@@ -40,14 +40,14 @@ class FeedbackControllerTest extends TestCase
         $response->assertSee('"link":null', false);
     }
 
-    public function test_feedback_page_injects_null_link_when_no_definition_is_stored(): void
+    public function test_feedback_page_auto_refreshes_when_no_definition_is_stored(): void
     {
         FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $response = $this->get('/feedback');
 
         $response->assertStatus(200);
-        $response->assertSee('"link":null', false);
+        $response->assertSee('this is form title', false);
     }
 
     public function test_feedback_page_injects_form_definition_when_configured(): void

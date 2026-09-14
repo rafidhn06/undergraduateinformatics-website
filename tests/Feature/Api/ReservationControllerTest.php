@@ -76,13 +76,16 @@ class ApiReservationControllerTest extends TestCase
             ->assertJsonPath('status', 'error');
     }
 
-    public function test_get_reservation_returns_404_when_no_definition_is_stored(): void
+    public function test_get_reservation_auto_refreshes_when_no_definition_is_stored(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $this->getJson('/api/reservation')
-            ->assertStatus(404)
-            ->assertJsonPath('status', 'error');
+            ->assertStatus(200)
+            ->assertJsonPath('status', 'success')
+            ->assertJsonPath('data.title.text', 'Reservation Form');
+
+        $this->assertDatabaseHas('ms_form_definitions', ['kind' => 'reservation']);
     }
 
     public function test_post_reservation_creates_a_schedule_and_submits_to_ms_forms(): void

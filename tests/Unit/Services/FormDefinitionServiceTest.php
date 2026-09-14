@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\FeedbackLink;
 use App\Models\MsFormDefinition;
 use App\Services\MsForms\FormDefinitionService;
 use App\Services\MsForms\MsFormsException;
@@ -43,6 +44,17 @@ class FormDefinitionServiceTest extends TestCase
         $this->expectException(MsFormsException::class);
 
         app(FormDefinitionService::class)->resolve('feedback');
+    }
+
+    public function test_resolve_auto_refreshes_when_no_row_but_link_configured(): void
+    {
+        Http::fake($this->microsoftEndpoints());
+        FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+
+        $payload = app(FormDefinitionService::class)->resolve('feedback');
+
+        $this->assertSame('this is form title', $payload['title']['text']);
+        $this->assertSame('this is form title', MsFormDefinition::query()->where('kind', 'feedback')->firstOrFail()->payload['title']['text']);
     }
 
     public function test_refresh_fetches_and_writes_payload_and_fetched_at(): void

@@ -12,11 +12,11 @@ final class FormDefinitionService
     {
         $row = MsFormDefinition::query()->where('kind', $kind)->first();
 
-        if ($row === null || $row->payload === null) {
-            throw new MsFormsException("No stored definition for {$kind}");
+        if ($row !== null && $row->payload !== null) {
+            return $row->payload;
         }
 
-        return $row->payload;
+        return $this->refresh($kind);
     }
 
     public function refresh(string $kind, ?string $link = null): array
