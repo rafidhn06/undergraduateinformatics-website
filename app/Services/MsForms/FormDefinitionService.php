@@ -2,28 +2,46 @@
 
 namespace App\Services\MsForms;
 
-use Illuminate\Support\Facades\Cache;
+use App\Models\FeedbackLink;
+use App\Models\MsFormDefinition;
+use App\Models\ReservationLink;
 
 final class FormDefinitionService
 {
-    private const CACHE_TTL = 15;
-
-    public function resolve(string $link): array
+    public function resolve(string $kind): array
     {
-        return Cache::remember(
-            $this->cacheKey($link),
-            now()->addMinutes(self::CACHE_TTL),
-            fn () => $this->fetch($link)
-        );
+        $row = MsFormDefinition::query()->where('kind', $kind)->first();
+
+        if ($row === null || $row->payload === null) {
+            throw new MsFormsException("No stored definition for {$kind}");
+        }
+
+        return $row->payload;
     }
 
-    public function refresh(string $link): array
+    public function refresh(string $kind, ?string $link = null): array
     {
-        $data = $this->fetch($link);
+        $target = $link ?? $this->configuredLink($kind);
 
-        Cache::put($this->cacheKey($link), $data, now()->addMinutes(self::CACHE_TTL));
+        if ($target === null || $target === '') {
+            throw new MsFormsException("No configured link for {$kind}");
+        }
+
+        $data = $this->fetch($target);
+
+        MsFormDefinition::query()->updateOrCreate(
+            ['kind' => $kind],
+            ['link' => $target, 'payload' => $data, 'fetched_at' => now()]
+        );
 
         return $data;
+    }
+
+    private function configuredLink(string $kind): ?string
+    {
+        return $kind === 'reservation'
+            ? ReservationLink::configured()->first()?->link
+            : FeedbackLink::configured()->first()?->link;
     }
 
     private function fetch(string $link): array
@@ -34,10 +52,5 @@ final class FormDefinitionService
         $normalized = (new FormDefinitionNormalizer())->normalize($raw);
 
         return array_merge(['link' => $link], $normalized);
-    }
-
-    private function cacheKey(string $link): string
-    {
-        return 'msforms-definition:' . md5($link);
     }
 }

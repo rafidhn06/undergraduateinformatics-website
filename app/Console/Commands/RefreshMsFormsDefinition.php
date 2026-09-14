@@ -12,26 +12,25 @@ final class RefreshMsFormsDefinition extends Command
 {
     protected $signature = 'msforms:refresh-definition';
 
-    protected $description = 'Warm the cached MS Forms definitions so user requests never hit a cold fetch';
+    protected $description = 'Write the MS Forms definitions to the database so user requests never fetch Microsoft';
 
     public function handle(): int
     {
-        $configured = [
-            'feedback' => FeedbackLink::configured()->first()?->link,
-            'reservation' => ReservationLink::configured()->first()?->link,
-        ];
-
         $failed = false;
 
-        foreach ($configured as $name => $link) {
-            if (! $link) {
-                continue;
-            }
-
+        foreach (['feedback', 'reservation'] as $kind) {
             try {
-                app(FormDefinitionService::class)->refresh($link);
+                app(FormDefinitionService::class)->refresh($kind);
             } catch (MsFormsException) {
-                $this->warn("Unable to refresh the {$name} MS Forms definition; the existing cache is kept.");
+                $configured = $kind === 'reservation'
+                    ? ReservationLink::configured()->first()
+                    : FeedbackLink::configured()->first();
+
+                if (! $configured) {
+                    continue;
+                }
+
+                $this->warn("Unable to refresh the {$kind} MS Forms definition; the existing row is kept.");
                 $failed = true;
             }
         }

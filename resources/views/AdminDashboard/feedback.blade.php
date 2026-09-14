@@ -20,6 +20,12 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </form>
+            <p class="text-sm text-gray-500">Terakhir di-refresh: {{ $feedbackDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</p>
+            <form method="POST" action="{{ route('admin.form-link.refresh', 'feedback') }}">
+                @csrf
+                @method('PUT')
+                <button class="modern-button modern-button--soft" type="submit">Refresh definisi dari Microsoft</button>
+            </form>
         </section>
 
         <section class="modern-card">
@@ -35,6 +41,12 @@
                 @error('reservation_link')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
+            </form>
+            <p class="text-sm text-gray-500">Terakhir di-refresh: {{ $reservationDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</p>
+            <form method="POST" action="{{ route('admin.form-link.refresh', 'reservation') }}">
+                @csrf
+                @method('PUT')
+                <button class="modern-button modern-button--soft" type="submit">Refresh definisi dari Microsoft</button>
             </form>
         </section>
     </div>

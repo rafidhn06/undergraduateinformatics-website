@@ -3,8 +3,8 @@
 namespace Tests\Feature\Web;
 
 use App\Models\ReservationLink;
+use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesMicrosoftForms;
 use Tests\TestCase;
@@ -22,7 +22,6 @@ class ReservationControllerTest extends TestCase
 
         Http::preventStrayRequests();
         Http::fake($this->microsoftEndpoints());
-        Cache::flush();
     }
 
     public function test_reservation_page_renders_spa_shell(): void
@@ -44,9 +43,20 @@ class ReservationControllerTest extends TestCase
         $response->assertSee('"link":null', false);
     }
 
+    public function test_reservation_page_injects_null_link_when_no_definition_is_stored(): void
+    {
+        ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
+
+        $response = $this->get('/reservation');
+
+        $response->assertStatus(200);
+        $response->assertSee('"link":null', false);
+    }
+
     public function test_reservation_page_injects_form_definition_when_configured(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
         $response = $this->get('/reservation');
 
@@ -70,6 +80,7 @@ class ReservationControllerTest extends TestCase
     public function test_reservation_page_injects_reservation_metadata(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
         $response = $this->get('/reservation');
 

@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\FeedbackLink;
 use App\Models\ReservationLink;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesMicrosoftForms;
 use Tests\TestCase;
@@ -18,23 +17,22 @@ class RefreshMsFormsDefinitionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Cache::flush();
         Http::preventStrayRequests();
         FeedbackLink::query()->delete();
         ReservationLink::query()->delete();
     }
 
-    public function test_command_warms_the_cached_form_definition(): void
+    public function test_command_writes_the_definition_row(): void
     {
         Http::fake($this->microsoftEndpoints());
-        $feedbackLink = FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $this->artisan('msforms:refresh-definition')->assertSuccessful();
 
-        $cacheKey = 'msforms-definition:'.md5($feedbackLink->link);
-
-        $this->assertNotNull(Cache::get($cacheKey));
-        $this->assertSame($feedbackLink->link, Cache::get($cacheKey)['link']);
+        $row = \App\Models\MsFormDefinition::query()->where('kind', 'feedback')->firstOrFail();
+        $this->assertSame('https://forms.office.com/r/abc123', $row->link);
+        $this->assertSame('https://forms.office.com/r/abc123', $row->payload['link']);
+        $this->assertNotNull($row->fetched_at);
     }
 
     public function test_command_succeeds_when_no_feedback_link_is_configured(): void
@@ -42,16 +40,19 @@ class RefreshMsFormsDefinitionTest extends TestCase
         $this->artisan('msforms:refresh-definition')->assertSuccessful();
     }
 
-    public function test_command_keeps_existing_cache_when_microsoft_is_unreachable(): void
+    public function test_command_keeps_existing_row_when_microsoft_is_unreachable(): void
     {
         Http::fake(['https://forms.office.com/r/*' => Http::response('', 500)]);
-        $feedbackLink = FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
-
-        $cacheKey = 'msforms-definition:'.md5($feedbackLink->link);
-        Cache::put($cacheKey, ['link' => $feedbackLink->link, 'stale' => true]);
+        FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        \App\Models\MsFormDefinition::query()->create([
+            'kind' => 'feedback',
+            'link' => 'https://forms.office.com/r/abc123',
+            'payload' => ['link' => 'https://forms.office.com/r/abc123', 'stale' => true],
+            'fetched_at' => now()->subDay(),
+        ]);
 
         $this->artisan('msforms:refresh-definition')->assertFailed();
 
-        $this->assertSame(['link' => $feedbackLink->link, 'stale' => true], Cache::get($cacheKey));
+        $this->assertTrue(\App\Models\MsFormDefinition::query()->where('kind', 'feedback')->firstOrFail()->payload['stale']);
     }
 }

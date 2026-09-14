@@ -3,8 +3,8 @@
 namespace Tests\Feature\Api;
 
 use App\Models\FeedbackLink;
+use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesMicrosoftForms;
 use Tests\TestCase;
@@ -24,6 +24,8 @@ class FeedbackControllerTest extends TestCase
 
     public function test_form_returns_normalized_definition(): void
     {
+        app(FormDefinitionService::class)->refresh('feedback', 'https://forms.office.com/r/abc123');
+
         $response = $this->getJson('/api/feedback');
 
         $response->assertStatus(200);
@@ -57,8 +59,8 @@ class FeedbackControllerTest extends TestCase
 
     public function test_form_returns_branching_definition(): void
     {
-        Cache::flush();
         $this->runtimeFixture = 'form-definition-branching.raw.json';
+        app(FormDefinitionService::class)->refresh('feedback', 'https://forms.office.com/r/abc123');
 
         $response = $this->getJson('/api/feedback');
 
@@ -74,6 +76,7 @@ class FeedbackControllerTest extends TestCase
     {
         FeedbackLink::query()->delete();
         FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('feedback', 'https://forms.office.com/r/abc123');
 
         $response = $this->getJson('/api/feedback');
 
@@ -125,14 +128,11 @@ class FeedbackControllerTest extends TestCase
         $response->assertJsonPath('status', 'error');
     }
 
-    public function test_form_returns_422_when_microsoft_unreachable(): void
+    public function test_get_feedback_returns_404_when_no_definition_is_stored(): void
     {
-        Cache::flush();
-        $this->microsoftUnreachable = true;
-
         $response = $this->getJson('/api/feedback');
 
-        $response->assertStatus(422);
+        $response->assertStatus(404);
         $response->assertJsonPath('status', 'error');
     }
 
@@ -146,25 +146,25 @@ class FeedbackControllerTest extends TestCase
         $response->assertJsonPath('status', 'error');
     }
 
-    public function test_form_returns_422_for_malformed_link(): void
+    public function test_get_feedback_returns_404_for_malformed_link_without_stored_definition(): void
     {
         FeedbackLink::query()->delete();
         FeedbackLink::create(['link' => 'not-a-url']);
 
         $response = $this->getJson('/api/feedback');
 
-        $response->assertStatus(422);
+        $response->assertStatus(404);
         $response->assertJsonPath('status', 'error');
     }
 
-    public function test_form_returns_422_for_non_microsoft_link(): void
+    public function test_get_feedback_returns_404_for_non_microsoft_link_without_stored_definition(): void
     {
         FeedbackLink::query()->delete();
         FeedbackLink::create(['link' => 'https://example.com/forms/fake']);
 
         $response = $this->getJson('/api/feedback');
 
-        $response->assertStatus(422);
+        $response->assertStatus(404);
         $response->assertJsonPath('status', 'error');
     }
 }

@@ -11,10 +11,10 @@ final class ReservationFormService
     {
         $link = ReservationLink::configured()->first();
 
-        if (!$link) {
+        if (! $link) {
             throw new ReservationFormUnavailableException('Reservation form is unavailable.');
         }
 
-        return app(FormDefinitionService::class)->resolve($link->link);
+        return app(FormDefinitionService::class)->resolve('reservation');
     }
 }

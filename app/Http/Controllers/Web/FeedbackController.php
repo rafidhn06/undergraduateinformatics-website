@@ -20,14 +20,14 @@ class FeedbackController extends Controller
 
         if ($feedbackLink) {
             try {
-                $initialData = app(FormDefinitionService::class)->resolve($feedbackLink->link);
+                $initialData = app(FormDefinitionService::class)->resolve('feedback');
             } catch (MsFormsException) {
                 $initialData = null;
             }
         }
 
         if ($initialData === null) {
-            $initialData = ['link' => $feedbackLink?->link];
+            $initialData = ['link' => null];
         }
 
         $page = PageMeta::page('feedback');

@@ -122,6 +122,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('form-link', [FormLinkController::class, 'show'])->name('form-link');
         Route::put('form-link/feedback', [FormLinkController::class, 'updateFeedback'])->name('form-link.feedback.update');
         Route::put('form-link/reservation', [FormLinkController::class, 'updateReservation'])->name('form-link.reservation.update');
+        Route::put('form-link/{kind}/refresh', [FormLinkController::class, 'refresh'])->name('form-link.refresh');
 
         Route::get('logout', [AdminController::class, 'logout'])->name('logout');
         Route::resource('posts', PostController::class)->except(['show']);

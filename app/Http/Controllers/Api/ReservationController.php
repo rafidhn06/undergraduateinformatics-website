@@ -13,7 +13,6 @@ use App\Services\Reservation\ReservationSubmissionService;
 use App\Services\Reservation\ReservationValidationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ReservationController extends Controller
@@ -27,13 +26,11 @@ class ReservationController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage(),
             ], 404);
-        } catch (MsFormsException $e) {
-            Log::error('Reservation form load failed: ' . $e->getMessage());
-
+        } catch (MsFormsException) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to load the form. Please try again later.',
-            ], 422);
+                'message' => 'Reservation form is unavailable.',
+            ], 404);
         }
 
         $payload['reservation'] = app(ReservationMetadata::class)->build();

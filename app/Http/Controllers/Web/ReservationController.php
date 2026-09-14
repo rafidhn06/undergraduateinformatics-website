@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\ReservationLink;
 use App\Services\MsForms\MsFormsException;
 use App\Services\Reservation\ReservationFormService;
 use App\Services\Reservation\ReservationFormUnavailableException;
@@ -27,7 +26,7 @@ class ReservationController extends Controller
         }
 
         if ($initialData === null) {
-            $initialData = ['link' => ReservationLink::configured()->first()?->link];
+            $initialData = ['link' => null];
         }
 
         $initialData['reservation'] = app(ReservationMetadata::class)->build();

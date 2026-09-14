@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\ReservationLink;
 use App\Models\ReservationSchedule;
+use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -57,6 +58,7 @@ class ApiReservationControllerTest extends TestCase
     public function test_get_reservation_returns_the_form_definition(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
         $this->getJson('/api/reservation')
             ->assertOk()
@@ -68,6 +70,15 @@ class ApiReservationControllerTest extends TestCase
     public function test_get_reservation_returns_404_when_not_configured(): void
     {
         ReservationLink::query()->delete();
+
+        $this->getJson('/api/reservation')
+            ->assertStatus(404)
+            ->assertJsonPath('status', 'error');
+    }
+
+    public function test_get_reservation_returns_404_when_no_definition_is_stored(): void
+    {
+        ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $this->getJson('/api/reservation')
             ->assertStatus(404)
@@ -195,6 +206,7 @@ class ApiReservationControllerTest extends TestCase
     public function test_get_reservation_includes_reservation_metadata(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
         $this->getJson('/api/reservation')
             ->assertOk()

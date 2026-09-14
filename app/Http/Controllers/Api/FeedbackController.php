@@ -26,19 +26,17 @@ class FeedbackController extends Controller
         }
 
         try {
-            $payload = app(FormDefinitionService::class)->resolve($feedbackLink->link);
+            $payload = app(FormDefinitionService::class)->resolve('feedback');
 
             return response()->json([
                 'status' => 'success',
                 'data' => $payload,
             ]);
-        } catch (MsFormsException $e) {
-            Log::error('Feedback form load failed: ' . $e->getMessage());
-
+        } catch (MsFormsException) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to load the form. Please try again later.',
-            ], 422);
+                'message' => 'Feedback form is unavailable.',
+            ], 404);
         }
     }
 

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Web;
 
 use App\Models\FeedbackLink;
+use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesMicrosoftForms;
@@ -39,9 +40,20 @@ class FeedbackControllerTest extends TestCase
         $response->assertSee('"link":null', false);
     }
 
+    public function test_feedback_page_injects_null_link_when_no_definition_is_stored(): void
+    {
+        FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+
+        $response = $this->get('/feedback');
+
+        $response->assertStatus(200);
+        $response->assertSee('"link":null', false);
+    }
+
     public function test_feedback_page_injects_form_definition_when_configured(): void
     {
         FeedbackLink::create(['link' => 'https://forms.office.com/r/abc123']);
+        app(FormDefinitionService::class)->refresh('feedback', 'https://forms.office.com/r/abc123');
 
         $response = $this->get('/feedback');
 
