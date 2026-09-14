@@ -18,7 +18,7 @@ describe('HomeSkeleton', () => {
     it('renders skeleton blocks for the greeting, five post cards, five link cards, and the charts', () => {
         const { container } = render(<HomeSkeleton />);
 
-        expect(skeletonCount(container)).toBe(59);
+        expect(skeletonCount(container)).toBe(58);
     });
 
     it('starts with a block for the greeting heading', () => {

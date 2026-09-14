@@ -111,7 +111,7 @@ describe('HomePage route', () => {
 
         expect(
             await screen.findByRole('heading', {
-                name: 'Selamat Datang di Portal Informasi Sarjana Informatika',
+                name: 'Portal Informasi Sarjana Informatika',
             })
         ).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Informasi Terbaru' })).toBeInTheDocument();

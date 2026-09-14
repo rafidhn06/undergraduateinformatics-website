@@ -14,7 +14,6 @@ export function HomeSkeleton() {
             <div className="flex flex-col gap-4">
                 <h1 className="flex flex-col gap-1">
                     <Skeleton className="h-9 w-full max-w-xl" />
-                    <Skeleton className="h-9 w-full max-w-xl" />
                 </h1>
                 <div className="flex flex-col gap-1">
                     <Skeleton className="h-5 w-full max-w-xl" />

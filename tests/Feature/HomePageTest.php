@@ -56,7 +56,7 @@ class HomePageTest extends TestCase
         $response->assertSee('Welcome to Informatics');
         $response->assertSee('Academic Calendar');
         $response->assertSee('Beranda - Portal Informasi Sarjana Informatika', false);
-        $response->assertSee('Portal resmi Program Studi Sarjana Informatika Telkom University untuk informasi perkuliahan peserta didik.', false);
+        $response->assertSee('Sumber informasi resmi Program Studi Sarjana Informatika Telkom University untuk perkuliahan peserta didik.', false);
 
         preg_match('/window\.__INITIAL_DATA__ = (\{.*?\});/s', $response->getContent(), $matches);
         $this->assertNotEmpty($matches, 'Initial data script tag not found');

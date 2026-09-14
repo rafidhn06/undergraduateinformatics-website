@@ -61,7 +61,7 @@ describe('HomeContent', () => {
 
         expect(
             screen.getByRole('heading', {
-                name: 'Selamat Datang di Portal Informasi Sarjana Informatika',
+                name: 'Portal Informasi Sarjana Informatika',
             })
         ).toBeInTheDocument();
     });

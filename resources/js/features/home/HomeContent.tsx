@@ -15,13 +15,11 @@ export function HomeContent({ data }: { data: HomeData }) {
     return (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-[39.375px] py-[39.375px] md:gap-8.75 md:py-8.75 lg:max-w-4xl">
             <section className="flex flex-col gap-4">
-                <h1 className="text-foreground text-4xl font-bold tracking-tight text-pretty md:text-4xl">
-                    Selamat Datang di
-                    <br />
+                <h1 className="text-foreground text-4xl font-bold tracking-tight md:text-4xl">
                     Portal Informasi Sarjana Informatika
                 </h1>
                 <p className="text-muted-foreground max-w-xl text-lg md:text-base">
-                    Portal resmi Program Studi Sarjana Informatika Telkom University untuk informasi
+                    Sumber informasi resmi Program Studi Sarjana Informatika Telkom University untuk
                     perkuliahan peserta didik.
                 </p>
             </section>

@@ -40,7 +40,7 @@ describe('seo', () => {
     it('exposes site defaults', () => {
         expect(seoDefaults.title).toBe('Portal Informasi Sarjana Informatika');
         expect(seoDefaults.description).toBe(
-            'Portal resmi Program Studi Sarjana Informatika Telkom University untuk informasi perkuliahan peserta didik.'
+            'Sumber informasi resmi Program Studi Sarjana Informatika Telkom University untuk perkuliahan peserta didik.'
         );
     });
 });

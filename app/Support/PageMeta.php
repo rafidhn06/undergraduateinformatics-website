@@ -11,7 +11,7 @@ final class PageMeta
     private const FALLBACK = [
         'siteName' => 'Telkom University',
         'defaultTitle' => 'Portal Informasi Sarjana Informatika',
-        'defaultDescription' => 'Portal resmi Program Studi Sarjana Informatika Telkom University untuk informasi perkuliahan peserta didik.',
+        'defaultDescription' => 'Sumber informasi resmi Program Studi Sarjana Informatika Telkom University untuk perkuliahan peserta didik.',
         'defaultOgImage' => '/images/banner.jpg',
         'ogType' => 'website',
         'pages' => [],
