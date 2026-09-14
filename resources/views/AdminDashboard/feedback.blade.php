@@ -20,11 +20,11 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </form>
-            <p class="text-sm text-gray-500">Terakhir di-refresh: {{ $feedbackDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</p>
-            <form method="POST" action="{{ route('admin.form-link.refresh', 'feedback') }}">
+            <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $feedbackDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</small>
+            <form method="POST" action="{{ route('admin.form-link.refresh', 'feedback') }}" class="mt-2">
                 @csrf
                 @method('PUT')
-                <button class="modern-button modern-button--soft" type="submit">Refresh definisi dari Microsoft</button>
+                <button class="modern-button modern-button--soft" type="submit"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
             </form>
         </section>
 
@@ -42,11 +42,11 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </form>
-            <p class="text-sm text-gray-500">Terakhir di-refresh: {{ $reservationDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</p>
-            <form method="POST" action="{{ route('admin.form-link.refresh', 'reservation') }}">
+            <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $reservationDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</small>
+            <form method="POST" action="{{ route('admin.form-link.refresh', 'reservation') }}" class="mt-2">
                 @csrf
                 @method('PUT')
-                <button class="modern-button modern-button--soft" type="submit">Refresh definisi dari Microsoft</button>
+                <button class="modern-button modern-button--soft" type="submit"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
             </form>
         </section>
     </div>

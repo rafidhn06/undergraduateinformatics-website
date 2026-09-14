@@ -61,9 +61,9 @@
                         <label class="form-label"><h4>Jabatan penandatangan pihak terkait</h4></label>
                         <input name="related_party_signature_position" class="form-control" value="{{ old('related_party_signature_position', $reservation->related_party_signature_position) }}">
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label"><h4>Agenda</h4></label>
-                        <textarea name="agenda" class="form-control">{{ old('agenda', $reservation->agenda) }}</textarea>
+                        <input name="agenda" class="form-control" value="{{ old('agenda', $reservation->agenda) }}" placeholder="Jelaskan tujuan pertemuan">
                     </div>
                 </div>
                 <div class="mt-4 d-flex gap-2">
