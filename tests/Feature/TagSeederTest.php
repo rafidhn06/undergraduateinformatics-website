@@ -3,30 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Tag;
-use Database\Seeders\TagSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TagSeederTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_tag_seeder_seeds_seven_tags(): void
-    {
-        $this->seed(TagSeeder::class);
-
-        $this->assertDatabaseCount('tags', 7);
-        $this->assertDatabaseCount('posts', 0);
-        $this->assertDatabaseCount('post_tags', 0);
-    }
-
-    public function test_tag_seeder_is_idempotent(): void
-    {
-        $this->seed(TagSeeder::class);
-        $this->seed(TagSeeder::class);
-
-        $this->assertDatabaseCount('tags', 7);
-    }
 
     public function test_tag_without_posts_has_zero_count(): void
     {

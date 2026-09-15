@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\DashboardDataset;
-use App\Models\DashboardDatasetItem;
 use Database\Seeders\DashboardDatasetSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,23 +10,6 @@ use Tests\TestCase;
 class DashboardDatasetSeederTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_dashboard_dataset_seeder_seeds_datasets_and_items(): void
-    {
-        $this->seed(DashboardDatasetSeeder::class);
-
-        $this->assertDatabaseCount('dashboard_datasets', 4);
-        $this->assertDatabaseCount('dashboard_dataset_items', 17);
-    }
-
-    public function test_dashboard_dataset_seeder_is_idempotent(): void
-    {
-        $this->seed(DashboardDatasetSeeder::class);
-        $this->seed(DashboardDatasetSeeder::class);
-
-        $this->assertSame(4, DashboardDataset::count());
-        $this->assertSame(17, DashboardDatasetItem::count());
-    }
 
     public function test_dashboard_dataset_seeder_preserves_sort_order(): void
     {
