@@ -36,6 +36,13 @@ describe('ChartCard', () => {
         expect(screen.getByRole('heading', { name: 'Mahasiswa per Angkatan' })).toBeInTheDocument();
     });
 
+    it('truncates a long title to a single line', () => {
+        render(<ChartCard dataset={dataset()} />);
+
+        const heading = screen.getByRole('heading', { name: 'Mahasiswa per Angkatan' });
+        expect(heading).toHaveClass('truncate', 'min-w-0');
+    });
+
     it('renders a bar chart for chart_type bar', () => {
         render(<ChartCard dataset={dataset()} />);
 

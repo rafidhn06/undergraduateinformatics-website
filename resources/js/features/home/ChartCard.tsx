@@ -16,7 +16,7 @@ export function ChartCard({ dataset }: ChartCardProps) {
 
     return (
         <div className="flex flex-col">
-            <h3 className="text-foreground font-heading text-[20.25px] leading-[1.45] font-semibold md:text-[18px]">
+            <h3 className="text-foreground font-heading min-w-0 truncate text-[20.25px] leading-[1.45] font-semibold md:text-[18px]">
                 {dataset.title}
             </h3>
             <div
