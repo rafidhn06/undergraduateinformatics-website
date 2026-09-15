@@ -1,10 +1,11 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
+import { ErrorState } from '@/components/ErrorState';
 import { RouterHarness } from '@/components/RouterHarness';
 import { type Post } from '@/types/post';
 
 import { PostContent } from './PostContent';
-import { PostNotFound } from './PostStates';
+import { PostNotFound, PostSkeleton } from './PostStates';
 
 const postFixture: Post = {
     id: 1,
@@ -74,3 +75,9 @@ export const NotFound: Story = () => (
         <PostNotFound />
     </RouterHarness>
 );
+
+export const DetailLoading: Story = () => <PostSkeleton />;
+DetailLoading.meta = { width: 'large' };
+
+export const DetailError: Story = () => <ErrorState />;
+DetailError.meta = { width: 'large' };

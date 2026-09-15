@@ -1,9 +1,10 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
+import { ErrorState } from '@/components/ErrorState';
 import { RouterHarness } from '@/components/RouterHarness';
 
 import { TagDetailContent } from './TagDetailContent';
-import { TagNotFound } from './TagDetailStates';
+import { TagDetailSkeleton, TagNotFound } from './TagDetailStates';
 import { type TagWithPosts } from './types';
 
 const tagFixture: TagWithPosts = {
@@ -40,7 +41,7 @@ const tagFixture: TagWithPosts = {
 };
 
 export default {
-    title: 'Tags',
+    title: 'Tags/Detail',
 } satisfies StoryDefault;
 
 export const Detail: Story = () => (
@@ -69,3 +70,7 @@ export const NotFound: Story = () => (
         <TagNotFound />
     </RouterHarness>
 );
+
+export const DetailLoading: Story = () => <TagDetailSkeleton />;
+
+export const DetailError: Story = () => <ErrorState />;

@@ -3,6 +3,7 @@ import { msw } from '@ladle/react';
 
 import { branchingPayload, richPayload, submitOk } from '../../components/ms-form-fixtures';
 import { FeedbackPage } from './FeedbackPage';
+import { FeedbackSkeleton } from './FeedbackStates';
 
 const formHandlers = [
     msw.http.get('/api/feedback', () =>
@@ -27,3 +28,5 @@ Form.msw = formHandlers;
 
 export const Branching: Story = () => <FeedbackPage />;
 Branching.msw = branchingHandlers;
+
+export const Loading: Story = () => <FeedbackSkeleton />;

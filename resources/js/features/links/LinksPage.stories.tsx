@@ -1,8 +1,10 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
+import { ErrorState } from '@/components/ErrorState';
 import { RouterHarness } from '@/components/RouterHarness';
 
 import { LinksContent } from './LinksContent';
+import { LinksSkeleton } from './LinksStates';
 import { type LinkSection } from './types';
 
 const sectionsFixture: LinkSection[] = [
@@ -63,3 +65,15 @@ export const MobileTablet: Story = () => (
     </RouterHarness>
 );
 MobileTablet.meta = { width: 'medium' };
+
+export const Loading: Story = () => <LinksSkeleton />;
+Loading.meta = { width: 'large' };
+
+export const LoadingMobileTablet: Story = () => <LinksSkeleton />;
+LoadingMobileTablet.meta = { width: 'medium' };
+
+export const Empty: Story = () => <LinksContent sections={[]} />;
+Empty.meta = { width: 'large' };
+
+export const Error: Story = () => <ErrorState />;
+Error.meta = { width: 'large' };

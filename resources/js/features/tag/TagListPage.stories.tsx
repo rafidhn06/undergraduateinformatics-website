@@ -1,8 +1,10 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
+import { ErrorState } from '@/components/ErrorState';
 import { RouterHarness } from '@/components/RouterHarness';
 
 import { TagListContent } from './TagListContent';
+import { TagListSkeleton } from './TagListStates';
 import { type TagWithCount } from './types';
 
 const tagsFixture: TagWithCount[] = [
@@ -45,3 +47,7 @@ export const Empty: Story = () => (
         <TagListContent tags={[]} />
     </RouterHarness>
 );
+
+export const Loading: Story = () => <TagListSkeleton />;
+
+export const Error: Story = () => <ErrorState />;

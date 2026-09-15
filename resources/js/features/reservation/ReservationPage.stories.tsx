@@ -3,6 +3,7 @@ import { msw } from '@ladle/react';
 
 import { type MsFormPayload } from '../../types/ms-forms';
 import { ReservationPage } from './ReservationPage';
+import { ReservationSkeleton } from './ReservationStates';
 
 const reservationPayload: MsFormPayload = {
     link: 'https://forms.office.com/r/reservation123',
@@ -53,3 +54,5 @@ export default {
 
 export const Form: Story = () => <ReservationPage />;
 Form.msw = formHandlers;
+
+export const Loading: Story = () => <ReservationSkeleton />;

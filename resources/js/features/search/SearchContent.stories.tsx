@@ -3,6 +3,7 @@ import type { Story, StoryDefault } from '@ladle/react';
 import { RouterHarness } from '@/components/RouterHarness';
 
 import { SearchContent } from './SearchContent';
+import { SearchSkeleton } from './SearchStates';
 import { type SearchResult } from './types';
 
 const resultFixture: SearchResult = {
@@ -66,3 +67,6 @@ export const NoResults: Story = () => (
     </RouterHarness>
 );
 NoResults.meta = { width: 'large' };
+
+export const Loading: Story = () => <SearchSkeleton />;
+Loading.meta = { width: 'large' };
