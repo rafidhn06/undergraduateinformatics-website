@@ -1,8 +1,10 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
+import { ErrorState } from '@/components/ErrorState';
 import { RouterHarness } from '@/components/RouterHarness';
 
 import { HomeContent } from './HomeContent';
+import { HomeSkeleton } from './HomeStates';
 import { type HomeData } from './types';
 
 const homeFixture: HomeData = {
@@ -125,3 +127,12 @@ export const Empty: Story = () => (
     </RouterHarness>
 );
 Empty.meta = { width: 'large' };
+
+export const Loading: Story = () => <HomeSkeleton />;
+Loading.meta = { width: 'large' };
+
+export const LoadingMobile: Story = () => <HomeSkeleton />;
+LoadingMobile.meta = { width: 'medium' };
+
+export const Error: Story = () => <ErrorState />;
+Error.meta = { width: 'large' };
