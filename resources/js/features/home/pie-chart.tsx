@@ -36,9 +36,13 @@ export function PieChart({ labels, values }: PieChartProps) {
                         outerRadius="80%"
                         stroke="none"
                     >
-                        {data.map((entry, index) => (
-                            <Cell key={entry.label} fill={chartColor(index)} />
-                        ))}
+                        {data.map((entry, index) => {
+                            const fill = chartColor(index);
+
+                            return (
+                                <Cell key={entry.label} fill={fill} stroke={fill} strokeWidth={1} />
+                            );
+                        })}
                     </Pie>
                     <Legend
                         content={(props: any) => <PieLegend {...props} />}

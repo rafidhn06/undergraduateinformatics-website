@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { PieChart } from './pie-chart';
 
 vi.mock('recharts', () => {
-    const MockCell = ({ fill }: any) => <div data-testid="cell" data-fill={fill} />;
+    const MockCell = ({ fill, stroke }: any) => (
+        <div data-testid="cell" data-fill={fill} data-stroke={stroke} />
+    );
 
     return {
         ResponsiveContainer: ({ children }: any) => <div data-testid="responsive">{children}</div>,
@@ -49,6 +51,15 @@ describe('PieChart', () => {
         const cells = screen.getAllByTestId('cell');
         expect(cells[0]).toHaveAttribute('data-fill', 'var(--chart-1)');
         expect(cells[1]).toHaveAttribute('data-fill', 'var(--chart-2)');
+    });
+
+    it('strokes each slice with its own fill to hide antialiasing seams', () => {
+        render(<PieChart labels={labels} values={values} />);
+
+        const cells = screen.getAllByTestId('cell');
+        cells.forEach((cell) => {
+            expect(cell.getAttribute('data-stroke')).toBe(cell.getAttribute('data-fill'));
+        });
     });
 
     it('renders a legend with each label', () => {
