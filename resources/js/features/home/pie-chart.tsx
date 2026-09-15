@@ -1,6 +1,7 @@
 import {
     Cell,
     Legend,
+    type LegendPayload,
     Pie,
     PieChart as RechartsPieChart,
     ResponsiveContainer,
@@ -45,7 +46,7 @@ export function PieChart({ labels, values }: PieChartProps) {
                         })}
                     </Pie>
                     <Legend
-                        content={(props: any) => <PieLegend {...props} />}
+                        content={(props) => <PieLegend payload={props.payload} />}
                         wrapperStyle={{ fontSize: 12 }}
                     />
                 </RechartsPieChart>
@@ -54,10 +55,10 @@ export function PieChart({ labels, values }: PieChartProps) {
     );
 }
 
-function PieLegend({ payload }: any) {
+function PieLegend({ payload }: { payload?: ReadonlyArray<LegendPayload> }) {
     return (
         <ul className="text-muted-foreground flex flex-wrap justify-center gap-x-4 gap-y-1 pt-2">
-            {(payload ?? []).map((entry: any) => (
+            {(payload ?? []).map((entry: LegendPayload) => (
                 <li key={entry.value} className="flex items-center gap-1.5">
                     <span
                         className="size-2.5 rounded-none"
