@@ -68,7 +68,7 @@ describe('TableOfContents', () => {
             'overflow-y-auto',
             'max-h-[12.25rem]',
             'md:max-h-[10.75rem]',
-            'lg:max-h-[calc(100vh-13.5rem)]',
+            'lg:max-h-[calc(100vh-13rem)]',
             'border-l'
         );
     });

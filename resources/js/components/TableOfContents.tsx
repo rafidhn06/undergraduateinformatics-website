@@ -18,7 +18,7 @@ export function TableOfContents({ items, onSelect }: TableOfContentsProps) {
                 <p className="text-muted-foreground">Belum ada bagian.</p>
             ) : (
                 <nav aria-label="Daftar Isi">
-                    <div className="border-border max-h-[12.25rem] overflow-y-auto border-l [direction:rtl] md:max-h-[10.75rem] lg:max-h-[calc(100vh-13.5rem)] lg:scrollbar-none [&>ul]:mt-0">
+                    <div className="border-border max-h-[12.25rem] overflow-y-auto border-l [direction:rtl] md:max-h-[10.75rem] lg:max-h-[calc(100vh-13rem)] lg:scrollbar-none [&>ul]:mt-0">
                         <ul className="pl-3 [direction:ltr] [&>li]:mt-0 [&>li+li]:mt-[0.5em]">
                             {items.map((item) => (
                                 <li key={item.id} className="list-none">
