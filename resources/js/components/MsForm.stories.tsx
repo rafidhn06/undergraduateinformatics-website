@@ -4,7 +4,7 @@ import type { Story, StoryDefault } from '@ladle/react';
 
 import { type MsFormQuestion, type MsFormSection, type MsRichText } from '../types/ms-forms';
 import { MsForm } from './MsForm';
-import { MsFormError, MsFormUnavailable } from './MsFormStates';
+import { MsFormError, MsFormSuccess, MsFormUnavailable } from './MsFormStates';
 import {
     SUBMIT_LABEL,
     branchingPayload,
@@ -95,3 +95,5 @@ export const Error: Story = () => (
     <AutoSubmitForm {...toFormProps(simplePayload)} prefill={{ isi: 'Pelayanan sudah baik.' }} />
 );
 Error.msw = submitFail;
+
+export const SuccessState: Story = () => <MsFormSuccess onReset={() => undefined} />;

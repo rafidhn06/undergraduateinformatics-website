@@ -1,6 +1,7 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
 import { RichText } from './RichText';
+import { RichTextContent } from './RichTextContent';
 
 export default {
     title: 'Rich Text',
@@ -18,3 +19,13 @@ export const Formatted: Story = () => (
 export const List: Story = () => (
     <RichText as="div" html="<ul><li>item satu</li><li>item dua</li></ul>" />
 );
+
+export const ContentPlain: Story = () => (
+    <RichTextContent content={{ text: 'Teks polos' }} as="span" />
+);
+
+export const ContentRich: Story = () => (
+    <RichTextContent content={{ text: 'Teks polos', html: 'Teks <b>kaya</b>' }} as="span" />
+);
+
+export const ContentEmpty: Story = () => <RichTextContent content={null} as="span" />;

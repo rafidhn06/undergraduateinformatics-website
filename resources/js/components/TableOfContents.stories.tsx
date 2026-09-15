@@ -1,6 +1,7 @@
 import type { Story, StoryDefault } from '@ladle/react';
 
 import { TableOfContents } from './TableOfContents';
+import { TableOfContentsSkeleton } from './TableOfContentsStates';
 
 const itemsFixture = [
     { id: 'link-section-1', label: 'Akademik' },
@@ -15,3 +16,5 @@ export default {
 export const Default: Story = () => (
     <TableOfContents items={itemsFixture} onSelect={() => undefined} />
 );
+
+export const Loading: Story = () => <TableOfContentsSkeleton />;

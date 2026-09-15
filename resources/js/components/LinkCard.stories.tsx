@@ -4,6 +4,7 @@ import { RouterHarness } from '@/components/RouterHarness';
 
 import { type LinkSummary } from '../types/link';
 import { LinkCard } from './LinkCard';
+import { LinkCardSkeleton } from './LinkCardStates';
 
 const linkFixture: LinkSummary = {
     id: 7,
@@ -40,3 +41,5 @@ export const LongText: Story = () => (
         </div>
     </RouterHarness>
 );
+
+export const Loading: Story = () => <LinkCardSkeleton />;

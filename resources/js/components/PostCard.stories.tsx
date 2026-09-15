@@ -4,6 +4,7 @@ import { RouterHarness } from '@/components/RouterHarness';
 
 import { type PostSummary } from '../types/post';
 import { PostCard } from './PostCard';
+import { PostCardSkeleton } from './PostCardStates';
 
 const postFixture: PostSummary = {
     id: 7,
@@ -55,3 +56,5 @@ export const LongTextManyTags: Story = () => (
         </div>
     </RouterHarness>
 );
+
+export const Loading: Story = () => <PostCardSkeleton />;
