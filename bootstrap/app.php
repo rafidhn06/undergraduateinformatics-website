@@ -15,10 +15,6 @@ $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 
-if (($publicPath = $_ENV['PUBLIC_PATH'] ?? null) !== null && $publicPath !== '') {
-    $app->usePublicPath($publicPath);
-}
-
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces

@@ -31,6 +31,8 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'public_path' => env('PUBLIC_PATH'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
