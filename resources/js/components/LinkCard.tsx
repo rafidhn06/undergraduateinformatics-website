@@ -18,7 +18,7 @@ export function LinkCard({ link }: LinkCardProps) {
                     to={link.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="line-clamp-2 block leading-6 whitespace-normal"
+                    className="line-clamp-2 leading-6 whitespace-normal"
                 >
                     {link.name}
                 </TextLink>

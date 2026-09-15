@@ -76,6 +76,7 @@ describe('PostCard', () => {
 
         const title = screen.getByRole('link', { name: 'Pengumuman Beasiswa 2026' });
         expect(title).toHaveClass('line-clamp-2');
+        expect(title).not.toHaveClass('block');
 
         const subtitle = screen.getByText('Pendaftaran beasiswa dibuka hingga akhir bulan.');
         expect(subtitle).toHaveClass('line-clamp-2');

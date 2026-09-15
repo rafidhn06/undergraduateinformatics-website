@@ -50,6 +50,7 @@ describe('LinkCard', () => {
 
         const name = screen.getByRole('link', { name: 'Portal Akademik' });
         expect(name).toHaveClass('line-clamp-2');
+        expect(name).not.toHaveClass('block');
     });
 
     it('renders the section as an inline link to its anchor in a single-line truncating row', () => {
