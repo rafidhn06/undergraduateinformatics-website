@@ -10,39 +10,25 @@ class PostModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_has_image_is_false_when_image_is_null(): void
+    public static function imageProvider(): array
     {
-        $post = Post::create([
-            'title' => 'Tanpa Gambar',
-            'subtitle' => 'Sub',
-            'body' => '<p>Body</p>',
-            'image' => null,
-        ]);
-
-        $this->assertFalse($post->hasImage());
+        return [
+            'null image' => [null, false],
+            'real path' => ['images/posts/foo.jpg', true],
+            'placeholder path' => ['images/placeholder.png', true],
+        ];
     }
 
-    public function test_has_image_is_true_when_image_has_a_path(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('imageProvider')]
+    public function test_has_image(?string $image, bool $expected): void
     {
         $post = Post::create([
-            'title' => 'Dengan Gambar',
+            'title' => 'Judul',
             'subtitle' => 'Sub',
             'body' => '<p>Body</p>',
-            'image' => 'images/posts/foo.jpg',
+            'image' => $image,
         ]);
 
-        $this->assertTrue($post->hasImage());
-    }
-
-    public function test_has_image_is_true_for_placeholder_path_until_data_migration(): void
-    {
-        $post = Post::create([
-            'title' => 'Placeholder',
-            'subtitle' => 'Sub',
-            'body' => '<p>Body</p>',
-            'image' => 'images/placeholder.png',
-        ]);
-
-        $this->assertTrue($post->hasImage());
+        $this->assertSame($expected, $post->hasImage());
     }
 }
