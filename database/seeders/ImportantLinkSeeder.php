@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\ImportantLink;
 use App\Models\ImportantSection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class ImportantLinkSeeder extends Seeder
 {
@@ -132,6 +133,15 @@ class ImportantLinkSeeder extends Seeder
             ],
         ];
 
+        $orderedLinks = $this->orderedLinks($sections);
+        $this->createMissingLinks($orderedLinks);
+        $this->spreadBatchTimestamps($orderedLinks);
+    }
+
+    private function orderedLinks(array $sections): array
+    {
+        $orderedLinks = [];
+
         foreach ($sections as $sectionData) {
             $section = ImportantSection::where('name', $sectionData['name'])->first();
 
@@ -140,11 +150,69 @@ class ImportantLinkSeeder extends Seeder
             }
 
             foreach ($sectionData['links'] as $linkData) {
-                ImportantLink::firstOrCreate(
-                    ['important_section_id' => $section->id, 'name' => $linkData['name']],
-                    ['link' => $linkData['link']]
-                );
+                $orderedLinks[] = [
+                    'important_section_id' => $section->id,
+                    'name' => $linkData['name'],
+                    'link' => $linkData['link'],
+                ];
             }
         }
+
+        return $orderedLinks;
+    }
+
+    private function staggeredTimestamp(int $position, int $total): Carbon
+    {
+        return Carbon::create(2026, 9, 7)->startOfDay()->subDays($total - 1 - $position);
+    }
+
+    private function createMissingLinks(array $orderedLinks): void
+    {
+        $total = count($orderedLinks);
+
+        foreach ($orderedLinks as $position => $linkData) {
+            ImportantLink::firstOrCreate(
+                ['important_section_id' => $linkData['important_section_id'], 'name' => $linkData['name']],
+                [
+                    'link' => $linkData['link'],
+                    'created_at' => $this->staggeredTimestamp($position, $total),
+                    'updated_at' => $this->staggeredTimestamp($position, $total),
+                ]
+            );
+        }
+    }
+
+    private function spreadBatchTimestamps(array $orderedLinks): void
+    {
+        $total = count($orderedLinks);
+        $positionByKey = [];
+
+        foreach ($orderedLinks as $position => $linkData) {
+            $positionByKey[$this->linkKey($linkData['important_section_id'], $linkData['name'])] = $position;
+        }
+
+        $managedLinks = ImportantLink::all()->filter(
+            fn (ImportantLink $link) => isset($positionByKey[$this->linkKey($link->important_section_id, $link->name)])
+        );
+
+        $uneditedLinks = $managedLinks->filter(
+            fn (ImportantLink $link) => $link->created_at->equalTo($link->updated_at)
+        );
+
+        foreach ($uneditedLinks->groupBy(fn (ImportantLink $link) => $link->updated_at->toDateTimeString()) as $batch) {
+            if ($batch->count() < 2) {
+                continue;
+            }
+
+            foreach ($batch as $link) {
+                $timestamp = $this->staggeredTimestamp($positionByKey[$this->linkKey($link->important_section_id, $link->name)], $total);
+                ImportantLink::whereKey($link->id)->update(['created_at' => $timestamp, 'updated_at' => $timestamp]);
+            }
+        }
+    }
+
+    private function linkKey(int $sectionId, string $name): string
+    {
+        return $sectionId.'|'.$name;
     }
 }
