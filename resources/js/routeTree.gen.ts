@@ -14,8 +14,8 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicFeedbackRouteImport } from './routes/_public/feedback'
 import { Route as PublicLinksRouteImport } from './routes/_public/links'
 import { Route as PublicReservationRouteImport } from './routes/_public/reservation'
+import { Route as PublicPostsIndexRouteImport } from './routes/_public/posts.index'
 import { Route as PublicPostsSlugRouteImport } from './routes/_public/posts.$slug'
-import { Route as PublicPostsSearchRouteImport } from './routes/_public/posts.search'
 import { Route as PublicTagsIndexRouteImport } from './routes/_public/tags.index'
 import { Route as PublicTagsSlugRouteImport } from './routes/_public/tags.$slug'
 
@@ -47,14 +47,14 @@ const PublicReservationRoute = PublicReservationRouteImport.update({
 } as any).lazy(() =>
   import('./routes/_public/reservation.lazy').then((d) => d.Route),
 )
+const PublicPostsIndexRoute = PublicPostsIndexRouteImport.update({
+  id: '/posts/',
+  path: '/posts/',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicPostsSlugRoute = PublicPostsSlugRouteImport.update({
   id: '/posts/$slug',
   path: '/posts/$slug',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicPostsSearchRoute = PublicPostsSearchRouteImport.update({
-  id: '/posts/search',
-  path: '/posts/search',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicTagsIndexRoute = PublicTagsIndexRouteImport.update({
@@ -74,8 +74,8 @@ export interface FileRoutesByFullPath {
   '/links': typeof PublicLinksRoute
   '/reservation': typeof PublicReservationRoute
   '/posts/$slug': typeof PublicPostsSlugRoute
-  '/posts/search': typeof PublicPostsSearchRoute
   '/tags/$slug': typeof PublicTagsSlugRoute
+  '/posts/': typeof PublicPostsIndexRoute
   '/tags/': typeof PublicTagsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -84,8 +84,8 @@ export interface FileRoutesByTo {
   '/reservation': typeof PublicReservationRoute
   '/': typeof PublicIndexRoute
   '/posts/$slug': typeof PublicPostsSlugRoute
-  '/posts/search': typeof PublicPostsSearchRoute
   '/tags/$slug': typeof PublicTagsSlugRoute
+  '/posts': typeof PublicPostsIndexRoute
   '/tags': typeof PublicTagsIndexRoute
 }
 export interface FileRoutesById {
@@ -96,8 +96,8 @@ export interface FileRoutesById {
   '/_public/reservation': typeof PublicReservationRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/posts/$slug': typeof PublicPostsSlugRoute
-  '/_public/posts/search': typeof PublicPostsSearchRoute
   '/_public/tags/$slug': typeof PublicTagsSlugRoute
+  '/_public/posts/': typeof PublicPostsIndexRoute
   '/_public/tags/': typeof PublicTagsIndexRoute
 }
 export interface FileRouteTypes {
@@ -108,8 +108,8 @@ export interface FileRouteTypes {
     | '/links'
     | '/reservation'
     | '/posts/$slug'
-    | '/posts/search'
     | '/tags/$slug'
+    | '/posts/'
     | '/tags/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,8 +118,8 @@ export interface FileRouteTypes {
     | '/reservation'
     | '/'
     | '/posts/$slug'
-    | '/posts/search'
     | '/tags/$slug'
+    | '/posts'
     | '/tags'
   id:
     | '__root__'
@@ -129,8 +129,8 @@ export interface FileRouteTypes {
     | '/_public/reservation'
     | '/_public/'
     | '/_public/posts/$slug'
-    | '/_public/posts/search'
     | '/_public/tags/$slug'
+    | '/_public/posts/'
     | '/_public/tags/'
   fileRoutesById: FileRoutesById
 }
@@ -175,18 +175,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicReservationRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/posts/': {
+      id: '/_public/posts/'
+      path: '/posts'
+      fullPath: '/posts/'
+      preLoaderRoute: typeof PublicPostsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/posts/$slug': {
       id: '/_public/posts/$slug'
       path: '/posts/$slug'
       fullPath: '/posts/$slug'
       preLoaderRoute: typeof PublicPostsSlugRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/posts/search': {
-      id: '/_public/posts/search'
-      path: '/posts/search'
-      fullPath: '/posts/search'
-      preLoaderRoute: typeof PublicPostsSearchRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/tags/': {
@@ -212,8 +212,8 @@ interface PublicRouteChildren {
   PublicReservationRoute: typeof PublicReservationRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicPostsSlugRoute: typeof PublicPostsSlugRoute
-  PublicPostsSearchRoute: typeof PublicPostsSearchRoute
   PublicTagsSlugRoute: typeof PublicTagsSlugRoute
+  PublicPostsIndexRoute: typeof PublicPostsIndexRoute
   PublicTagsIndexRoute: typeof PublicTagsIndexRoute
 }
 
@@ -223,8 +223,8 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicReservationRoute: PublicReservationRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicPostsSlugRoute: PublicPostsSlugRoute,
-  PublicPostsSearchRoute: PublicPostsSearchRoute,
   PublicTagsSlugRoute: PublicTagsSlugRoute,
+  PublicPostsIndexRoute: PublicPostsIndexRoute,
   PublicTagsIndexRoute: PublicTagsIndexRoute,
 }
 

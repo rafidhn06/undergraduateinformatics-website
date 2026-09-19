@@ -138,7 +138,7 @@ describe('ReservationPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/reservation', {
+            expect(axios.post).toHaveBeenCalledWith('/api/reservation-submissions', {
                 answers: [
                     { questionId: 'jenis', answer: 'Konsultasi' },
                     { questionId: 'nama', answer: 'Budi' },

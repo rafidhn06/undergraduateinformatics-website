@@ -42,10 +42,10 @@ const reservationPayload: MsFormPayload = {
 };
 
 const formHandlers = [
-    msw.http.get('/api/reservation', () =>
+    msw.http.get('/api/reservation-form', () =>
         msw.HttpResponse.json({ status: 'success', data: reservationPayload })
     ),
-    msw.http.post('/api/reservation', () => msw.HttpResponse.json({ success: true })),
+    msw.http.post('/api/reservation-submissions', () => msw.HttpResponse.json({ success: true })),
 ];
 
 export default {

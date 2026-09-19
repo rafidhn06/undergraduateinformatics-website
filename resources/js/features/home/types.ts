@@ -1,3 +1,4 @@
+import { type PostSearchMeta } from '@/features/search/types';
 import { type ApiSuccessResponse } from '@/types/api';
 import { type LinkSummary } from '@/types/link';
 import { type PostSummary } from '@/types/post';
@@ -20,4 +21,8 @@ export interface HomeData {
     dashboard: DashboardDataset[];
 }
 
-export type HomePayload = ApiSuccessResponse<HomeData>;
+export type ImportantLinksPayload = ApiSuccessResponse<LinkSummary[]> & {
+    meta: PostSearchMeta;
+};
+
+export type DatasetsPayload = ApiSuccessResponse<DashboardDataset[]>;

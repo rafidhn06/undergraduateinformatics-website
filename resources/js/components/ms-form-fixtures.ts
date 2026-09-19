@@ -2,7 +2,7 @@ import { msw } from '@ladle/react';
 
 import { type MsFormPayload } from '../types/ms-forms';
 
-export const SUBMIT_URL = '/api/feedback';
+export const SUBMIT_URL = '/api/feedback-submissions';
 export const SUBMIT_LABEL = 'Kirim';
 
 export const richPayload: MsFormPayload = {

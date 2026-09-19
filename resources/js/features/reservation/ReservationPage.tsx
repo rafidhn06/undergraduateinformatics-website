@@ -5,7 +5,7 @@ import { type ReservationFormPayload } from '@/types/ms-forms';
 import { ReservationForm } from './ReservationForm';
 
 export function ReservationPage() {
-    const { data } = useMsForm<ReservationFormPayload>('/api/reservation');
+    const { data } = useMsForm<ReservationFormPayload>('/api/reservation-form');
 
     if (!data.isValid) {
         return <MsFormUnavailable />;
@@ -17,7 +17,7 @@ export function ReservationPage() {
             description={data.description}
             sections={data.sections}
             questions={data.questions}
-            submitUrl="/api/reservation"
+            submitUrl="/api/reservation-submissions"
             reservation={data.reservation}
         />
     );

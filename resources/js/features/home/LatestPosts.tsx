@@ -12,7 +12,7 @@ export function LatestPosts({ posts }: LatestPostsProps) {
             <h2 id="latest-posts-heading">
                 <TextLink
                     variant="fade"
-                    to="/posts/search"
+                    to="/posts"
                     className="font-heading text-[22.5px] leading-[1.4] font-semibold md:text-[20px]"
                 >
                     Informasi Terbaru

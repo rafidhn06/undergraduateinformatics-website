@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\Posts\PostsDataService;
+use App\Services\Search\SearchDataService;
 use App\Support\PageMeta;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -12,6 +13,17 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    public function index(Request $request): View
+    {
+        $q = $request->query('q');
+        $q = is_string($q) ? $q : null;
+        $page = max((int) $request->query('page', 1), 1);
+        $limit = min(max((int) $request->query('limit', 10), 1), 50);
+        $payload = app(SearchDataService::class)->resolve($q, $page, $limit);
+
+        return view('app', PageMeta::viewData($request, 'postSearch', [], $payload));
+    }
+
     public function show(Request $request, string $slugOrId): View|Response
     {
         try {

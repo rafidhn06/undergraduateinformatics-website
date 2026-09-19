@@ -87,7 +87,7 @@ function renderForm() {
                 description={reservationPayload.description}
                 sections={reservationPayload.sections}
                 questions={reservationPayload.questions}
-                submitUrl="/api/reservation"
+                submitUrl="/api/reservation-submissions"
                 reservation={reservationPayload.reservation!}
             />
         </QueryClientProvider>
@@ -125,7 +125,7 @@ describe('ReservationForm', () => {
         scrollIntoView.mockClear();
 
         vi.mocked(axios.get).mockImplementation((url) => {
-            if (url === '/api/reservation/availability') {
+            if (url === '/api/reservation-form/availability') {
                 return Promise.resolve({
                     data: { status: 'success', data: { available: false } },
                 });
@@ -215,7 +215,7 @@ describe('ReservationForm', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/reservation', {
+            expect(axios.post).toHaveBeenCalledWith('/api/reservation-submissions', {
                 answers: [
                     { questionId: 'nama', answer: 'Budi' },
                     { questionId: 'tanggal', answer: '2026-09-08' },

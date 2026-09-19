@@ -76,7 +76,7 @@ export function useReservationForm({
                             return true;
                         }
                     }
-                    const response = await axios.get('/api/reservation/availability', {
+                    const response = await axios.get('/api/reservation-form/availability', {
                         params: { date, shift },
                     });
                     return response.data?.data?.available === true;

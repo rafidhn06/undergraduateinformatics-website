@@ -227,7 +227,7 @@ describe('FeedbackPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+            expect(axios.post).toHaveBeenCalledWith('/api/feedback-submissions', {
                 answers: [
                     { questionId: 'r1', answer: 'Ya' },
                     { questionId: 'r3', answer: 'Saran' },
@@ -252,7 +252,7 @@ describe('FeedbackPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+            expect(axios.post).toHaveBeenCalledWith('/api/feedback-submissions', {
                 answers: [
                     { questionId: 'r1', answer: 'Tidak' },
                     { questionId: 'r2', answer: 'Budi' },
@@ -299,7 +299,7 @@ describe('FeedbackPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+            expect(axios.post).toHaveBeenCalledWith('/api/feedback-submissions', {
                 answers: [
                     { questionId: 'r1', answer: 'Ya' },
                     { questionId: 'r3', answer: 'Saran' },
@@ -413,7 +413,7 @@ describe('FeedbackPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+            expect(axios.post).toHaveBeenCalledWith('/api/feedback-submissions', {
                 answers: [
                     { questionId: 'q1', answer: ['A', 'B'] },
                     { questionId: 'q2', answer: '2026-08-30' },
@@ -436,7 +436,7 @@ describe('FeedbackPage', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+            expect(axios.post).toHaveBeenCalledWith('/api/feedback-submissions', {
                 answers: [
                     { questionId: 'q1', answer: ['A'] },
                     { questionId: 'q2', answer: '2026-08-03' },

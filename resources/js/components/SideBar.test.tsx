@@ -71,7 +71,7 @@ describe('SideBar', () => {
         await user.type(input, 'beasiswa{enter}');
 
         expect(navigateMock).toHaveBeenCalledWith({
-            to: '/posts/search',
+            to: '/posts',
             search: { q: 'beasiswa' },
         });
         expect(input).toHaveValue('');

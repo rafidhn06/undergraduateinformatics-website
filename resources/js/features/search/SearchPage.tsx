@@ -6,9 +6,9 @@ import { SearchContent } from './SearchContent';
 import { SearchSkeleton } from './SearchStates';
 import { usePostSearch } from './usePostSearch';
 
-export function SearchPage({ q, page }: { q: string; page: number }) {
+export function SearchPage({ q, page, limit = 10 }: { q: string; page: number; limit?: number }) {
     const navigate = useNavigate();
-    const query = usePostSearch(q, page);
+    const query = usePostSearch(q, page, limit);
 
     if (query.isPending) {
         return <SearchSkeleton />;
@@ -22,10 +22,10 @@ export function SearchPage({ q, page }: { q: string; page: number }) {
         <SearchContent
             q={q}
             result={query.data}
-            onSearch={(value) => navigate({ to: '/posts/search', search: { q: value } })}
+            onSearch={(value) => navigate({ to: '/posts', search: { q: value } })}
             onPageChange={(nextPage) =>
                 navigate({
-                    to: '/posts/search',
+                    to: '/posts',
                     search: { q: q || undefined, page: nextPage },
                 })
             }

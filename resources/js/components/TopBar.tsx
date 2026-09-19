@@ -52,7 +52,7 @@ export function TopBar({ isSidebarOpen, onToggleSidebar }: TopBarProps) {
                                 value={searchValue}
                                 onChange={(event) => setSearchValue(event.target.value)}
                                 onSubmit={(value) => {
-                                    navigate({ to: '/posts/search', search: { q: value } });
+                                    navigate({ to: '/posts', search: { q: value } });
                                     setSearchValue('');
                                 }}
                             />

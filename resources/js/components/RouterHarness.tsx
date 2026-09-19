@@ -15,7 +15,7 @@ export function RouterHarness({ children }: RouterHarnessProps) {
         const routeTree = rootRoute.addChildren([
             createRoute({ getParentRoute: () => rootRoute, path: '/' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'posts/$slug' }),
-            createRoute({ getParentRoute: () => rootRoute, path: 'posts/search' }),
+            createRoute({ getParentRoute: () => rootRoute, path: 'posts' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'tags' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'tags/$slug' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'explore' }),

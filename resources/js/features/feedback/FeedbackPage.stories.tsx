@@ -6,14 +6,14 @@ import { FeedbackPage } from './FeedbackPage';
 import { FeedbackSkeleton } from './FeedbackStates';
 
 const formHandlers = [
-    msw.http.get('/api/feedback', () =>
+    msw.http.get('/api/feedback-form', () =>
         msw.HttpResponse.json({ status: 'success', data: richPayload })
     ),
     ...submitOk,
 ];
 
 const branchingHandlers = [
-    msw.http.get('/api/feedback', () =>
+    msw.http.get('/api/feedback-form', () =>
         msw.HttpResponse.json({ status: 'success', data: branchingPayload })
     ),
     ...submitOk,
