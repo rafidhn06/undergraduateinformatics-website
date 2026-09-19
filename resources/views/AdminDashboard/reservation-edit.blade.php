@@ -9,7 +9,7 @@
         <div class="form row form--wide">
             @include('partials.Alerts')
             <div class="modern-notice modern-notice--info mb-4">Menyimpan perubahan akan memperbarui data dan membuat ulang berita acara PDF.</div>
-            <form method="POST" action="{{ route('admin.reservation.update', ['id' => $reservation->id]) }}">
+            <form method="POST" action="{{ route('admin.reservations.update', $reservation) }}">
                 @csrf
                 @method('PUT')
                 <div class="row g-3">
@@ -68,7 +68,7 @@
                 </div>
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="modern-button modern-button--primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
-                    <a href="{{ route('admin.reservation') }}" class="modern-button modern-button--soft">Batal</a>
+                    <a href="{{ route('admin.reservations.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>
         </div>

@@ -7,7 +7,7 @@
         <h2 class="modern-page__heading">Form Pengeditan Section</h2>
         <div class="form row">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.sections.update', ['section' => $section->id]) }}">
+            <form method="POST" action="{{ route('admin.sections.update', ['importantSection' => $section->id]) }}">
                 @csrf
                 @method('PUT')
                 <div class="mb-3">

@@ -9,7 +9,7 @@
         <div class="form row form--wide">
             @include('partials.Alerts')
             <div class="modern-notice modern-notice--info mb-4">Jadwal hanya dapat dibuat untuk hari Senin, Selasa, Kamis, atau Jumat. Sistem akan menolak sesi yang sudah terisi.</div>
-            <form method="POST" action="{{ route('admin.reservation.store') }}">
+            <form method="POST" action="{{ route('admin.reservations.store') }}">
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -68,7 +68,7 @@
                 </div>
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="modern-button modern-button--primary"><i class="fa-solid fa-calendar-plus"></i> Simpan Reservasi</button>
-                    <a href="{{ route('admin.reservation') }}" class="modern-button modern-button--soft">Batal</a>
+                    <a href="{{ route('admin.reservations.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>
         </div>

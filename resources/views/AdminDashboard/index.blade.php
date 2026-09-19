@@ -7,14 +7,16 @@
         <div class="dashboard-heading">
             <h2 class="modern-page__heading">Statistik Mahasiswa</h2>
             <div class="dashboard-heading__actions">
-                <a class="modern-button modern-button--soft" href="{{ route('admin.dashboard.create') }}">
+                <a class="modern-button modern-button--soft" href="{{ route('admin.datasets.create') }}">
                     <i class="fa-solid fa-plus"></i> Tambah Chart Manual
                 </a>
-                <a class="modern-button modern-button--primary" href="{{ route('admin.dashboard.upload') }}">
+                <a class="modern-button modern-button--primary" href="{{ route('admin.dataset-imports.create') }}">
                     <i class="fa-solid fa-file-arrow-up"></i> Upload Data Excel
                 </a>
             </div>
         </div>
+
+        @include('partials.Alerts')
 
         @if (! $dashboardTablesReady)
             <div class="empty-state modern-card">
@@ -34,7 +36,7 @@
                     <article class="chart-card">
                         <div class="chart-card__head">
                             <h3 class="chart-card__title">{{ $dataset['title'] }}</h3>
-                            <a class="chart-card__edit" href="{{ route('admin.dashboard.edit', ['id' => $dataset['id']]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                            <a class="chart-card__edit" href="{{ route('admin.datasets.edit', ['dashboardDataset' => $dataset['id']]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
                         </div>
                         <div class="chart-canvas"><canvas id="chart-{{ $dataset['id'] }}"></canvas></div>
                         @if ($dataset['x_label'])

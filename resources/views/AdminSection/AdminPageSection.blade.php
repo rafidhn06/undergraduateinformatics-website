@@ -7,7 +7,7 @@
         <div class="dashboard-heading">
             <h2 class="modern-page__heading">Manajemen Section Link Penting</h2>
             <div class="dashboard-heading__actions">
-                <a class="modern-button modern-button--soft" href="{{ route('admin.sections.changeOrder') }}">
+                <a class="modern-button modern-button--soft" href="{{ route('admin.sections.reorder') }}">
                     <i class="fa-solid fa-sort"></i> Ganti Urutan Section
                 </a>
                 <a class="modern-button modern-button--primary" href="{{ route('admin.sections.create') }}">
@@ -33,7 +33,7 @@
                         <tr>
                             <td>{{ $section->name }}</td>
                             <td class="aksi"><a class="edit"
-                                    href="{{ route('admin.sections.edit', ['section' => $section->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    href="{{ route('admin.sections.edit', ['importantSection' => $section->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $section->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -66,7 +66,7 @@
                             <button type="button" class="modern-button modern-button--soft"
                                 data-bs-dismiss="modal">Batal</button>
                             <form id="delete-form-{{ $section->id }}"
-                                action="{{ route('admin.sections.destroy', ['section' => $section->id]) }}"
+                                action="{{ route('admin.sections.destroy', ['importantSection' => $section->id]) }}"
                                 method="POST">
                                 @csrf
                                 @method('DELETE')

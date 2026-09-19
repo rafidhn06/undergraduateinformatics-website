@@ -8,7 +8,7 @@
 
         <div class="form row form--wide">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.dashboard.store') }}">
+            <form method="POST" action="{{ route('admin.datasets.store') }}">
                 @csrf
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="modern-button modern-button--primary">Simpan Chart</button>
-                    <a href="{{ route('admin.dashboard') }}" class="modern-button modern-button--soft">Batal</a>
+                    <a href="{{ route('admin.datasets.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>
         </div>

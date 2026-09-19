@@ -7,7 +7,7 @@
         <h2 class="modern-page__heading">Form Pengeditan Link Penting</h2>
         <div class="form row">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.links.update', ['link' => $link->id]) }}">
+            <form method="POST" action="{{ route('admin.links.update', ['importantLink' => $link->id]) }}">
                 @csrf
                 @method('PUT')
                 <div class="mb-3">

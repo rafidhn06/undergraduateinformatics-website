@@ -35,7 +35,7 @@
                             <td><div class="cell-clamp">{{ Str::limit($data->title, 100) }}</div></td>
                             <td><div class="cell-clamp">{{ Str::limit($data->subtitle, 100) }}</div></td>
                             <td><div class="cell-clamp">{{ Str::limit(strip_tags($data->body), 120) }}</div></td>
-                            <td><img src="/{{ $data->image }}" alt="{{ $data->title }}"></td>
+                            <td>@if ($data->hasImage())<img src="{{ asset('storage/' . $data->image) }}" alt="{{ $data->title }}">@endif</td>
                             <td>
                                 {{ $data->tags->pluck('name')->join(', ') }}
                             </td>

@@ -34,7 +34,7 @@
                             <td><div class="cell-clamp">{{ $link->name }}</div></td>
                             <td><div class="cell-clamp">{{ $link->link }}</div></td>
                             <td class="aksi"><a class="edit"
-                                    href="{{ route('admin.links.edit', ['link' => $link->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    href="{{ route('admin.links.edit', ['importantLink' => $link->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $link->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -68,7 +68,7 @@
                             <button type="button" class="modern-button modern-button--soft"
                                 data-bs-dismiss="modal">Batal</button>
                             <form id="delete-form-{{ $link->id }}"
-                                action="{{ route('admin.links.destroy', ['link' => $link->id]) }}" method="POST">
+                                action="{{ route('admin.links.destroy', ['importantLink' => $link->id]) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="modern-button modern-button--primary">Hapus</button>

@@ -8,8 +8,9 @@
 
         <div class="form row">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.sections.updateOrder') }}" id="section-order-form">
+            <form method="POST" action="{{ route('admin.sections.updateAll') }}" id="section-order-form">
                 @csrf
+                @method('PUT')
                 <div class="section-order-list" id="section-order-list">
                     @foreach ($sections as $index => $section)
                         <div class="section-order-item" data-id="{{ $section->id }}">

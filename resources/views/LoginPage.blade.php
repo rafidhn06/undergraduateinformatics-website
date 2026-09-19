@@ -19,7 +19,7 @@
                 </div>
                 <div class="auth-actions">
                     <div class="lupa-password">
-                        <a href="{{ route('admin.forgotPassword') }}" class="text-decoration-none">Lupa Password?</a>
+                        <a href="{{ route('admin.password-resets.create') }}" class="text-decoration-none">Lupa Password?</a>
                     </div>
                     <button type="submit" class="btn btn-danger"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
                 </div>

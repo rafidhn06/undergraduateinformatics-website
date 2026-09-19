@@ -7,8 +7,9 @@
         <h2 class="modern-page__heading">Form Pengeditan Pertanyaan untuk Lupa Password</h2>
         <div class="form row">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.updatePasswordRecoveryQuestion') }}" class="d-flex">
+            <form method="POST" action="{{ route('admin.password-recovery.update') }}" class="d-flex">
                 @csrf
+                @method('PUT')
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="link" class="form-label">

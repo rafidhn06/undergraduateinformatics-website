@@ -10,11 +10,11 @@
             </div>
             @if ($reservationTableReady && $reservationDetailsReady)
                 <div class="reservation-heading__actions">
-                    <form method="GET" action="{{ route('admin.reservation') }}" class="d-flex" role="search">
+                    <form method="GET" action="{{ route('admin.reservations.index') }}" class="d-flex" role="search">
                         <input class="form-control" name="search" type="search" placeholder="Cari"
                             value="{{ request()->get('search') }}" aria-label="Search">
                     </form>
-                    <a class="modern-button modern-button--primary" href="{{ route('admin.reservation.create') }}"><i class="fa-solid fa-plus"></i> Tambah Reservasi</a>
+                    <a class="modern-button modern-button--primary" href="{{ route('admin.reservations.create') }}"><i class="fa-solid fa-plus"></i> Tambah Reservasi</a>
                 </div>
             @endif
         </div>
@@ -53,7 +53,7 @@
                                 <td>{{ $reservation->meeting_room ?: '—' }}</td>
                                 <td class="aksi">
                                     @if ($reservation->document_link)<a class="edit" href="{{ $reservation->document_link }}" target="_blank" rel="noopener noreferrer" title="Lihat PDF" aria-label="Lihat PDF"><i class="fa-regular fa-file-pdf"></i></a>@endif
-                                    <a class="edit" href="{{ route('admin.reservation.edit', ['id' => $reservation->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    <a class="edit" href="{{ route('admin.reservations.edit', $reservation) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
                                     <a class="delete" href="#" data-bs-toggle="modal" data-bs-target="#confirmModal-{{ $reservation->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                                 </td>
                             </tr>
@@ -79,7 +79,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="modern-button modern-button--soft" data-bs-dismiss="modal">Batal</button>
-                                <form id="delete-form-{{ $reservation->id }}" action="{{ route('admin.reservation.destroy', ['id' => $reservation->id]) }}" method="POST">
+                                <form id="delete-form-{{ $reservation->id }}" action="{{ route('admin.reservations.destroy', $reservation) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="modern-button modern-button--primary">Hapus</button>

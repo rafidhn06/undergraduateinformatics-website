@@ -45,7 +45,7 @@
                             </label>
                             @if ($post->hasImage())
                                 <div id="image-container" class="mb-2">
-                                    <img class="form-image-preview" src="/{{ $post->image }}" alt="{{ $post->title }}">
+                                    <img class="form-image-preview" src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
                                     <label class="form-check-label">
                                         <input name="deleteGambar" type="checkbox" id="deleteGambar" onclick="deleteImage()"> Hapus Gambar
                                     </label>

@@ -8,7 +8,7 @@
 
         <div class="form row form--wide">
             @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.dashboard.update', ['id' => $dataset->id]) }}">
+            <form method="POST" action="{{ route('admin.datasets.update', ['dashboardDataset' => $dataset->id]) }}">
                 @csrf
                 @method('PUT')
                 <div class="row g-3 mb-3">
@@ -47,7 +47,7 @@
                 </div>
                 <div class="mt-4 d-flex gap-2">
                     <button type="submit" class="modern-button modern-button--primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
-                    <a href="{{ route('admin.dashboard') }}" class="modern-button modern-button--soft">Batal</a>
+                    <a href="{{ route('admin.datasets.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>
         </div>

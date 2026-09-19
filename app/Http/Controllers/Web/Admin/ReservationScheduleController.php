@@ -6,24 +6,55 @@ use App\Http\Controllers\Controller;
 use App\Models\ReservationSchedule;
 use App\Services\Reservation\BeritaAcaraPdfGenerator;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 class ReservationScheduleController extends Controller
 {
-    public function create()
+    public function index(Request $request): View
+    {
+        $reservationTableReady = Schema::hasTable('reservation_schedules');
+        $reservationDetailsReady = $reservationTableReady
+            && Schema::hasColumn('reservation_schedules', 'meeting_room');
+        $search = trim((string) $request->get('search', ''));
+
+        $reservations = collect();
+        if ($reservationTableReady) {
+            $query = ReservationSchedule::latest();
+            if ($search !== '') {
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('requested_by', 'like', '%' . $search . '%')
+                        ->orWhere('meeting_room', 'like', '%' . $search . '%')
+                        ->orWhere('study_program', 'like', '%' . $search . '%')
+                        ->orWhere('date', 'like', '%' . $search . '%')
+                        ->orWhere('shift', 'like', '%' . $search . '%')
+                        ->orWhere('agenda', 'like', '%' . $search . '%');
+                });
+            }
+            $reservations = $query->paginate(10)->withQueryString();
+        }
+
+        return view('AdminDashboard.reservation', [
+            'reservationTableReady' => $reservationTableReady,
+            'reservationDetailsReady' => $reservationDetailsReady,
+            'reservations' => $reservations,
+        ]);
+    }
+
+    public function create(): View
     {
         return view('AdminDashboard.reservation-create');
     }
 
-    public function edit(string $id)
+    public function edit(ReservationSchedule $reservationSchedule): View
     {
-        $schedule = ReservationSchedule::findOrFail($id);
-
-        return view('AdminDashboard.reservation-edit', ['reservation' => $schedule]);
+        return view('AdminDashboard.reservation-edit', ['reservation' => $reservationSchedule]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validator = Validator::make($request->all(), $this->rules());
 
@@ -52,14 +83,12 @@ class ReservationScheduleController extends Controller
             $schedule->save();
         }
 
-        return redirect()->route('admin.reservation')->with('success', 'Reservasi berhasil dibuat.');
+        return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil dibuat.');
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, ReservationSchedule $reservationSchedule): RedirectResponse
     {
-        $schedule = ReservationSchedule::findOrFail($id);
-
-        $validator = Validator::make($request->all(), $this->rules($schedule));
+        $validator = Validator::make($request->all(), $this->rules($reservationSchedule));
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
@@ -67,12 +96,12 @@ class ReservationScheduleController extends Controller
 
         $data = $this->normalize($validator->validated());
 
-        $checkDate = $data['date'] ?? $schedule->date;
-        $checkShift = $data['shift'] ?? $schedule->shift;
+        $checkDate = $data['date'] ?? $reservationSchedule->date;
+        $checkShift = $data['shift'] ?? $reservationSchedule->shift;
 
         $isConflict = ReservationSchedule::where('date', $checkDate)
             ->where('shift', $checkShift)
-            ->where('id', '!=', $id)
+            ->where('id', '!=', $reservationSchedule->id)
             ->exists();
 
         if ($isConflict) {
@@ -81,10 +110,10 @@ class ReservationScheduleController extends Controller
             ])->withInput();
         }
 
-        $oldDocumentLink = $schedule->document_link;
-        $schedule->update($data);
+        $oldDocumentLink = $reservationSchedule->document_link;
+        $reservationSchedule->update($data);
 
-        $documentLink = app(BeritaAcaraPdfGenerator::class)->generate($schedule);
+        $documentLink = app(BeritaAcaraPdfGenerator::class)->generate($reservationSchedule);
 
         if ($documentLink) {
             if ($oldDocumentLink) {
@@ -98,19 +127,17 @@ class ReservationScheduleController extends Controller
                 }
             }
 
-            $schedule->document_link = $documentLink;
-            $schedule->save();
+            $reservationSchedule->document_link = $documentLink;
+            $reservationSchedule->save();
         }
 
-        return redirect()->route('admin.reservation')->with('success', 'Reservasi berhasil diperbarui.');
+        return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil diperbarui.');
     }
 
-    public function destroy(string $id)
+    public function destroy(ReservationSchedule $reservationSchedule): RedirectResponse
     {
-        $schedule = ReservationSchedule::findOrFail($id);
-
-        if ($schedule->document_link) {
-            $urlPath = parse_url($schedule->document_link, PHP_URL_PATH);
+        if ($reservationSchedule->document_link) {
+            $urlPath = parse_url($reservationSchedule->document_link, PHP_URL_PATH);
             if ($urlPath) {
                 $oldFileName = basename($urlPath);
                 $oldPath = public_path('beritaacara/'.$oldFileName);
@@ -120,18 +147,19 @@ class ReservationScheduleController extends Controller
             }
         }
 
-        $schedule->delete();
+        $reservationSchedule->delete();
 
-        return redirect()->route('admin.reservation')->with('success', 'Reservasi berhasil dihapus.');
+        return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil dihapus.');
     }
 
     private function rules(?ReservationSchedule $schedule = null): array
     {
         $sometimes = $schedule ? 'sometimes|' : '';
+        $datePrefix = $schedule ? ['sometimes'] : [];
 
         return [
-            'date' => [
-                $sometimes.'required',
+            'date' => array_merge($datePrefix, [
+                'required',
                 'date',
                 function ($attribute, $value, $fail) {
                     $day = Carbon::parse($value)->dayOfWeekIso;
@@ -139,7 +167,7 @@ class ReservationScheduleController extends Controller
                         $fail('Tanggal harus hari Senin, Selasa, Kamis, atau Jumat.');
                     }
                 },
-            ],
+            ]),
             'shift' => $sometimes.'required|in:09:00,13:00,15:00,09:00:00,13:00:00,15:00:00',
             'requested_by' => $sometimes.'required|string|max:255',
             'document_link' => 'nullable|string|url|max:255',

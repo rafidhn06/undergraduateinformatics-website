@@ -3,6 +3,8 @@
 namespace Tests\Feature\Web;
 
 use App\Models\ReservationLink;
+use App\Models\ReservationSchedule;
+use App\Models\User;
 use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -22,6 +24,20 @@ class ReservationControllerTest extends TestCase
 
         Http::preventStrayRequests();
         Http::fake($this->microsoftEndpoints());
+    }
+
+    public function test_reservations_index_and_put_update(): void
+    {
+        $admin = User::create([
+            'email' => fake()->unique()->safeEmail(),
+            'password_recovery_id' => 1,
+            'password' => 'password',
+        ]);
+        $this->actingAs($admin);
+        $schedule = ReservationSchedule::create(['requested_by' => 'Rafi', 'date' => '2026-10-01', 'shift' => 'pagi', 'agenda' => 'Rapat']);
+
+        $this->get('/admin/reservations')->assertOk();
+        $this->put("/admin/reservations/{$schedule->id}", ['requested_by' => 'Rafi Baru', 'date' => '2026-10-01', 'shift' => 'pagi', 'agenda' => 'Rapat'])->assertRedirect();
     }
 
     public function test_reservation_page_injects_seo_metadata(): void
