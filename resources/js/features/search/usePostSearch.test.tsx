@@ -43,15 +43,15 @@ describe('usePostSearch', () => {
         delete (window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__;
     });
 
-    it('requests /api/posts with q page limit', async () => {
+    it('requests /api/posts with q page per_page', async () => {
         renderHook(() => usePostSearch('rilis', 1, 10), { wrapper });
 
         await waitFor(() => expect(axios.get).toHaveBeenCalled());
 
         expect(axios.get).toHaveBeenCalledWith('/api/posts', {
-            params: { q: 'rilis', page: 1, limit: 10 },
+            params: { q: 'rilis', page: 1, per_page: 10 },
         });
         const params = vi.mocked(axios.get).mock.calls[0]?.[1]?.params as Record<string, unknown>;
-        expect(params).not.toHaveProperty('per_page');
+        expect(params).not.toHaveProperty('limit');
     });
 });

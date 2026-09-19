@@ -14,12 +14,12 @@ class PostController extends Controller
     public function index(Request $request): JsonResponse
     {
         $page = max((int) $request->query('page', 1), 1);
-        $limit = min(max((int) $request->query('limit', 10), 1), 50);
+        $perPage = min(max((int) $request->query('per_page', 10), 1), 50);
         $q = $request->query('q');
         $q = is_string($q) ? $q : null;
 
         return response()->json(
-            app(SearchDataService::class)->resolve($q, $page, $limit)
+            app(SearchDataService::class)->resolve($q, $page, $perPage)
         );
     }
 

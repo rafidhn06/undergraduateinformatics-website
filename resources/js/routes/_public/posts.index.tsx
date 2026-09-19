@@ -9,7 +9,7 @@ import { seoHead } from '@/lib/seo';
 interface PostsSearch {
     q?: string;
     page?: number;
-    limit?: number;
+    per_page?: number;
 }
 
 function parsePositiveInt(raw: unknown): number | undefined {
@@ -26,9 +26,9 @@ const searchValidator = {
     parse(input: Record<string, unknown>): PostsSearch {
         const q = typeof input.q === 'string' ? input.q : undefined;
         const page = parsePositiveInt(input.page) ?? (input.page === undefined ? undefined : 1);
-        const limit = parsePositiveInt(input.limit) ?? (input.limit === undefined ? undefined : 10);
+        const per_page = parsePositiveInt(input.per_page) ?? (input.per_page === undefined ? undefined : 10);
 
-        return { q, page, limit };
+        return { q, page, per_page };
     },
 };
 
@@ -40,7 +40,7 @@ export const Route = createFileRoute('/_public/posts/')({
         return ensurePageData(context.queryClient, '/api/posts', {
             q: search.q ?? undefined,
             page: search.page ?? 1,
-            limit: search.limit ?? 10,
+            per_page: search.per_page ?? 10,
         });
     },
     head: () => seoHead('postSearch'),
@@ -50,7 +50,7 @@ export const Route = createFileRoute('/_public/posts/')({
 });
 
 function SearchRouteComponent() {
-    const { q, page, limit } = Route.useSearch();
+    const { q, page, per_page } = Route.useSearch();
 
-    return <SearchPage q={q ?? ''} page={page ?? 1} limit={limit ?? 10} />;
+    return <SearchPage q={q ?? ''} page={page ?? 1} perPage={per_page ?? 10} />;
 }

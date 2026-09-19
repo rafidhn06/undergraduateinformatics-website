@@ -62,11 +62,11 @@ export const Route = createFileRoute('/_public/')({
             };
 
             context.queryClient.setQueryData(
-                pageQueryKey('/api/posts', { limit: 5 }),
+                pageQueryKey('/api/posts', { per_page: 5 }),
                 postsPayload
             );
             context.queryClient.setQueryData(
-                pageQueryKey('/api/important-links', { limit: 5 }),
+                pageQueryKey('/api/important-links', { per_page: 5 }),
                 linksPayload
             );
             context.queryClient.setQueryData(pageQueryKey('/api/datasets'), datasetsPayload);
@@ -76,8 +76,8 @@ export const Route = createFileRoute('/_public/')({
         }
 
         return Promise.all([
-            ensurePageData(context.queryClient, '/api/posts', { limit: 5 }),
-            ensurePageData(context.queryClient, '/api/important-links', { limit: 5 }),
+            ensurePageData(context.queryClient, '/api/posts', { per_page: 5 }),
+            ensurePageData(context.queryClient, '/api/important-links', { per_page: 5 }),
             ensurePageData(context.queryClient, '/api/datasets'),
         ]);
     },

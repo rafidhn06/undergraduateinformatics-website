@@ -18,8 +18,8 @@ class PostController extends Controller
         $q = $request->query('q');
         $q = is_string($q) ? $q : null;
         $page = max((int) $request->query('page', 1), 1);
-        $limit = min(max((int) $request->query('limit', 10), 1), 50);
-        $payload = app(SearchDataService::class)->resolve($q, $page, $limit);
+        $perPage = min(max((int) $request->query('per_page', 10), 1), 50);
+        $payload = app(SearchDataService::class)->resolve($q, $page, $perPage);
 
         return view('app', PageMeta::viewData($request, 'postSearch', [], $payload));
     }

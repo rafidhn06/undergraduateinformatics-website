@@ -6,9 +6,9 @@ import { SearchContent } from './SearchContent';
 import { SearchSkeleton } from './SearchStates';
 import { usePostSearch } from './usePostSearch';
 
-export function SearchPage({ q, page, limit = 10 }: { q: string; page: number; limit?: number }) {
+export function SearchPage({ q, page, perPage = 10 }: { q: string; page: number; perPage?: number }) {
     const navigate = useNavigate();
-    const query = usePostSearch(q, page, limit);
+    const query = usePostSearch(q, page, perPage);
 
     if (query.isPending) {
         return <SearchSkeleton />;

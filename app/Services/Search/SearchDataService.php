@@ -7,7 +7,7 @@ use App\Models\Post;
 
 class SearchDataService
 {
-    public function resolve(?string $q, int $page, int $limit): array
+    public function resolve(?string $q, int $page, int $perPage): array
     {
         $query = Post::query()
             ->with('tags')
@@ -23,7 +23,7 @@ class SearchDataService
             });
         }
 
-        $posts = $query->paginate($limit, ['*'], 'page', $page);
+        $posts = $query->paginate($perPage, ['*'], 'page', $page);
 
         return [
             'status' => 'success',

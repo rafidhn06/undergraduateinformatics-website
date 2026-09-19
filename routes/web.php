@@ -30,7 +30,7 @@ Route::get('/posts', [WebPostController::class, 'index'])->name('posts.index');
 Route::get('/posts/search', function (Request $request) {
     $query = array_filter([
         'q' => is_string($request->query('q')) ? $request->query('q') : null,
-        'limit' => $request->query('per_page', $request->query('limit')),
+        'per_page' => $request->query('per_page'),
         'page' => $request->query('page'),
     ]);
 

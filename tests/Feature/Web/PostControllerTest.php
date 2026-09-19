@@ -93,17 +93,17 @@ class PostControllerTest extends TestCase
         $response->assertSee('window.__INITIAL_DATA__ = {"notFound":true};', false);
     }
 
-    public function test_posts_page_renders_with_limit(): void
+    public function test_posts_page_renders_with_per_page(): void
     {
         Post::create(['title' => 'Rilis Pertama', 'subtitle' => 'Sub', 'body' => 'Isi']);
 
-        $this->get('/posts?q=Rilis&limit=5')->assertOk();
+        $this->get('/posts?q=Rilis&per_page=5')->assertOk();
     }
 
-    public function test_legacy_search_redirects_with_limit_translation(): void
+    public function test_legacy_search_redirects_with_per_page_passthrough(): void
     {
         Post::create(['title' => 'Rilis Pertama', 'subtitle' => 'Sub', 'body' => 'Isi']);
 
-        $this->get('/posts/search?q=Rilis&per_page=5&page=2')->assertRedirect('/posts?q=Rilis&limit=5&page=2');
+        $this->get('/posts/search?q=Rilis&per_page=5&page=2')->assertRedirect('/posts?q=Rilis&per_page=5&page=2');
     }
 }

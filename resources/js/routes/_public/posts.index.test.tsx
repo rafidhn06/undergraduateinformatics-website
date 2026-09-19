@@ -20,7 +20,7 @@ vi.mock('axios', async () => {
     };
 });
 
-type Search = { q?: string; page?: number; limit?: number };
+type Search = { q?: string; page?: number; per_page?: number };
 
 function evaluateSearch(input: unknown): Search {
     const validator = Route.options.validateSearch as {
@@ -80,15 +80,15 @@ describe('posts index route', () => {
         expect(evaluateSearch({ page: 'abc' })?.page).toBe(1);
     });
 
-    it('normalizes invalid limit values to 10', () => {
-        expect(evaluateSearch({ limit: '0' })?.limit).toBe(10);
-        expect(evaluateSearch({ limit: 'abc' })?.limit).toBe(10);
+    it('normalizes invalid per_page values to 10', () => {
+        expect(evaluateSearch({ per_page: '0' })?.per_page).toBe(10);
+        expect(evaluateSearch({ per_page: 'abc' })?.per_page).toBe(10);
     });
 
-    it('keeps q and leaves page and limit absent when not provided', () => {
+    it('keeps q and leaves page and per_page absent when not provided', () => {
         expect(evaluateSearch({ q: 'beasiswa' })?.q).toBe('beasiswa');
         expect(evaluateSearch({})?.page).toBeUndefined();
-        expect(evaluateSearch({})?.limit).toBeUndefined();
+        expect(evaluateSearch({})?.per_page).toBeUndefined();
     });
 
     it('keeps the search page as its component', () => {
@@ -97,35 +97,35 @@ describe('posts index route', () => {
 });
 
 describe('posts index route loader', () => {
-    it('prefetches /api/posts with q page limit and caches it', async () => {
+    it('prefetches /api/posts with q page per_page and caches it', async () => {
         const queryClient = createQueryClient();
         const payload = { status: 'success', data: [], meta: {} };
         vi.mocked(axios.get).mockResolvedValue({ data: payload });
 
         const result = await loader({
             context: { queryClient },
-            location: { search: { q: 'beasiswa', page: 2, limit: 10 } },
+            location: { search: { q: 'beasiswa', page: 2, per_page: 10 } },
         });
 
         expect(result).toEqual(payload);
         expect(
             queryClient.getQueryData(
-                pageQueryKey('/api/posts', { q: 'beasiswa', page: 2, limit: 10 })
+                pageQueryKey('/api/posts', { q: 'beasiswa', page: 2, per_page: 10 })
             )
         ).toEqual(payload);
         expect(axios.get).toHaveBeenCalledWith('/api/posts', {
-            params: { q: 'beasiswa', page: 2, limit: 10 },
+            params: { q: 'beasiswa', page: 2, per_page: 10 },
         });
     });
 
-    it('defaults to page 1 and limit 10 when the search is empty', async () => {
+    it('defaults to page 1 and per_page 10 when the search is empty', async () => {
         const queryClient = createQueryClient();
         vi.mocked(axios.get).mockResolvedValue({ data: { status: 'success' } });
 
         await loader({ context: { queryClient }, location: { search: {} } });
 
         expect(axios.get).toHaveBeenCalledWith('/api/posts', {
-            params: { q: undefined, page: 1, limit: 10 },
+            params: { q: undefined, page: 1, per_page: 10 },
         });
     });
 });

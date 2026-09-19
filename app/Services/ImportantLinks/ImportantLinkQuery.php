@@ -7,12 +7,12 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ImportantLinkQuery
 {
-    public function latest(int $page, int $limit): LengthAwarePaginator
+    public function latest(int $page, int $perPage): LengthAwarePaginator
     {
         return ImportantLink::query()
             ->with('important_section')
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
-            ->paginate($limit, ['*'], 'page', $page);
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 }

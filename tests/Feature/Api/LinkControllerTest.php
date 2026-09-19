@@ -97,13 +97,13 @@ class LinkControllerTest extends TestCase
         $response->assertJsonPath('data', []);
     }
 
-    public function test_important_links_returns_flat_newest_first_with_limit(): void
+    public function test_important_links_returns_flat_newest_first_with_per_page(): void
     {
         $section = ImportantSection::create(['name' => 'Layanan', 'order_number' => 1]);
         ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Lama', 'link' => 'https://example.com/lama']);
         ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Baru', 'link' => 'https://example.com/baru']);
 
-        $response = $this->getJson('/api/important-links?limit=2&page=1');
+        $response = $this->getJson('/api/important-links?per_page=2&page=1');
 
         $response->assertOk();
         $this->assertSame('Baru', $response->json('data.0.name'));

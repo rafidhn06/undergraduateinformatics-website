@@ -12,7 +12,7 @@ export function HomePage() {
         {
             select: (response) => response.data,
         },
-        { limit: 5 }
+        { per_page: 5 }
     );
 
     const { data: links } = useSuspensePageData<ImportantLinksPayload, LinkSummary[]>(
@@ -20,7 +20,7 @@ export function HomePage() {
         {
             select: (response) => response.data,
         },
-        { limit: 5 }
+        { per_page: 5 }
     );
 
     const { data: datasets } = useSuspensePageData<DatasetsPayload, DashboardDataset[]>(

@@ -29,12 +29,12 @@ class PostControllerTest extends TestCase
         return $post;
     }
 
-    public function test_posts_index_accepts_limit_instead_of_per_page(): void
+    public function test_posts_index_accepts_per_page(): void
     {
         Post::create(['title' => 'Rilis Pertama', 'subtitle' => 'Sub', 'body' => 'Isi']);
         Post::create(['title' => 'Rilis Kedua', 'subtitle' => 'Sub', 'body' => 'Isi']);
 
-        $response = $this->getJson('/api/posts?limit=1&page=1');
+        $response = $this->getJson('/api/posts?per_page=1&page=1');
 
         $response->assertOk();
         $response->assertJsonPath('status', 'success');
@@ -209,7 +209,7 @@ class PostControllerTest extends TestCase
             $this->createPost("Pengumuman ke-$i", "Subtitle $i", '<p>Konten.</p>', now()->subMinutes(5 - $i));
         }
 
-        $response = $this->getJson('/api/posts?limit=2&page=2');
+        $response = $this->getJson('/api/posts?per_page=2&page=2');
 
         $response->assertStatus(200);
         $response->assertJsonCount(2, 'data');
@@ -221,12 +221,12 @@ class PostControllerTest extends TestCase
         $response->assertJsonPath('meta.last_page', 3);
     }
 
-    public function test_api_posts_normalizes_page_and_limit(): void
+    public function test_api_posts_normalizes_page_and_per_page(): void
     {
         $this->createPost('Pengumuman', 'Subtitle', '<p>Konten.</p>', now()->subDay());
         $this->createPost('Pengumuman 2', 'Subtitle 2', '<p>Konten.</p>', now()->subHours(2));
 
-        $response = $this->getJson('/api/posts?page=0&limit=999');
+        $response = $this->getJson('/api/posts?page=0&per_page=999');
 
         $response->assertStatus(200);
         $response->assertJsonPath('meta.current_page', 1);
