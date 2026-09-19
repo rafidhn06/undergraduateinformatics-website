@@ -19,7 +19,7 @@ class LinkControllerTest extends TestCase
         ImportantLink::create(['important_section_id' => $first->id, 'name' => 'Angkatan 2020', 'link' => 'http://bit.ly/MBKM2020']);
         ImportantLink::create(['important_section_id' => $second->id, 'name' => 'Angkatan 2019', 'link' => 'http://bit.ly/Kelas2019']);
 
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertStatus(200);
         $response->assertJsonPath('status', 'success');
@@ -40,7 +40,7 @@ class LinkControllerTest extends TestCase
         ImportantSection::create(['name' => 'Section B', 'order_number' => 2]);
         ImportantSection::create(['name' => 'Section A', 'order_number' => 1]);
 
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertJsonPath('data.0.name', 'Section A');
         $response->assertJsonPath('data.1.name', 'Section B');
@@ -51,12 +51,12 @@ class LinkControllerTest extends TestCase
         $section = ImportantSection::create(['name' => 'Kumpulan Link MBKM', 'order_number' => 1]);
 
         $older = ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Angkatan 2019', 'link' => 'http://bit.ly/MBKM2019']);
-        $older->update(['created_at' => now()->subDays(10), 'updated_at' => now()->subDays(10)]);
+        ImportantLink::whereKey($older->id)->update(['created_at' => now()->subDays(10), 'updated_at' => now()->subDays(10)]);
 
         $newer = ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Angkatan 2020', 'link' => 'http://bit.ly/MBKM2020']);
-        $newer->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        ImportantLink::whereKey($newer->id)->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
 
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertJsonPath('data.0.links.0.name', 'Angkatan 2020');
         $response->assertJsonPath('data.0.links.1.name', 'Angkatan 2019');
@@ -67,12 +67,12 @@ class LinkControllerTest extends TestCase
         $section = ImportantSection::create(['name' => 'Kumpulan Link MBKM', 'order_number' => 1]);
 
         $first = ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Angkatan 2019', 'link' => 'http://bit.ly/MBKM2019']);
-        $first->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        ImportantLink::whereKey($first->id)->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
 
         $second = ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Angkatan 2020', 'link' => 'http://bit.ly/MBKM2020']);
-        $second->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        ImportantLink::whereKey($second->id)->update(['created_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
 
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertJsonPath('data.0.links.0.name', 'Angkatan 2020');
         $response->assertJsonPath('data.0.links.1.name', 'Angkatan 2019');
@@ -82,7 +82,7 @@ class LinkControllerTest extends TestCase
     {
         ImportantSection::create(['name' => 'Kumpulan Link Tugas Akhir', 'order_number' => 1]);
 
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('data.0.links', []);
@@ -90,10 +90,23 @@ class LinkControllerTest extends TestCase
 
     public function test_api_links_returns_empty_data_when_no_sections(): void
     {
-        $response = $this->getJson('/api/links');
+        $response = $this->getJson('/api/link-sections');
 
         $response->assertStatus(200);
         $response->assertJsonPath('status', 'success');
         $response->assertJsonPath('data', []);
+    }
+
+    public function test_important_links_returns_flat_newest_first_with_limit(): void
+    {
+        $section = ImportantSection::create(['name' => 'Layanan', 'order_number' => 1]);
+        ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Lama', 'link' => 'https://example.com/lama']);
+        ImportantLink::create(['important_section_id' => $section->id, 'name' => 'Baru', 'link' => 'https://example.com/baru']);
+
+        $response = $this->getJson('/api/important-links?limit=2&page=1');
+
+        $response->assertOk();
+        $this->assertSame('Baru', $response->json('data.0.name'));
+        $this->assertSame(2, $response->json('meta.per_page'));
     }
 }

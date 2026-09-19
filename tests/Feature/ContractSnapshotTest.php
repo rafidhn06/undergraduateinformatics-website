@@ -25,12 +25,13 @@ class ContractSnapshotTest extends TestCase
 
         $this->assertArrayHasKey('generated_at', $payload);
         $this->assertSame(
-            ['GET /api/home', 'GET /api/posts/{slug}', 'GET /api/tags', 'GET /api/tags/{slug}', 'GET /api/links', 'GET /api/posts/search'],
+            ['GET /api/posts', 'GET /api/posts/{slug}', 'GET /api/tags', 'GET /api/tags/{slug}', 'GET /api/link-sections', 'GET /api/important-links', 'GET /api/datasets'],
             array_keys($payload['endpoints'])
         );
-        $this->assertSame('success', $payload['endpoints']['GET /api/home']['status']);
+        $this->assertSame('success', $payload['endpoints']['GET /api/posts']['status']);
         $this->assertSame($post->slug, $payload['endpoints']['GET /api/posts/{slug}']['data']['slug']);
         $this->assertSame($tag->slug, $payload['endpoints']['GET /api/tags/{slug}']['data']['slug']);
+        $this->assertSame('success', $payload['endpoints']['GET /api/datasets']['status']);
 
         unlink($path);
     }

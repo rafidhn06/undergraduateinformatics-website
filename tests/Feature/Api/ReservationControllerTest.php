@@ -60,7 +60,7 @@ class ApiReservationControllerTest extends TestCase
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
         app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
-        $this->getJson('/api/reservation')
+        $this->getJson('/api/reservation-form')
             ->assertOk()
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data.title.text', 'Reservation Form')
@@ -71,7 +71,7 @@ class ApiReservationControllerTest extends TestCase
     {
         ReservationLink::query()->delete();
 
-        $this->getJson('/api/reservation')
+        $this->getJson('/api/reservation-form')
             ->assertStatus(404)
             ->assertJsonPath('status', 'error');
     }
@@ -80,7 +80,7 @@ class ApiReservationControllerTest extends TestCase
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
-        $this->getJson('/api/reservation')
+        $this->getJson('/api/reservation-form')
             ->assertStatus(200)
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data.title.text', 'Reservation Form');
@@ -92,7 +92,7 @@ class ApiReservationControllerTest extends TestCase
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
-        $this->postJson('/api/reservation', ['answers' => $this->fullAnswers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(201)
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data.date', '2026-09-10')
@@ -117,7 +117,7 @@ class ApiReservationControllerTest extends TestCase
             'requested_by' => 'Someone',
         ]);
 
-        $this->postJson('/api/reservation', ['answers' => $this->fullAnswers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(422)
             ->assertJsonPath('message', 'The schedule is already full.');
 
@@ -126,9 +126,9 @@ class ApiReservationControllerTest extends TestCase
 
     public function test_post_reservation_validates_the_answers_shape(): void
     {
-        $this->postJson('/api/reservation', ['answers' => [['questionId' => 'x']]])
+        $this->postJson('/api/reservation-submissions', ['answers' => [['questionId' => 'x']]])
             ->assertStatus(422)
-            ->assertJsonPath('status', 'error');
+            ->assertJsonValidationErrors('answers.0.answer');
     }
 
     public function test_post_reservation_rejects_when_a_required_field_is_missing(): void
@@ -140,7 +140,7 @@ class ApiReservationControllerTest extends TestCase
             fn ($answer) => $answer['questionId'] !== 'r10000000000000000000000000000002'
         ));
 
-        $this->postJson('/api/reservation', ['answers' => $answers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $answers])
             ->assertStatus(422)
             ->assertJsonPath('status', 'error');
     }
@@ -150,7 +150,7 @@ class ApiReservationControllerTest extends TestCase
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
         $this->microsoftUnreachable = true;
 
-        $this->postJson('/api/reservation', ['answers' => $this->fullAnswers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(422)
             ->assertJsonPath('status', 'error');
 
@@ -167,7 +167,7 @@ class ApiReservationControllerTest extends TestCase
 
         Log::shouldReceive('critical')->once();
 
-        $this->postJson('/api/reservation', ['answers' => $this->fullAnswers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(201)
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('data', null);
@@ -182,7 +182,7 @@ class ApiReservationControllerTest extends TestCase
         $answers = $this->fullAnswers;
         $answers[0] = ['questionId' => 'r10000000000000000000000000000001', 'answer' => 'not-a-date'];
 
-        $this->postJson('/api/reservation', ['answers' => $answers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $answers])
             ->assertStatus(422)
             ->assertJsonPath('status', 'error');
     }
@@ -198,7 +198,7 @@ class ApiReservationControllerTest extends TestCase
             throw $queryException;
         });
 
-        $this->postJson('/api/reservation', ['answers' => $this->fullAnswers])
+        $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(422)
             ->assertJsonPath('status', 'error')
             ->assertJsonPath('message', 'The schedule is already full.');
@@ -211,7 +211,7 @@ class ApiReservationControllerTest extends TestCase
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
         app(FormDefinitionService::class)->refresh('reservation', 'https://forms.office.com/r/abc123');
 
-        $this->getJson('/api/reservation')
+        $this->getJson('/api/reservation-form')
             ->assertOk()
             ->assertJsonPath('data.reservation.dateQuestionId', 'r10000000000000000000000000000001')
             ->assertJsonPath('data.reservation.shiftQuestionId', 'r10000000000000000000000000000002')
@@ -222,7 +222,7 @@ class ApiReservationControllerTest extends TestCase
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
-        $this->getJson('/api/reservation/availability?date=2026-09-10&shift=09:00')
+        $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=09:00')
             ->assertOk()
             ->assertJsonPath('data.available', true);
     }
@@ -236,7 +236,7 @@ class ApiReservationControllerTest extends TestCase
             'requested_by' => 'Someone',
         ]);
 
-        $this->getJson('/api/reservation/availability?date=2026-09-10&shift=09:00')
+        $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=09:00')
             ->assertOk()
             ->assertJsonPath('data.available', false);
     }
@@ -245,7 +245,7 @@ class ApiReservationControllerTest extends TestCase
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
-        $this->getJson('/api/reservation/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
+        $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
             ->assertOk()
             ->assertJsonPath('data.available', true);
     }
@@ -259,14 +259,14 @@ class ApiReservationControllerTest extends TestCase
             'requested_by' => 'Someone',
         ]);
 
-        $this->getJson('/api/reservation/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
+        $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
             ->assertOk()
             ->assertJsonPath('data.available', false);
     }
 
     public function test_get_reservation_availability_rejects_invalid_input(): void
     {
-        $this->getJson('/api/reservation/availability?date=2026-09-09&shift=09:00')
+        $this->getJson('/api/reservation-form/availability?date=2026-09-09&shift=09:00')
             ->assertStatus(422)
             ->assertJsonPath('status', 'error');
     }

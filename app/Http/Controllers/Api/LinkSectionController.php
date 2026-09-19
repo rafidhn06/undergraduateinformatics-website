@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Links\LinksDataService;
 use Illuminate\Http\JsonResponse;
 
-class LinkController extends Controller
+class LinkSectionController extends Controller
 {
     public function index(): JsonResponse
     {
