@@ -19,16 +19,7 @@ export function PostContent({ post }: PostContentProps) {
                 <p className="text-muted-foreground mt-2 text-[22.5px] leading-[1.4] md:mt-2 md:text-[20px]">
                     {post.subtitle}
                 </p>
-                {post.image && (
-                    <img
-                        src={post.image}
-                        alt={post.title}
-                        className="mt-6 w-full"
-                        onError={(event) => {
-                            event.currentTarget.style.display = 'none';
-                        }}
-                    />
-                )}
+                {post.image && <img src={post.image} alt={post.title} className="mt-6 w-full" />}
                 <RichText className="typeset-muted mt-[39.375px] md:mt-8.75" html={post.body} />
                 <p className="text-muted-foreground">
                     {isUpdated(post.created_at, post.updated_at) && 'Diperbarui '}

@@ -41,15 +41,10 @@ describe('PostContent', () => {
         expect(screen.getByText('Diperbarui 5 Sep 2026')).toBeInTheDocument();
     });
 
-    it('renders the hero image only when present and hides it on error', () => {
+    it('renders the hero image only when present', () => {
         const { rerender } = render(<PostContent post={basePost} />);
 
-        const image = screen.getByRole('img', { name: 'Pendaftaran Beasiswa 2026' });
-        expect(image).toBeInTheDocument();
-
-        image.dispatchEvent(new Event('error'));
-
-        expect(image).toHaveStyle({ display: 'none' });
+        expect(screen.getByRole('img', { name: 'Pendaftaran Beasiswa 2026' })).toBeInTheDocument();
 
         rerender(<PostContent post={{ ...basePost, image: null }} />);
         expect(screen.queryByRole('img')).not.toBeInTheDocument();
