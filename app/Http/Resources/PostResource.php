@@ -15,7 +15,7 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'subtitle' => $this->subtitle,
             'body' => $this->body,
-            'image' => $this->image ? url($this->image) : null,
+            'image' => $this->image ? asset('storage/'.$this->image) : null,
             'tags' => TagSummaryResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

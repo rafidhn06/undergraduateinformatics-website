@@ -86,9 +86,8 @@ class TagControllerTest extends TestCase
             'subtitle' => 'Old subtitle',
             'body' => '<p>Old content.</p>',
             'image' => 'images/DummyImage.png',
-            'created_at' => now()->subDays(20),
-            'updated_at' => now()->subDays(10),
         ]);
+        Post::whereKey($olderPost->id)->update(['created_at' => now()->subDays(20), 'updated_at' => now()->subDays(10)]);
         $older->posts()->attach($olderPost);
 
         $newerPost = Post::create([
@@ -96,9 +95,8 @@ class TagControllerTest extends TestCase
             'subtitle' => 'Fresh subtitle',
             'body' => '<p>Fresh content.</p>',
             'image' => 'images/DummyImage.png',
-            'created_at' => now()->subDays(2),
-            'updated_at' => now()->subDay(),
         ]);
+        Post::whereKey($newerPost->id)->update(['created_at' => now()->subDays(2), 'updated_at' => now()->subDay()]);
         $newer->posts()->attach($newerPost);
 
         $response = $this->getJson('/api/tags');
@@ -233,17 +231,15 @@ class TagControllerTest extends TestCase
             'subtitle' => 'Subtitle lama',
             'body' => '<p>Konten lama.</p>',
             'image' => 'images/placeholder.png',
-            'created_at' => now()->subDays(10),
-            'updated_at' => now()->subDays(5),
         ]);
         $newerPost = Post::create([
             'title' => 'Pengumuman Baru',
             'subtitle' => 'Subtitle baru',
             'body' => '<p>Konten baru.</p>',
             'image' => 'images/placeholder.png',
-            'created_at' => now()->subDays(2),
-            'updated_at' => now()->subDay(),
         ]);
+        Post::whereKey($olderPost->id)->update(['created_at' => now()->subDays(10), 'updated_at' => now()->subDays(5)]);
+        Post::whereKey($newerPost->id)->update(['created_at' => now()->subDays(2), 'updated_at' => now()->subDay()]);
         $tag->posts()->attach([$olderPost->id, $newerPost->id]);
 
         $response = $this->getJson('/api/tags/akademik');

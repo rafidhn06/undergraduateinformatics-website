@@ -7,6 +7,7 @@ use App\Models\PasswordRecovery;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -24,7 +25,7 @@ class User extends Authenticatable
         'password',
     ];
 
-    public function password_recovery()
+    public function password_recovery(): BelongsTo
     {
         return $this->belongsTo(PasswordRecovery::class);
     }
@@ -34,18 +35,18 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
-    // protected $casts = [
-    //     'email_verified_at' => 'datetime',
-    //     'password' => 'hashed',
-    // ];
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 }

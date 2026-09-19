@@ -10,6 +10,11 @@
 .admin-auth .row { display: block; margin: 0; }
 .admin-auth .col-md-6 { width: 100%; padding: 0; }
 .admin-auth .alert { margin-bottom: 18px; border: 0; border-radius: 9px; font-size: .88rem; }
+.admin-auth .admin-toast { position: fixed; top: 24px; right: 24px; z-index: 1055; width: min(360px, calc(100vw - 48px)); margin: 0; border: 0; overflow-wrap: anywhere; animation: admin-toast-in .25s ease-out; }
+.admin-auth .admin-toast--hidden { animation: admin-toast-out .25s ease-in forwards; }
+
+@keyframes admin-toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes admin-toast-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
 
 .auth-card { overflow: hidden; border: 1px solid #e7e9ee; border-radius: 14px; background: #fff; box-shadow: 0 16px 40px rgb(31 41 55 / 10%); }
 .auth-card__header { border-top: 5px solid #9f1521; padding: 30px 32px 24px; text-align: center; }

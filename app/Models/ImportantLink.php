@@ -5,14 +5,19 @@ namespace App\Models;
 use App\Models\ImportantSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ImportantLink extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'important_section_id',
+        'name',
+        'link',
+    ];
 
-    public function important_section()
+    public function important_section(): BelongsTo
     {
         return $this->belongsTo(ImportantSection::class);
     }

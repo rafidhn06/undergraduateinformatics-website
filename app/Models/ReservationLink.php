@@ -10,7 +10,9 @@ class ReservationLink extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'link',
+    ];
 
     public function scopeConfigured(Builder $query): Builder
     {

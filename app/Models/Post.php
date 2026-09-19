@@ -7,13 +7,20 @@ use App\Support\Slug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Post extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'title',
+        'subtitle',
+        'body',
+        'image',
+        'slug',
+    ];
 
     protected static function booted(): void
     {
@@ -47,15 +54,11 @@ class Post extends Model
         });
     }
 
-    public function post_tags()
+    public function post_tags(): HasMany
     {
         return $this->hasMany(PostTag::class);
     }
-    /**
-     * The roles that belong to the Post
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'post_tags', 'post_id', 'tag_id');

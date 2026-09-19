@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
             ['email' => 'bif@telkomuniversity.ac.id'],
             [
                 'password_recovery_id' => 1,
-                'password' => bcrypt('akunadmin'),
+                'password' => 'akunadmin',
             ]
         );
     }

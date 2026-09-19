@@ -2,11 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MsFormDefinition extends Model
 {
-    protected $guarded = ['id'];
+    use HasFactory;
+
+    protected $fillable = [
+        'kind',
+        'link',
+        'payload',
+        'fetched_at',
+    ];
 
     protected $casts = [
         'payload' => 'array',
