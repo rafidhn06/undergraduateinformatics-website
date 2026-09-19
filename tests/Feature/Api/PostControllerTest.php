@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PostControllerTest extends TestCase
@@ -96,6 +97,41 @@ class PostControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonPath('status', 'success');
         $response->assertJsonPath('data.slug', $post->slug);
+    }
+
+    public function test_api_post_detail_returns_null_image_when_file_is_missing(): void
+    {
+        Storage::fake('public');
+
+        $post = Post::create([
+            'title' => 'Pendaftaran Beasiswa 2026',
+            'subtitle' => 'Periode baru dibuka',
+            'body' => '<p>Detail.</p>',
+            'image' => 'images/placeholder.png',
+        ]);
+
+        $response = $this->getJson('/api/posts/' . $post->slug);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.image', null);
+    }
+
+    public function test_api_post_detail_returns_image_url_when_file_exists(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('images/placeholder.png', 'fake-image-bytes');
+
+        $post = Post::create([
+            'title' => 'Pendaftaran Beasiswa 2026',
+            'subtitle' => 'Periode baru dibuka',
+            'body' => '<p>Detail.</p>',
+            'image' => 'images/placeholder.png',
+        ]);
+
+        $response = $this->getJson('/api/posts/' . $post->slug);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.image', asset('storage/images/placeholder.png'));
     }
 
     public function test_api_post_detail_returns_404_for_unknown_slug(): void

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class PostResource extends JsonResource
 {
@@ -15,7 +16,7 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'subtitle' => $this->subtitle,
             'body' => $this->body,
-            'image' => $this->image ? asset('storage/'.$this->image) : null,
+            'image' => $this->image && Storage::disk('public')->exists($this->image) ? asset('storage/'.$this->image) : null,
             'tags' => TagSummaryResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
