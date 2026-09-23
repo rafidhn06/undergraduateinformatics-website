@@ -8,6 +8,4 @@ return [
         'r8490f217eabf4616a2bbd360e326d11f' => 'agenda',
     ],
     'required_fields' => ['date', 'shift', 'requested_by', 'agenda'],
-    'allowed_shifts' => ['09:00:00', '13:00:00', '15:00:00'],
-    'allowed_days' => [1, 2, 4, 5],
 ];
