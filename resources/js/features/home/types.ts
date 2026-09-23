@@ -8,7 +8,7 @@ export type ChartType = 'bar' | 'pie' | 'line';
 export interface DashboardDataset {
     id: number;
     title: string;
-    chartType: ChartType;
+    chart_type: ChartType;
     labels: string[];
     values: number[];
 }

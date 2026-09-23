@@ -35,14 +35,14 @@ const datasets: DashboardDataset[] = [
     {
         id: 1,
         title: 'Mahasiswa per Angkatan',
-        chartType: 'bar',
+        chart_type: 'bar',
         labels: ['2022'],
         values: [240],
     },
     {
         id: 2,
         title: 'Mahasiswa per Provinsi',
-        chartType: 'pie',
+        chart_type: 'pie',
         labels: ['Jawa Barat'],
         values: [350],
     },

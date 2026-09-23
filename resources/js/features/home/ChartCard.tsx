@@ -29,13 +29,13 @@ export function ChartCard({ dataset }: ChartCardProps) {
                     isPointerSession && 'no-ring'
                 )}
             >
-                {dataset.chartType === 'bar' && (
+                {dataset.chart_type === 'bar' && (
                     <BarChart labels={dataset.labels} values={dataset.values} />
                 )}
-                {dataset.chartType === 'pie' && (
+                {dataset.chart_type === 'pie' && (
                     <PieChart labels={dataset.labels} values={dataset.values} />
                 )}
-                {dataset.chartType === 'line' && (
+                {dataset.chart_type === 'line' && (
                     <LineChart labels={dataset.labels} values={dataset.values} />
                 )}
             </div>
