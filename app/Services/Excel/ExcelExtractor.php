@@ -4,10 +4,12 @@ namespace App\Services\Excel;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ExcelExtractor
 {
+    private const MAX_SHEETS = 20;
+    private const MAX_ROWS_PER_SHEET = 5000;
+
     public function extract(UploadedFile|string $file): array
     {
         if ($file instanceof UploadedFile) {
@@ -22,18 +24,29 @@ class ExcelExtractor
             )->validate();
         }
 
-        $workbook = Excel::toArray([], $file);
+        $path = $file instanceof UploadedFile ? $file->getPathname() : (string) $file;
 
-        $sheetNames = [];
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
 
-        try {
-            $path = $file instanceof UploadedFile ? $file->getPathname() : (string) $file;
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
-            $sheetNames = $spreadsheet->getSheetNames();
-        } catch (\Throwable $e) {
-            $sheetNames = [];
+        $sheetNames = array_slice($spreadsheet->getSheetNames(), 0, self::MAX_SHEETS);
+
+        $workbook = [];
+
+        foreach ($spreadsheet->getAllSheets() as $sheetIndex => $sheet) {
+            if ($sheetIndex >= self::MAX_SHEETS) {
+                break;
+            }
+
+            $workbook[] = array_slice($sheet->toArray(null, false), 0, self::MAX_ROWS_PER_SHEET);
         }
 
+        $spreadsheet->disconnectWorksheets();
+
+        return $this->parseWorkbook($workbook, $sheetNames);
+    }
+
+    public function parseWorkbook(array $workbook, array $sheetNames): array
+    {
         $datasets = [];
 
         foreach ($workbook as $sheetIndex => $rows) {
@@ -49,8 +62,7 @@ class ExcelExtractor
 
             $header = $rows[0];
 
-            $xLabel = trim((string) ($header[0] ?? "Label"));
-            $yLabel = trim((string) ($header[1] ?? "Value"));
+            $firstHeader = trim((string) ($header[0] ?? "Label"));
 
             $items = [];
 
@@ -80,9 +92,7 @@ class ExcelExtractor
             $datasets[] = [
                 "title" => $sheetName,
                 "sheet_name" => $sheetName,
-                "chart_type" => $this->detectChartType($xLabel),
-                "x_label" => $xLabel,
-                "y_label" => $yLabel,
+                "chart_type" => $this->detectChartType($firstHeader),
                 "items" => $items,
             ];
         }
@@ -90,7 +100,7 @@ class ExcelExtractor
         return $datasets;
     }
 
-    public function detectChartType(string $header): string
+    private function detectChartType(string $header): string
     {
         $header = strtolower($header);
 

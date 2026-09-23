@@ -44,7 +44,7 @@ final class PageMeta
         Request $request,
         string $page,
         array $jsonLd,
-        array $initialData,
+        array $seeds,
         ?string $title = null,
         ?string $description = null,
         ?string $ogImage = null
@@ -62,7 +62,7 @@ final class PageMeta
             'ogType' => $seo['ogType'],
             'ogUrl' => $request->url(),
             'jsonLd' => $jsonLd,
-            'initialData' => $initialData,
+            'initialData' => ['seeds' => array_values($seeds)],
         ];
     }
 }

@@ -16,7 +16,7 @@ class ImportantSection extends Model
         'order_number',
     ];
 
-    public function important_links(): HasMany
+    public function importantLinks(): HasMany
     {
         return $this->hasMany(ImportantLink::class);
     }
@@ -24,7 +24,14 @@ class ImportantSection extends Model
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? false, function($query, $search){
-            return $query -> where('name', 'like', '%' . request('search') . '%');
+            return $query -> where('important_sections.name', 'like', '%' . $search . '%');
         });
+    }
+
+    public function scopeOrderedWithLinks($query)
+    {
+        return $query->with(['importantLinks' => function ($query) {
+            $query->orderByDesc('updated_at')->orderByDesc('id');
+        }])->orderBy('order_number');
     }
 }

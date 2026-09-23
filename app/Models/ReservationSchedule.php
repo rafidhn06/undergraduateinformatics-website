@@ -9,6 +9,10 @@ class ReservationSchedule extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'date' => 'date:Y-m-d',
+    ];
+
     protected $fillable = [
         'date',
         'shift',

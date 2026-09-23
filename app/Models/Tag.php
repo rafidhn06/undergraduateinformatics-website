@@ -43,21 +43,23 @@ class Tag extends Model
         return $query->where('slug', $value)->orWhere('id', $value);
     }
 
-    public function post_tags(): HasMany
+    public function postTags(): HasMany
     {
         return $this->hasMany(PostTag::class);
     }
 
     public function posts(): BelongsToMany
     {
-        return $this->belongsToMany(Post::class, 'post_tags', 'tag_id', 'post_id');
+        return $this->belongsToMany(Post::class, 'post_tags', 'tag_id', 'post_id')->using(PostTag::class);
     }
 
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? false, function($query, $search){
-            return $query -> where('name', 'like', '%' . request('search') . '%')
-                        -> orWhere('description', 'like', '%' . request('search') . '%');
+            return $query->where(function($query) use ($search) {
+                $query->where('tags.name', 'like', '%' . $search . '%')
+                    ->orWhere('tags.description', 'like', '%' . $search . '%');
+            });
         });
     }
 }

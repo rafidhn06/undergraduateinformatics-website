@@ -17,7 +17,7 @@ class ImportantLink extends Model
         'link',
     ];
 
-    public function important_section(): BelongsTo
+    public function importantSection(): BelongsTo
     {
         return $this->belongsTo(ImportantSection::class);
     }
@@ -25,10 +25,20 @@ class ImportantLink extends Model
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? false, function($query, $search){
-            return $query -> where('important_links.name', 'like', '%' . request('search') . '%')
-                -> orWhereHas('important_section', function($q) {
-                    $q->where('name', 'like', '%' . request('search') . '%');
-                });
+            return $query->where(function($query) use ($search) {
+                $query->where('important_links.name', 'like', '%' . $search . '%')
+                    ->orWhereHas('importantSection', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
+            });
         });
+    }
+
+    public function scopeLatestPage($query, int $page, int $perPage)
+    {
+        return $query->with('importantSection')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->paginate($perPage, ['*'], 'page', $page);
     }
 }

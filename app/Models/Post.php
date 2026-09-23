@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Post extends Model
@@ -39,6 +41,10 @@ class Post extends Model
                 return $query->exists();
             });
         });
+
+        static::deleting(function (Post $post) {
+            $post->clearImage();
+        });
     }
 
     public function scopeWhereSlugOrId($query, string $value)
@@ -49,19 +55,21 @@ class Post extends Model
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? false, function($query, $search){
-            return $query -> where('title', 'like', '%' . request('search') . '%')
-                        -> orWhere('body', 'like', '%' . request('search') . '%');
+            return $query->where(function($query) use ($search) {
+                $query->where('posts.title', 'like', '%' . $search . '%')
+                    ->orWhere('posts.body', 'like', '%' . $search . '%');
+            });
         });
     }
 
-    public function post_tags(): HasMany
+    public function postTags(): HasMany
     {
         return $this->hasMany(PostTag::class);
     }
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'post_tags', 'post_id', 'tag_id');
+        return $this->belongsToMany(Tag::class, 'post_tags', 'post_id', 'tag_id')->using(PostTag::class);
     }
 
     /**
@@ -78,5 +86,39 @@ class Post extends Model
     public function hasImage()
     {
         return $this->image !== null;
+    }
+
+    public function syncTags(array $tagIds): void
+    {
+        $ids = array_unique($tagIds);
+
+        $tagDefault = Tag::where('name', 'S1 Informatika')->first();
+
+        array_unshift($ids, $tagDefault->id);
+
+        $this->tags()->sync(array_unique($ids));
+    }
+
+    public function replaceImage(?UploadedFile $file, bool $remove = false): void
+    {
+        if ($file) {
+            $this->clearImage();
+            $this->image = Storage::disk('public')->putFile('posts', $file);
+
+            return;
+        }
+
+        if ($remove) {
+            $this->clearImage();
+        }
+    }
+
+    public function clearImage(): void
+    {
+        if ($this->hasImage()) {
+            Storage::disk('public')->delete($this->image);
+        }
+
+        $this->image = null;
     }
 }

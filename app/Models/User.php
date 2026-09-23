@@ -7,7 +7,7 @@ use App\Models\PasswordRecovery;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -21,13 +21,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'email',
-        'password_recovery_id',
         'password',
     ];
 
-    public function password_recovery(): BelongsTo
+    public function passwordRecovery(): HasOne
     {
-        return $this->belongsTo(PasswordRecovery::class);
+        return $this->hasOne(PasswordRecovery::class);
     }
 
     /**

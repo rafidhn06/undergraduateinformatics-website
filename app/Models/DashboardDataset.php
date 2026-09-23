@@ -17,8 +17,6 @@ class DashboardDataset extends Model
         'slug',
         'sheet_name',
         'chart_type',
-        'x_label',
-        'y_label',
         'description',
     ];
 
