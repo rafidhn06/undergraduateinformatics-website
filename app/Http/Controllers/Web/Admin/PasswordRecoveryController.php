@@ -14,7 +14,7 @@ class PasswordRecoveryController extends Controller
     {
         $recovery = $this->currentRecovery();
 
-        return view('AdminPertanyaan.AdminPageEditPertanyaan', [
+        return view('admin.recovery-questions.edit', [
             'first_question' => $recovery->first_question,
             'second_question' => $recovery->second_question,
             'first_answer' => $recovery->first_answer,
@@ -33,7 +33,7 @@ class PasswordRecoveryController extends Controller
             'second_answer' => strtolower($validated['second_answer']),
         ]);
 
-        return redirect()->route('admin.password-recovery.edit')->with('success', 'Pertanyaan berhasil diupdate!');
+        return redirect()->route('admin.password-recovery.edit')->with('success', 'Pertanyaan berhasil diperbarui!');
     }
 
     private function currentRecovery(): PasswordRecovery

@@ -13,9 +13,14 @@ use Illuminate\View\View;
 
 class PasswordResetController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('throttle:5,1')->only(['store', 'update']);
+    }
+
     public function create(): View
     {
-        return view('LupaPasswordPage');
+        return view('auth.forgot-password');
     }
 
     public function store(PasswordResetStoreRequest $request): RedirectResponse
@@ -38,10 +43,10 @@ class PasswordResetController extends Controller
         abort_if($passwordReset->expires_at->isPast(), 410);
 
         if ($passwordReset->stage === 'new_password') {
-            return view('GantiPasswordPage', ['reset' => $passwordReset]);
+            return view('auth.reset-password', ['reset' => $passwordReset]);
         }
 
-        return view('PertanyaanLupaPassword', ['reset' => $passwordReset, 'user' => $passwordReset->user]);
+        return view('auth.security-questions', ['reset' => $passwordReset, 'user' => $passwordReset->user]);
     }
 
     public function update(PasswordResetUpdateRequest $request, PasswordReset $passwordReset): RedirectResponse
@@ -51,8 +56,8 @@ class PasswordResetController extends Controller
 
         if ($passwordReset->stage === 'questions') {
             $user = $passwordReset->user;
-            $first = strtolower((string) $user->password_recovery->first_answer);
-            $second = strtolower((string) $user->password_recovery->second_answer);
+            $first = strtolower((string) $user->passwordRecovery->first_answer);
+            $second = strtolower((string) $user->passwordRecovery->second_answer);
 
             if ($first !== strtolower((string) $validated['first_answer']) || $second !== strtolower((string) $validated['second_answer'])) {
                 return back()->with('error', 'Jawaban tidak sesuai!');
@@ -66,6 +71,6 @@ class PasswordResetController extends Controller
         $passwordReset->user->update(['password' => $validated['new_password']]);
         $passwordReset->delete();
 
-        return redirect()->route('admin.login')->with('success', 'Password berhasil diganti!');
+        return redirect()->route('admin.login')->with('success', 'Kata sandi berhasil diganti!');
     }
 }

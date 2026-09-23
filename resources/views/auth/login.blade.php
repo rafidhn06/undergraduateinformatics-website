@@ -1,10 +1,10 @@
-@extends('layouts.authlayout')
+@extends('layouts.auth')
 
-@section('title', 'Admin Login')
+@section('title', 'Masuk Admin')
 
 @section('content')
     <div class="auth-card">
-        <div class="auth-card__body" style="padding-top: 32px;">
+        <div class="auth-card__body">
             <form method="POST" action="{{ route('admin.loginAttempt') }}">
                 @csrf
                 <div class="auth-field">
@@ -13,15 +13,15 @@
                         required>
                 </div>
                 <div class="auth-field">
-                    <label for="password" class="form-label">Password</label>
+                    <div class="auth-field__row">
+                        <label for="password" class="form-label">Kata Sandi</label>
+                        <a href="{{ route('admin.password-resets.create') }}" class="auth-field__link">Lupa kata sandi?</a>
+                    </div>
                     <input type="password" class="form-control" id="password" name="password"
-                        placeholder="Masukkan password" required autocomplete="off">
+                        placeholder="Masukkan kata sandi" required autocomplete="off">
                 </div>
                 <div class="auth-actions">
-                    <div class="lupa-password">
-                        <a href="{{ route('admin.password-resets.create') }}" class="text-decoration-none">Lupa Password?</a>
-                    </div>
-                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+                    <button type="submit" class="btn btn-danger">Masuk</button>
                 </div>
             </form>
         </div>

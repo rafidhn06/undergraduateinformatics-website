@@ -17,18 +17,15 @@ class PasswordResetFlowTest extends TestCase
         $user = User::create([
             'email' => $email,
             'password' => 'oldpassword',
-            'password_recovery_id' => 1,
         ]);
 
-        $recovery = PasswordRecovery::create([
+        PasswordRecovery::create([
             'user_id' => $user->id,
             'first_question' => 'Siapa nama guru favoritmu?',
             'second_question' => 'Apa makanan favoritmu?',
             'first_answer' => 'budi',
             'second_answer' => 'nasgor',
         ]);
-
-        $user->update(['password_recovery_id' => $recovery->id]);
 
         return $user->refresh();
     }
@@ -143,7 +140,7 @@ class PasswordResetFlowTest extends TestCase
             'second_answer' => 'Jawaban Dua',
         ])->assertRedirect(route('admin.password-recovery.edit'));
 
-        $recovery = $user->refresh()->password_recovery;
+        $recovery = $user->refresh()->passwordRecovery;
         $this->assertSame('Pertanyaan baru satu?', $recovery->first_question);
         $this->assertSame('jawaban satu', $recovery->first_answer);
         $this->assertSame('jawaban dua', $recovery->second_answer);
