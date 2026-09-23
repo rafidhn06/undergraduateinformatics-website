@@ -42,17 +42,6 @@ class ReservationAnswerMapperTest extends TestCase
         ], $attributes);
     }
 
-    public function test_it_normalizes_a_full_shift_value(): void
-    {
-        $attributes = app(ReservationAnswerMapper::class)->map([
-            ['questionId' => 'r10000000000000000000000000000001', 'answer' => '2026-09-10'],
-            ['questionId' => 'r10000000000000000000000000000002', 'answer' => '13:00:00'],
-            ['questionId' => 'r10000000000000000000000000000003', 'answer' => 'Budi'],
-        ]);
-
-        $this->assertSame('13:00:00', $attributes['shift']);
-    }
-
     public function test_it_parses_an_iso_datetime_value_for_the_date_column(): void
     {
         $attributes = app(ReservationAnswerMapper::class)->map([
@@ -74,17 +63,6 @@ class ReservationAnswerMapperTest extends TestCase
         ]);
 
         $this->assertCount(3, $attributes);
-    }
-
-    public function test_it_extracts_the_start_time_from_a_shift_range(): void
-    {
-        $attributes = app(ReservationAnswerMapper::class)->map([
-            ['questionId' => 'r10000000000000000000000000000001', 'answer' => '2026-09-10'],
-            ['questionId' => 'r10000000000000000000000000000002', 'answer' => '08:00 - 09:00 WIB'],
-            ['questionId' => 'r10000000000000000000000000000003', 'answer' => 'Budi'],
-        ]);
-
-        $this->assertSame('08:00:00', $attributes['shift']);
     }
 
     public function test_it_throws_when_a_required_field_is_missing(): void
@@ -124,7 +102,6 @@ class ReservationAnswerMapperTest extends TestCase
 
             $this->fail('Expected ReservationMappingException was not thrown.');
         } catch (ReservationMappingException $e) {
-            $this->assertContains('date', $e->fields);
             $this->assertArrayHasKey('date', $e->fieldErrors);
         }
     }

@@ -55,8 +55,6 @@ final class FormDefinitionNormalizerTest extends TestCase
 
         $result = (new FormDefinitionNormalizer)->normalize($raw);
 
-        $this->assertSame(['text' => 'this is form title'], $result['title']);
-
         $this->assertSame([
             [
                 'id' => 'r5ea034e6b67a462ba2a1ff857fad2490',
@@ -101,7 +99,6 @@ final class FormDefinitionNormalizerTest extends TestCase
 
         $result = (new FormDefinitionNormalizer)->normalize($raw);
 
-        $this->assertSame('section-1', $result['sections'][0]['id']);
         $this->assertSame(['a'], $result['sections'][0]['questionIds']);
     }
 

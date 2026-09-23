@@ -130,6 +130,25 @@ class TagControllerTest extends TestCase
         $response->assertJsonPath('data.1.name', 'Empty');
     }
 
+    public function test_api_tags_list_is_paginated_with_meta(): void
+    {
+        Tag::create(['name' => 'Satu', 'description' => null]);
+        Tag::create(['name' => 'Dua', 'description' => null]);
+        Tag::create(['name' => 'Tiga', 'description' => null]);
+
+        $response = $this->getJson('/api/tags?per_page=2&page=1');
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('status', 'success');
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonPath('meta.current_page', 1);
+        $response->assertJsonPath('meta.per_page', 2);
+        $response->assertJsonPath('meta.total', 3);
+        $response->assertJsonPath('meta.last_page', 2);
+
+        $this->getJson('/api/tags?per_page=2&page=2')->assertJsonCount(1, 'data');
+    }
+
     public function test_api_tag_detail_returns_tag_with_posts(): void
     {
         $tag = Tag::create([

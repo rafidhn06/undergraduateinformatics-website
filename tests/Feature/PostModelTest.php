@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,6 +17,25 @@ class PostModelTest extends TestCase
             'real path' => ['images/posts/foo.jpg', true],
             'placeholder path' => ['images/placeholder.png', true],
         ];
+    }
+
+    public function test_filter_uses_given_search_without_http_request(): void
+    {
+        Post::create([
+            'title' => 'Beasiswa Luar Negeri',
+            'subtitle' => 'Sub',
+            'body' => '<p>Body</p>',
+        ]);
+        Post::create([
+            'title' => 'Kalender Akademik',
+            'subtitle' => 'Sub',
+            'body' => '<p>Body</p>',
+        ]);
+
+        $results = Post::filter(['search' => 'beasiswa'])->get();
+
+        $this->assertCount(1, $results);
+        $this->assertSame('Beasiswa Luar Negeri', $results->first()->title);
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('imageProvider')]

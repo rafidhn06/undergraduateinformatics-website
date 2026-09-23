@@ -15,7 +15,15 @@ class FallbackRouteTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertViewIs('app');
-        $response->assertSee('window.__INITIAL_DATA__ = {"notFound":true};', false);
+        $response->assertSee('"seeds":[]', false);
+    }
+
+    public function test_unknown_public_url_renders_empty_seeds(): void
+    {
+        $response = $this->get('/halaman-tidak-ada');
+
+        $response->assertStatus(404);
+        $response->assertSee('"seeds":[]', false);
     }
 
     public function test_unknown_api_url_keeps_json_404(): void

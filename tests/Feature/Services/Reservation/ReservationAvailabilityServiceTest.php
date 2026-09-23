@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Reservation;
+namespace Tests\Feature\Services\Reservation;
 
 use App\Models\ReservationSchedule;
 use App\Services\Reservation\ReservationAvailabilityService;
@@ -18,7 +18,6 @@ class ReservationAvailabilityServiceTest extends TestCase
     {
         parent::setUp();
         $this->service = app(ReservationAvailabilityService::class);
-        config(['reservation.allowed_days' => [1, 2, 4, 5]]);
     }
 
     public function test_it_returns_true_when_the_slot_is_free(): void
@@ -35,6 +34,7 @@ class ReservationAvailabilityServiceTest extends TestCase
         ]);
 
         $this->assertFalse($this->service->isAvailable('2026-09-10', '09:00:00'));
+        $this->assertTrue($this->service->isAvailable('2026-09-10', '13:00:00'));
     }
 
     public function test_it_accepts_hh_mm_shift(): void
@@ -42,17 +42,11 @@ class ReservationAvailabilityServiceTest extends TestCase
         $this->assertTrue($this->service->isAvailable('2026-09-10', '09:00'));
     }
 
-    public function test_it_normalizes_a_range_shift_before_querying(): void
+    public function test_it_rejects_a_shift_outside_the_offered_list(): void
     {
-        $this->assertTrue($this->service->isAvailable('2026-09-10', '08:00 - 09:00 WIB'));
+        $this->expectException(ReservationValidationException::class);
 
-        ReservationSchedule::create([
-            'date' => '2026-09-10',
-            'shift' => '08:00:00',
-            'requested_by' => 'Someone',
-        ]);
-
-        $this->assertFalse($this->service->isAvailable('2026-09-10', '08:00 - 09:00 WIB'));
+        $this->service->isAvailable('2026-09-10', '08:00 - 09:00 WIB');
     }
 
     public function test_it_normalizes_a_datetime_string_date_before_querying(): void

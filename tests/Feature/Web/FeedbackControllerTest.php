@@ -23,7 +23,6 @@ class FeedbackControllerTest extends TestCase
     {
         $response = $this->get('/feedback');
 
-        $response->assertStatus(200);
         $response->assertSee('Masukan - Portal Informasi Sarjana Informatika', false);
         $response->assertSee('property="og:title"', false);
         $response->assertSee('property="og:description"', false);

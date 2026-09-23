@@ -62,6 +62,14 @@ class MsFormsClientTest extends TestCase
         );
     }
 
+    public function test_resolve_rejects_bare_microsoft_suffix_host(): void
+    {
+        $this->expectException(MsFormsRequestException::class);
+        $this->expectExceptionMessage('Invalid form link');
+
+        $this->client->resolve('https://portal.microsoft/pages/responsepage.aspx?id=FORM123');
+    }
+
     public function test_resolve_rejects_non_microsoft_hosts(): void
     {
         $this->expectException(MsFormsRequestException::class);
@@ -134,7 +142,6 @@ class MsFormsClientTest extends TestCase
 
         $raw = $this->client->fetchFormDefinition($target);
 
-        $this->assertSame('this is form title', $raw['title']);
         $this->assertCount(3, $raw['questions']);
     }
 

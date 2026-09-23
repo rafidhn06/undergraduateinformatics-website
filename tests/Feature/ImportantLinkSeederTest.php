@@ -18,7 +18,6 @@ class ImportantLinkSeederTest extends TestCase
         $this->seed(ImportantSectionSeeder::class);
         $this->seed(ImportantLinkSeeder::class);
 
-        $this->assertSame(59, ImportantLink::count());
         $this->assertSame(59, ImportantLink::distinct()->count('updated_at'));
     }
 

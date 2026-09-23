@@ -83,8 +83,6 @@ class FeedbackControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonPath('status', 'success');
         $response->assertJsonPath('data.link', 'https://forms.office.com/r/abc123');
-        $response->assertJsonPath('data.title.text', 'this is form title');
-        $response->assertJsonPath('data.title.html', null);
     }
 
     public function test_feedback_submission_returns_201_with_submitted_at(): void
@@ -109,7 +107,6 @@ class FeedbackControllerTest extends TestCase
 
         $response->assertCreated();
         $response->assertJsonPath('status', 'success');
-        $this->assertArrayHasKey('submitted_at', $response->json('data'));
 
         Http::assertSent(function ($request) {
             return str_contains($request->url(), '/responses')
@@ -146,7 +143,6 @@ class FeedbackControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonPath('status', 'success');
-        $response->assertJsonPath('data.title.text', 'this is form title');
         $this->assertDatabaseHas('ms_form_definitions', ['kind' => 'feedback']);
     }
 

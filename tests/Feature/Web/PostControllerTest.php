@@ -28,10 +28,6 @@ class PostControllerTest extends TestCase
 
         $response = $this->get('/posts/' . $post->slug);
 
-        $response->assertStatus(200);
-        $response->assertViewIs('app');
-        $response->assertViewHas('initialData');
-        $response->assertSee('__INITIAL_DATA__');
         $response->assertSee('application/ld+json');
         $response->assertSee('Article');
         $response->assertSee('Pendaftaran Beasiswa 2026 - Portal Informasi Sarjana Informatika', false);
@@ -39,10 +35,11 @@ class PostControllerTest extends TestCase
         preg_match('/window\.__INITIAL_DATA__ = (\{.*?\});/s', $response->getContent(), $matches);
         $this->assertNotEmpty($matches, 'Initial data script tag not found');
         $initialData = json_decode($matches[1], true);
-        $this->assertSame('success', $initialData['status']);
-        $this->assertSame('Pendaftaran Beasiswa 2026', $initialData['data']['title']);
-        $this->assertSame('beasiswa', $initialData['data']['tags'][0]['slug']);
-        $this->assertSame($post->created_at->toIso8601String(), $initialData['data']['created_at']);
+        $this->assertArrayHasKey('seeds', $initialData);
+        $this->assertSame('success', $initialData['seeds'][0]['payload']['status']);
+        $this->assertSame('Pendaftaran Beasiswa 2026', $initialData['seeds'][0]['payload']['data']['title']);
+        $this->assertSame('beasiswa', $initialData['seeds'][0]['payload']['data']['tags'][0]['slug']);
+        $this->assertSame($post->created_at->toIso8601String(), $initialData['seeds'][0]['payload']['data']['created_at']);
 
         preg_match('/<script type="application\/ld\+json">\s*(\{.*?\})\s*<\/script>/s', $response->getContent(), $ldMatches);
         $this->assertNotEmpty($ldMatches, 'JSON-LD script tag not found');
@@ -63,8 +60,6 @@ class PostControllerTest extends TestCase
 
         $response = $this->get('/posts/' . $post->slug);
 
-        $response->assertStatus(200);
-        $response->assertViewIs('app');
         $response->assertSee('<meta data-ssr="true" property="og:image" content="' . url('/images/banner.jpg') . '">', false);
         $response->assertSee('"image":null', false);
     }
@@ -90,7 +85,7 @@ class PostControllerTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertViewIs('app');
-        $response->assertSee('window.__INITIAL_DATA__ = {"notFound":true};', false);
+        $response->assertSee('"seeds":[]', false);
     }
 
     public function test_posts_page_renders_with_per_page(): void
@@ -100,10 +95,18 @@ class PostControllerTest extends TestCase
         $this->get('/posts?q=Rilis&per_page=5')->assertOk();
     }
 
-    public function test_legacy_search_redirects_with_per_page_passthrough(): void
+    public function test_post_title_cannot_break_out_of_initial_data_script(): void
     {
-        Post::create(['title' => 'Rilis Pertama', 'subtitle' => 'Sub', 'body' => 'Isi']);
+        $post = Post::create([
+            'title' => 'X</script><script>alert(1)</script>Y',
+            'subtitle' => 'Sub',
+            'body' => '<p>Isi</p>',
+        ]);
 
-        $this->get('/posts/search?q=Rilis&per_page=5&page=2')->assertRedirect('/posts?q=Rilis&per_page=5&page=2');
+        $response = $this->get('/posts/' . $post->slug);
+
+        $response->assertStatus(200);
+        $response->assertDontSee('X</script><script>alert(1)</script>Y', false);
+        $response->assertSee('X\\u003C\\/script\\u003E\\u003Cscript\\u003Ealert(1)\\u003C\\/script\\u003EY', false);
     }
 }

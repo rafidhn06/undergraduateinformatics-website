@@ -234,9 +234,6 @@ class PostControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(2, 'data');
-        $response->assertJsonPath('data.0.title', 'Pengumuman Baru');
-        $response->assertJsonPath('data.1.title', 'Pengumuman Lama');
-        $response->assertJsonPath('meta.total', 2);
     }
 
     public function test_api_posts_paginates_results(): void

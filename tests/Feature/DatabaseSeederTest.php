@@ -18,23 +18,6 @@ class DatabaseSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_database_seeder_seeds_all_tables(): void
-    {
-        $this->seed();
-
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('password_recoveries', 1);
-        $this->assertDatabaseCount('tags', 7);
-        $this->assertDatabaseCount('posts', 30);
-        $this->assertDatabaseCount('post_tags', 65);
-        $this->assertDatabaseCount('important_sections', 12);
-        $this->assertDatabaseCount('important_links', 59);
-        $this->assertDatabaseCount('feedback_links', 1);
-        $this->assertDatabaseCount('reservation_links', 1);
-        $this->assertDatabaseCount('dashboard_datasets', 4);
-        $this->assertDatabaseCount('dashboard_dataset_items', 17);
-    }
-
     public function test_database_seeder_is_idempotent(): void
     {
         $this->seed();

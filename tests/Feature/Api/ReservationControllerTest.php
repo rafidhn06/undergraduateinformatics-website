@@ -8,7 +8,6 @@ use App\Services\MsForms\FormDefinitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Tests\Concerns\FakesMicrosoftForms;
 use Tests\TestCase;
 
@@ -51,7 +50,6 @@ class ApiReservationControllerTest extends TestCase
                 'r10000000000000000000000000000012' => 'related_party_signature_position',
             ],
             'reservation.required_fields' => ['date', 'shift', 'requested_by'],
-            'reservation.allowed_days' => [1, 2, 4, 5],
         ]);
     }
 
@@ -95,6 +93,7 @@ class ApiReservationControllerTest extends TestCase
         $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
             ->assertStatus(201)
             ->assertJsonPath('status', 'success')
+            ->assertJsonMissingPath('message')
             ->assertJsonPath('data.date', '2026-09-10')
             ->assertJsonPath('data.shift', '09:00:00')
             ->assertJsonPath('data.requested_by', 'Budi');
@@ -157,7 +156,7 @@ class ApiReservationControllerTest extends TestCase
         $this->assertDatabaseCount('reservation_schedules', 0);
     }
 
-    public function test_post_reservation_returns_success_and_logs_critical_when_db_insert_fails(): void
+    public function test_post_reservation_returns_500_when_db_insert_fails(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
@@ -165,12 +164,11 @@ class ApiReservationControllerTest extends TestCase
             throw new \RuntimeException('database is down');
         });
 
-        Log::shouldReceive('critical')->once();
-
         $this->postJson('/api/reservation-submissions', ['answers' => $this->fullAnswers])
-            ->assertStatus(201)
-            ->assertJsonPath('status', 'success')
-            ->assertJsonPath('data', null);
+            ->assertStatus(500)
+            ->assertJsonPath('status', 'error');
+
+        $this->assertDatabaseCount('reservation_schedules', 0);
 
         ReservationSchedule::flushEventListeners();
     }
@@ -241,16 +239,16 @@ class ApiReservationControllerTest extends TestCase
             ->assertJsonPath('data.available', false);
     }
 
-    public function test_get_reservation_availability_accepts_a_range_shift_option(): void
+    public function test_get_reservation_availability_rejects_a_shift_outside_the_offered_list(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
         $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
-            ->assertOk()
-            ->assertJsonPath('data.available', true);
+            ->assertStatus(422)
+            ->assertJsonPath('status', 'error');
     }
 
-    public function test_get_reservation_availability_range_shift_matches_stored_slot(): void
+    public function test_get_reservation_availability_rejects_range_shift_even_when_slot_stored(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
         ReservationSchedule::create([
@@ -260,8 +258,8 @@ class ApiReservationControllerTest extends TestCase
         ]);
 
         $this->getJson('/api/reservation-form/availability?date=2026-09-10&shift=08:00 - 09:00 WIB')
-            ->assertOk()
-            ->assertJsonPath('data.available', false);
+            ->assertStatus(422)
+            ->assertJsonPath('status', 'error');
     }
 
     public function test_get_reservation_availability_rejects_invalid_input(): void

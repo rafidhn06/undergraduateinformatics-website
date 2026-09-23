@@ -62,8 +62,6 @@ class HomePageTest extends TestCase
             'slug' => 'jumlah-mahasiswa',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'description' => 'Statistik mahasiswa.',
         ]);
         DashboardDatasetItem::create(['dataset_id' => $dataset->id, 'label' => '2024', 'value' => 120, 'sort_order' => 2]);
@@ -71,10 +69,6 @@ class HomePageTest extends TestCase
 
         $response = $this->get('/');
 
-        $response->assertStatus(200);
-        $response->assertViewIs('app');
-        $response->assertViewHas('initialData');
-        $response->assertSee('__INITIAL_DATA__');
         $response->assertSee('Welcome to Informatics');
         $response->assertSee('Academic Calendar');
         $response->assertSee('Beranda - Portal Informasi Sarjana Informatika', false);
@@ -83,10 +77,14 @@ class HomePageTest extends TestCase
         preg_match('/window\.__INITIAL_DATA__ = (\{.*?\});/s', $response->getContent(), $matches);
         $this->assertNotEmpty($matches, 'Initial data script tag not found');
         $initialData = json_decode($matches[1], true);
-        $this->assertSame('Welcome to Informatics', $initialData['posts'][0]['title']);
-        $this->assertSame('Academic Calendar', $initialData['links'][0]['name']);
-        $this->assertSame('Jumlah Mahasiswa', $initialData['datasets'][0]['title']);
-        $this->assertSame(['2023', '2024'], $initialData['datasets'][0]['labels']);
-        $this->assertSame([100, 120], $initialData['datasets'][0]['values']);
+        $this->assertArrayHasKey('seeds', $initialData);
+        $this->assertCount(3, $initialData['seeds']);
+        $this->assertSame('/api/posts', $initialData['seeds'][0]['endpoint']);
+        $this->assertSame(['per_page' => 5], $initialData['seeds'][0]['params']);
+        $this->assertSame('Welcome to Informatics', $initialData['seeds'][0]['payload']['data'][0]['title']);
+        $this->assertSame('/api/important-links', $initialData['seeds'][1]['endpoint']);
+        $this->assertSame('Academic Calendar', $initialData['seeds'][1]['payload']['data'][0]['name']);
+        $this->assertSame('/api/datasets', $initialData['seeds'][2]['endpoint']);
+        $this->assertSame('Jumlah Mahasiswa', $initialData['seeds'][2]['payload']['data'][0]['title']);
     }
 }

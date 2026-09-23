@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services\Reservation;
+namespace Tests\Feature\Services\Reservation;
 
 use App\Models\ReservationLink;
 use App\Models\ReservationSchedule;
@@ -9,13 +9,14 @@ use App\Services\MsForms\MsFormsException;
 use App\Services\MsForms\MsFormsRequestException;
 use App\Services\MsForms\ResolvedFormTarget;
 use App\Services\Reservation\ReservationAnswerMapper;
+use App\Services\Reservation\ReservationDocumentException;
 use App\Services\Reservation\ReservationFormUnavailableException;
 use App\Services\Reservation\ReservationMappingException;
+use App\Services\Reservation\ReservationSlotGuard;
 use App\Services\Reservation\ReservationSubmissionService;
 use App\Services\Reservation\ReservationValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ReservationSubmissionServiceTest extends TestCase
@@ -44,8 +45,6 @@ class ReservationSubmissionServiceTest extends TestCase
                 'r10000000000000000000000000000012' => 'related_party_signature_position',
             ],
             'reservation.required_fields' => ['date', 'shift', 'requested_by'],
-            'reservation.allowed_shifts' => ['09:00:00', '13:00:00', '15:00:00'],
-            'reservation.allowed_days' => [1, 2, 4, 5],
         ]);
 
         $this->fullAnswers = [
@@ -69,6 +68,7 @@ class ReservationSubmissionServiceTest extends TestCase
         return new ReservationSubmissionService(
             app(ReservationAnswerMapper::class),
             $client,
+            app(ReservationSlotGuard::class),
         );
     }
 
@@ -79,11 +79,9 @@ class ReservationSubmissionServiceTest extends TestCase
         $schedule = $this->service()->submit($this->fullAnswers);
 
         $this->assertNotNull($schedule);
-        $this->assertSame('2026-09-10', $schedule->date);
+        $this->assertSame('2026-09-10', $schedule->date->toDateString());
         $this->assertSame('09:00:00', $schedule->shift);
         $this->assertSame('Budi', $schedule->requested_by);
-        $this->assertSame('Ruang 101', $schedule->meeting_room);
-        $this->assertNull($schedule->document_link);
         $this->assertDatabaseHas('reservation_schedules', [
             'date' => '2026-09-10',
             'shift' => '09:00:00',
@@ -174,7 +172,7 @@ class ReservationSubmissionServiceTest extends TestCase
         $this->assertDatabaseCount('reservation_schedules', 0);
     }
 
-    public function test_it_returns_null_and_logs_critical_when_db_insert_fails_after_ms_forms_success(): void
+    public function test_it_throws_document_exception_when_db_insert_fails_before_ms_forms(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
@@ -182,11 +180,14 @@ class ReservationSubmissionServiceTest extends TestCase
             throw new \RuntimeException('database is down');
         });
 
-        Log::shouldReceive('critical')->once();
+        try {
+            $this->service()->submit($this->fullAnswers);
+            $this->fail('Expected ReservationDocumentException was not thrown.');
+        } catch (ReservationDocumentException $e) {
+            $this->assertSame('Failed to save the reservation. Please try again later.', $e->getMessage());
+        }
 
-        $result = $this->service()->submit($this->fullAnswers);
-
-        $this->assertNull($result);
+        $this->assertDatabaseCount('reservation_schedules', 0);
 
         ReservationSchedule::flushEventListeners();
     }
@@ -240,7 +241,7 @@ class ReservationSubmissionServiceTest extends TestCase
         ReservationSchedule::flushEventListeners();
     }
 
-    public function test_it_returns_null_and_logs_critical_when_a_non_unique_db_failure_occurs_on_insert(): void
+    public function test_it_throws_document_exception_when_a_non_unique_db_failure_occurs_on_insert(): void
     {
         ReservationLink::create(['link' => 'https://forms.office.com/r/abc123']);
 
@@ -255,11 +256,12 @@ class ReservationSubmissionServiceTest extends TestCase
             throw $queryException;
         });
 
-        Log::shouldReceive('critical')->once();
-
-        $result = $this->service()->submit($this->fullAnswers);
-
-        $this->assertNull($result);
+        try {
+            $this->service()->submit($this->fullAnswers);
+            $this->fail('Expected ReservationDocumentException was not thrown.');
+        } catch (ReservationDocumentException $e) {
+            $this->assertSame('Failed to save the reservation. Please try again later.', $e->getMessage());
+        }
 
         ReservationSchedule::flushEventListeners();
     }
