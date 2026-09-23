@@ -25,6 +25,16 @@ export default tseslint.config(
                 'warn',
                 { allowConstantExport: true, extraHOCs: ['createLink'] },
             ],
+            '@typescript-eslint/no-explicit-any': 'error',
+        },
+    },
+    {
+        files: [
+            'resources/js/**/*.test.{ts,tsx}',
+            'resources/js/test/**/*.{ts,tsx}',
+            'resources/js/**/*.stories.tsx',
+        ],
+        rules: {
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
