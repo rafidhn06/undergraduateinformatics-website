@@ -1,26 +1,23 @@
-import React from 'react';
+import { QueryClient } from '@tanstack/react-query';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-import { renderHook, waitFor } from '@testing-library/react';
-import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { usePageData } from './usePageData';
+import { httpGet } from '@/lib/http';
 
-vi.mock('axios', async () => {
-    const actual = await vi.importActual<typeof import('axios')>('axios');
+import {
+    ensurePageData,
+    fetchPageData,
+    isSeedEnvelope,
+    normalizeQueryParams,
+    pageQueryKey,
+    seedInitialQueries,
+} from './usePageData';
 
-    return {
-        ...actual,
-        default: {
-            ...actual.default,
-            get: vi.fn(),
-        },
-    };
-});
+vi.mock('@/lib/http', () => ({
+    httpGet: vi.fn(),
+}));
 
-describe('usePageData', () => {
+describe('ensurePageData', () => {
     let queryClient: QueryClient;
 
     beforeEach(() => {
@@ -32,114 +29,85 @@ describe('usePageData', () => {
             },
         });
         vi.clearAllMocks();
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
-    const createWrapper =
-        () =>
-        ({ children }: { children: React.ReactNode }) =>
-            React.createElement(QueryClientProvider, { client: queryClient }, children);
+    it('uses seeded cache without fetching', async () => {
+        const initialPayload = { status: 'success', data: [{ id: 1 }] };
+        queryClient.setQueryData(pageQueryKey('/api/posts', { per_page: 5 }), initialPayload);
 
-    it('hydrates from window.__INITIAL_DATA__ without calling axios and clears initial data', async () => {
-        const initialPayload = {
-            tags: [{ id: 1, name: 'AI', description: 'Artificial Intelligence' }],
-            posts: [],
-            sections: [],
-        };
-        (window as any).__INITIAL_DATA__ = initialPayload;
+        const result = await ensurePageData(queryClient, '/api/posts', { per_page: 5 });
 
-        const { result } = renderHook(() => usePageData('/api/home'), {
-            wrapper: createWrapper(),
-        });
-
-        await waitFor(() => {
-            expect(result.current.data).toEqual(initialPayload);
-        });
-        expect(axios.get).not.toHaveBeenCalled();
-        expect((window as any).__INITIAL_DATA__).toBeNull();
+        expect(result).toEqual(initialPayload);
+        expect(httpGet).not.toHaveBeenCalled();
     });
 
-    it('fetches data using axios when window.__INITIAL_DATA__ is null', async () => {
-        const fetchedPayload = {
-            tags: [{ id: 2, name: 'Cybersecurity', description: 'Security labs' }],
-            posts: [],
-            sections: [],
-        };
-        (axios.get as any).mockResolvedValueOnce({ data: fetchedPayload });
+    it('fetches with shared fetchPageData when cache is empty', async () => {
+        const fetchedPayload = { status: 'success', data: [{ id: 2 }] };
+        vi.mocked(httpGet).mockResolvedValueOnce(fetchedPayload);
 
-        const { result } = renderHook(() => usePageData('/api/home'), {
-            wrapper: createWrapper(),
+        const result = await ensurePageData<{ status: string }>(queryClient, '/api/posts', {
+            per_page: 5,
         });
 
-        await waitFor(() => {
-            expect(result.current.data).toEqual(fetchedPayload);
-        });
-        expect(axios.get).toHaveBeenCalledWith('/api/home', { params: undefined });
+        expect(result).toEqual(fetchedPayload);
+        expect(httpGet).toHaveBeenCalledWith('/api/posts', { per_page: 5 });
     });
 
-    it('passes query params to axios and includes them in the cache key', async () => {
-        const fetchedPayload = {
-            status: 'success',
-            data: [],
-            meta: { current_page: 1, per_page: 10, total: 0, last_page: 1 },
+    it('ignores stale window data and fetches fresh data', async () => {
+        window.__INITIAL_DATA__ = {
+            seeds: [
+                {
+                    endpoint: '/api/posts',
+                    params: { per_page: 5 },
+                    payload: { status: 'success', data: [{ id: 9 }] },
+                },
+            ],
         };
-        (axios.get as any).mockResolvedValueOnce({ data: fetchedPayload });
+        const fetchedPayload = { status: 'success', data: [{ id: 1 }] };
+        vi.mocked(httpGet).mockResolvedValueOnce(fetchedPayload);
 
-        const { result } = renderHook(
-            () => usePageData('/api/posts/search', {}, { q: 'beasiswa', page: 2 }),
-            { wrapper: createWrapper() }
+        const result = await ensurePageData(queryClient, '/api/posts', { per_page: 5 });
+
+        expect(result).toEqual(fetchedPayload);
+        expect(httpGet).toHaveBeenCalledWith('/api/posts', { per_page: 5 });
+        expect(queryClient.getQueryData(pageQueryKey('/api/posts', { per_page: 5 }))).toEqual(
+            fetchedPayload
         );
-
-        await waitFor(() => {
-            expect(result.current.data).toEqual(fetchedPayload);
-        });
-        expect(axios.get).toHaveBeenCalledWith('/api/posts/search', {
-            params: { q: 'beasiswa', page: 2 },
-        });
     });
 
-    it('does not reuse initial data when the query params differ', async () => {
-        (window as any).__INITIAL_DATA__ = {
-            status: 'success',
-            data: [{ id: 1 }],
-            meta: {},
+    it('fetchPageData resolves response data with params', async () => {
+        const fetchedPayload = { status: 'success' };
+        vi.mocked(httpGet).mockResolvedValueOnce(fetchedPayload);
+
+        await expect(fetchPageData('/api/tags', { page: 2 })).resolves.toEqual(fetchedPayload);
+        expect(httpGet).toHaveBeenCalledWith('/api/tags', { page: 2 });
+    });
+
+    it('seeds query cache once and clears global', async () => {
+        const payload = { status: 'success', data: [{ id: 1 }] };
+        window.__INITIAL_DATA__ = {
+            seeds: [{ endpoint: '/api/posts', params: { per_page: 5 }, payload }],
         };
-        const fetchedPayload = { status: 'success', data: [{ id: 2 }], meta: {} };
-        (axios.get as any).mockResolvedValueOnce({ data: fetchedPayload });
 
-        const { result, rerender } = renderHook(
-            ({ params }) => usePageData('/api/posts/search', {}, params),
-            {
-                initialProps: { params: { q: 'beasiswa', page: 1 } },
-                wrapper: createWrapper(),
-            }
+        seedInitialQueries(queryClient);
+
+        expect(queryClient.getQueryData(pageQueryKey('/api/posts', { per_page: 5 }))).toEqual(
+            payload
         );
-
-        await waitFor(() => {
-            expect(result.current.data).toEqual({ status: 'success', data: [{ id: 1 }], meta: {} });
-        });
-        expect(axios.get).not.toHaveBeenCalled();
-
-        rerender({ params: { q: 'lama', page: 1 } });
-
-        await waitFor(() => {
-            expect(result.current.data).toEqual(fetchedPayload);
-        });
-        expect(axios.get).toHaveBeenCalled();
+        expect(window.__INITIAL_DATA__).toBeNull();
     });
 
-    it('reports a 404 error without calling axios when the server sends the not-found marker', async () => {
-        (window as any).__INITIAL_DATA__ = { notFound: true };
+    it('treats empty array params from php as param-less key', () => {
+        expect(pageQueryKey('/api/datasets', [] as unknown as undefined)).toEqual(
+            pageQueryKey('/api/datasets')
+        );
+        expect(normalizeQueryParams([])).toBeUndefined();
+    });
 
-        const { result } = renderHook(() => usePageData('/api/home'), {
-            wrapper: createWrapper(),
-        });
-
-        await waitFor(() => {
-            expect(result.current.isError).toBe(true);
-        });
-        expect(axios.get).not.toHaveBeenCalled();
-        expect((result.current.error as any).response?.status).toBe(404);
-        expect((window as any).__INITIAL_DATA__).toBeNull();
+    it('detects seed envelope only for seeds arrays', () => {
+        expect(isSeedEnvelope({ seeds: [] })).toBe(true);
+        expect(isSeedEnvelope({ notFound: true })).toBe(false);
+        expect(isSeedEnvelope(null)).toBe(false);
     });
 });

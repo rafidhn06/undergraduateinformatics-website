@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type Control, useForm, useWatch } from 'react-hook-form';
 
-import { useQuery } from '@tanstack/react-query';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { buildMsFormAnswers, isEmptyAnswer } from '../lib/ms-form-answers';
 import {
     computeReachableIds,
     flattenQuestions,
-    getSectionIds,
     getSectionQuestions,
     resolveNextSectionId,
 } from '../lib/ms-form-branching';
 import { buildMsFormDefaultValues, buildMsFormSchema } from '../schemas/ms-forms';
 import { type MsFormQuestion, type MsFormSection, type MsFormValues } from '../types/ms-forms';
+import { UNAVAILABLE_MESSAGE, useMsFormAvailability } from './useMsFormAvailability';
+import { useMsFormNavigation } from './useMsFormNavigation';
 import { useMsFormSubmission } from './useMsFormSubmission';
 
 export interface MsFormExtension {
@@ -74,12 +73,12 @@ export function useMsFormLogic({
 
     const { control, getValues, setValue } = form;
 
-    const sectionIds = useMemo(() => getSectionIds(sections), [sections]);
+    const navigation = useMsFormNavigation(sections, questions, getValues);
+    const { currentSectionId, currentSection, isFirstStep } = navigation;
     const allQuestions = useMemo(
         () => flattenQuestions(sections, questions),
         [sections, questions]
     );
-    const [history, setHistory] = useState<string[]>([sectionIds[0]]);
     const [emptySubmitTried, setEmptySubmitTried] = useState(false);
 
     const { submitForm, submitError, fieldErrors, resetSubmitError } = useMsFormSubmission(
@@ -129,12 +128,9 @@ export function useMsFormLogic({
         previousValuesRef.current = values;
     }, [values, hasServerErrors, questions, resetSubmitError]);
 
-    const currentSectionId = history[history.length - 1];
-    const currentSection = sections?.find((section) => section.id === currentSectionId);
     const visibleQuestions = getSectionQuestions(sections, questions, currentSectionId);
     const nextSectionId = resolveNextSectionId(sections, questions, values, currentSectionId);
     const hasNextSection = nextSectionId !== null;
-    const isFirstStep = history.length === 1;
 
     const hasAnyAnswer = useMemo(
         () => buildMsFormAnswers(sections, questions, values).length > 0,
@@ -148,36 +144,18 @@ export function useMsFormLogic({
 
     const extraErrorActive = Object.values(baseExtraErrors).some((message) => Boolean(message));
 
-    const hasAvailability = Boolean(
-        extension?.availabilityCheck &&
-        values[extension.availabilityCheck.dateQuestionId] &&
-        values[extension.availabilityCheck.shiftQuestionId]
-    );
-
     const dateValue = values[extension?.availabilityCheck?.dateQuestionId ?? ''] as
         string | undefined;
     const shiftValue = values[extension?.availabilityCheck?.shiftQuestionId ?? ''] as
         string | undefined;
 
-    const availabilityQuery = useQuery({
-        queryKey: ['reservation-availability', dateValue, shiftValue],
-        enabled: Boolean(extension?.availabilityCheck && dateValue && shiftValue),
-        staleTime: 10000,
-        retry: false,
-        queryFn: async () => {
-            if (!extension?.availabilityCheck || !dateValue || !shiftValue) {
-                return true;
-            }
-            return extension.availabilityCheck.check(dateValue, shiftValue);
-        },
-    });
+    const availabilityCheck = extension?.availabilityCheck;
 
-    const availabilityUnavailable = Boolean(
-        extension?.availabilityCheck &&
-        hasAvailability &&
-        availabilityQuery.isSuccess &&
-        availabilityQuery.data === false
-    );
+    const { availabilityUnavailable } = useMsFormAvailability({
+        dateValue: availabilityCheck ? dateValue : undefined,
+        shiftValue: availabilityCheck ? shiftValue : undefined,
+        check: (date, shift) => availabilityCheck!.check(date, shift),
+    });
 
     const extraFieldErrors = useMemo(() => {
         if (!availabilityUnavailable || !extension?.availabilityCheck) {
@@ -186,8 +164,7 @@ export function useMsFormLogic({
 
         return {
             ...baseExtraErrors,
-            [extension.availabilityCheck.shiftQuestionId]:
-                'Jadwal pada tanggal dan sesi ini sudah terisi.',
+            [extension.availabilityCheck.shiftQuestionId]: UNAVAILABLE_MESSAGE,
         };
     }, [baseExtraErrors, availabilityUnavailable, extension]);
 
@@ -285,13 +262,13 @@ export function useMsFormLogic({
             return;
         }
 
-        setHistory((current) => [...current, nextId]);
+        navigation.goNext(nextId);
         resetSubmitError();
         setEmptySubmitTried(false);
     };
 
     const handlePrevious = () => {
-        setHistory((current) => current.slice(0, -1));
+        navigation.goPrevious();
         resetSubmitError();
         setEmptySubmitTried(false);
     };
@@ -329,7 +306,7 @@ export function useMsFormLogic({
 
     const handleReset = () => {
         form.reset(buildMsFormDefaultValues(questions));
-        setHistory([sectionIds[0]]);
+        navigation.goFirst();
         resetSubmitError();
         setEmptySubmitTried(false);
         submitForm.reset();

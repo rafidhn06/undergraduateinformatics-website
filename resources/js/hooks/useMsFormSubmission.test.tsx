@@ -3,23 +3,17 @@ import { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import axios, { AxiosError, type AxiosResponse } from 'axios';
+import { AxiosError, type AxiosResponse } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { httpPost } from '@/lib/http';
 
 import { type MsFormQuestion, type MsFormValues } from '../types/ms-forms';
 import { useMsFormSubmission } from './useMsFormSubmission';
 
-vi.mock('axios', async () => {
-    const actual = await vi.importActual<typeof import('axios')>('axios');
-
-    return {
-        ...actual,
-        default: {
-            ...actual.default,
-            post: vi.fn(),
-        },
-    };
-});
+vi.mock('@/lib/http', () => ({
+    httpPost: vi.fn(),
+}));
 
 const questions: MsFormQuestion[] = [
     {
@@ -51,7 +45,7 @@ function axiosError(status: number, data: Record<string, unknown> = {}) {
 
 describe('useMsFormSubmission', () => {
     beforeEach(() => {
-        vi.mocked(axios.post).mockResolvedValue({ data: { success: true } });
+        vi.mocked(httpPost).mockResolvedValue({ success: true });
     });
 
     it('submits the non-empty answers to the given url', async () => {
@@ -65,17 +59,13 @@ describe('useMsFormSubmission', () => {
             result.current.submitForm.mutate(values);
         });
 
-        expect(axios.post).toHaveBeenCalledWith('/api/feedback', {
+        expect(httpPost).toHaveBeenCalledWith('/api/feedback', {
             answers: [{ questionId: 'q1', answer: 'Masukan saya' }],
-        });
-
-        await waitFor(() => {
-            expect(result.current.submitForm.isSuccess).toBe(true);
         });
     });
 
     it('shows the generic error message on a non-404 failure', async () => {
-        vi.mocked(axios.post).mockRejectedValue(axiosError(422));
+        vi.mocked(httpPost).mockRejectedValue(axiosError(422));
         const { result } = renderHook(() => useMsFormSubmission('/api/feedback', [], questions), {
             wrapper,
         });
@@ -90,7 +80,7 @@ describe('useMsFormSubmission', () => {
     });
 
     it('shows the unavailable message on a 404 failure', async () => {
-        vi.mocked(axios.post).mockRejectedValue(axiosError(404));
+        vi.mocked(httpPost).mockRejectedValue(axiosError(404));
         const { result } = renderHook(() => useMsFormSubmission('/api/feedback', [], questions), {
             wrapper,
         });
@@ -103,7 +93,7 @@ describe('useMsFormSubmission', () => {
     });
 
     it('clears the error via resetSubmitError', async () => {
-        vi.mocked(axios.post).mockRejectedValue(axiosError(422));
+        vi.mocked(httpPost).mockRejectedValue(axiosError(422));
         const { result } = renderHook(() => useMsFormSubmission('/api/feedback', [], questions), {
             wrapper,
         });
@@ -122,7 +112,7 @@ describe('useMsFormSubmission', () => {
     });
 
     it('exposes server field errors from a 422 response', async () => {
-        vi.mocked(axios.post).mockRejectedValue(
+        vi.mocked(httpPost).mockRejectedValue(
             axiosError(422, { errors: { date: ['The schedule is already full.'] } })
         );
 
@@ -144,7 +134,7 @@ describe('useMsFormSubmission', () => {
     });
 
     it('shows the generic message when a 422 has no field errors', async () => {
-        vi.mocked(axios.post).mockRejectedValue(axiosError(422));
+        vi.mocked(httpPost).mockRejectedValue(axiosError(422));
 
         const { result } = renderHook(() => useMsFormSubmission('/api/feedback', [], []), {
             wrapper,

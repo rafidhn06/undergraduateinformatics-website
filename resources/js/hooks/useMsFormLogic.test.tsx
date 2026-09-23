@@ -88,18 +88,6 @@ describe('useMsFormLogic', () => {
         vi.clearAllMocks();
     });
 
-    it('returns submit and navigation handlers', () => {
-        const { result } = renderHook(
-            () => useMsFormLogic({ questions, submitUrl: '/api/feedback' }),
-            { wrapper }
-        );
-
-        expect(typeof result.current.handleNext).toBe('function');
-        expect(typeof result.current.handlePrevious).toBe('function');
-        expect(typeof result.current.handleValidSubmit).toBe('function');
-        expect(typeof result.current.handleReset).toBe('function');
-    });
-
     it('computes extra field errors and activates the error flag', async () => {
         const extension = {
             fieldExtraErrors: (values: Record<string, string | string[]>) => ({

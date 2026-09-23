@@ -10,6 +10,7 @@ import '../css/app.css';
 import './bootstrap';
 import { ErrorPage } from './components/ErrorPage';
 import { NotFoundPage } from './components/NotFoundPage';
+import { seedInitialQueries } from './hooks/usePageData';
 import { routeTree } from './routeTree.gen';
 
 const queryClient = new QueryClient({
@@ -17,9 +18,12 @@ const queryClient = new QueryClient({
         queries: {
             refetchOnWindowFocus: false,
             retry: 1,
+            staleTime: 30000,
         },
     },
 });
+
+seedInitialQueries(queryClient);
 
 const router = createRouter({
     routeTree,
@@ -48,12 +52,16 @@ declare module '@tanstack/react-router' {
     }
 }
 
-const rootElement = document.getElementById('root');
-
-if (rootElement) {
+function removeServerRenderedHeadTags() {
     document.head
         .querySelectorAll('[data-ssr="true"]:not([property^="og:"])')
         .forEach((el) => el.remove());
+}
+
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+    removeServerRenderedHeadTags();
 
     ReactDOM.createRoot(rootElement).render(
         <React.StrictMode>

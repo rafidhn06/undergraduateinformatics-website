@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import './lib/apiClient';
+
 declare global {
     interface Window {
         axios: typeof axios;
@@ -7,4 +9,3 @@ declare global {
 }
 
 window.axios = axios;
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

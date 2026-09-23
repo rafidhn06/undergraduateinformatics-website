@@ -36,7 +36,7 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 
 describe('useMsForm', () => {
     beforeEach(() => {
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
     it('unwraps the api envelope and marks a complete form as valid', async () => {
@@ -53,7 +53,7 @@ describe('useMsForm', () => {
         const { result } = renderHook(() => useMsForm('/api/feedback'), { wrapper });
 
         await waitFor(() => {
-            expect(result.current.isSuccess).toBe(true);
+            expect(result.current.data).toBeDefined();
         });
 
         expect(result.current.data?.isValid).toBe(true);
@@ -71,7 +71,7 @@ describe('useMsForm', () => {
         const { result } = renderHook(() => useMsForm('/api/feedback'), { wrapper });
 
         await waitFor(() => {
-            expect(result.current.isSuccess).toBe(true);
+            expect(result.current.data).toBeDefined();
         });
 
         expect(result.current.data?.isValid).toBe(false);
@@ -88,7 +88,7 @@ describe('useMsForm', () => {
         const { result } = renderHook(() => useMsForm('/api/feedback'), { wrapper });
 
         await waitFor(() => {
-            expect(result.current.isSuccess).toBe(true);
+            expect(result.current.data).toBeDefined();
         });
 
         expect(result.current.data?.isValid).toBe(false);

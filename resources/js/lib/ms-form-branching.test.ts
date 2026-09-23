@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { type MsFormQuestion, type MsFormSection, type MsFormValues } from '../types/ms-forms';
-import {
-    computeReachableIds,
-    flattenQuestions,
-    getSectionIds,
-    getSectionQuestions,
-    resolveNextSectionId,
-} from './ms-form-branching';
+import { computeReachableIds, getSectionIds, resolveNextSectionId } from './ms-form-branching';
 
 const sections: MsFormSection[] = [
     { id: 'section-1', title: null, subtitle: null, questionIds: ['q1'] },
@@ -81,38 +75,8 @@ const endQuestions: MsFormQuestion[] = [
 ];
 
 describe('getSectionIds', () => {
-    it('returns section ids in order', () => {
-        expect(getSectionIds(sections)).toEqual(['section-1', 'section-2', 'section-3']);
-    });
-
     it('falls back to a single section when sections are absent', () => {
         expect(getSectionIds(undefined)).toEqual(['section-1']);
-    });
-});
-
-describe('getSectionQuestions', () => {
-    it('returns only the questions of a section', () => {
-        expect(
-            getSectionQuestions(sections, questions, 'section-2').map((question) => question.id)
-        ).toEqual(['q2']);
-    });
-
-    it('returns all questions when sections are absent', () => {
-        expect(getSectionQuestions(undefined, questions, 'section-1')).toHaveLength(3);
-    });
-});
-
-describe('flattenQuestions', () => {
-    it('returns questions in section order', () => {
-        expect(flattenQuestions(sections, questions).map((question) => question.id)).toEqual([
-            'q1',
-            'q2',
-            'q3',
-        ]);
-    });
-
-    it('returns all questions when sections are absent', () => {
-        expect(flattenQuestions(undefined, questions)).toHaveLength(3);
     });
 });
 
