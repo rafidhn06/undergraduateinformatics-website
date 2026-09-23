@@ -1,12 +1,12 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'Edit ' . $post->title)
+@section('title', 'Ubah ' . $post->title)
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Form Pengeditan Informasi</h2>
+        <h2 class="modern-page__heading">Form Ubah Informasi</h2>
         <div class="form row form--wide">
-            @include('partials.Alerts')
+            @include('partials.alerts')
             <form method="POST" action="{{ route('admin.posts.update', ['post' => $post->id]) }}" enctype="multipart/form-data">
                 @method('PUT')
                 @csrf
@@ -32,7 +32,19 @@
                 </div>
                 <script>
                     ClassicEditor
-                        .create(document.querySelector('#deskripsi'))
+                        .create(document.querySelector('#deskripsi'), {
+                            language: 'id',
+                            toolbar: ['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', '|', 'link', 'insertTable', 'blockQuote', '|', 'bulletedList', 'numberedList'],
+                            heading: {
+                                options: [
+                                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+                                ]
+                            },
+                            removePlugins: ['EasyImage', 'ImageUpload', 'MediaEmbed']
+                        })
                         .catch(error => {
                             console.error(error);
                         });
@@ -56,13 +68,13 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="tag" class="form-label">
-                                <h4>Tag<span class="required-star">*</span></h4>
+                            <label for="dropdownMenuButton" class="form-label">
+                                <h4>Topik<span class="required-star">*</span></h4>
                             </label>
                             <div class="dropdown" onclick="performSearch()">
                                 <button class="modern-button modern-button--neutral dropdown-toggle" type="button" id="dropdownMenuButton"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Tag yang dipilih bisa lebih dari 1
+                                    Topik yang dipilih bisa lebih dari 1
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <input type="text" id="searchInput" name="searchInput" placeholder="Cari disini"
@@ -84,13 +96,13 @@
                     </div>
                 </div>
                 <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="modern-button modern-button--primary">Submit</button>
+                    <button type="submit" class="modern-button modern-button--primary">Simpan</button>
                     <a href="{{ route('admin.posts.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>
         </div>
     </div>
-    @include('AdminInformasi.TagLiveSearchScript')
+    @include('admin.posts.tag-live-search-script')
 @endsection
 
 <script>

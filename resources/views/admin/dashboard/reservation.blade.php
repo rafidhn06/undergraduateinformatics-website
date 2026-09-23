@@ -1,35 +1,34 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
 @section('title', 'Approval Reservasi')
 
 @section('content')
     <div class="admin modern-page">
-        <div class="reservation-heading">
-            <div>
-                <h2 class="modern-page__heading">Approval Reservasi</h2>
-            </div>
+        <div class="dashboard-heading">
+            <h2 class="modern-page__heading">Approval Reservasi</h2>
             @if ($reservationTableReady && $reservationDetailsReady)
-                <div class="reservation-heading__actions">
-                    <form method="GET" action="{{ route('admin.reservations.index') }}" class="d-flex" role="search">
-                        <input class="form-control" name="search" type="search" placeholder="Cari"
-                            value="{{ request()->get('search') }}" aria-label="Search">
-                    </form>
+                <div class="dashboard-heading__actions">
                     <a class="modern-button modern-button--primary" href="{{ route('admin.reservations.create') }}"><i class="fa-solid fa-plus"></i> Tambah Reservasi</a>
+                    <form method="GET" action="{{ route('admin.reservations.index') }}" role="search">
+                        <input class="form-control" name="search" type="search" placeholder="Cari"
+                            value="{{ request()->get('search') }}" aria-label="Pencarian">
+                    </form>
                 </div>
             @endif
         </div>
+        @include('partials.alerts')
 
         @if (! $reservationTableReady)
             <section class="empty-state modern-card">
                 <i class="fa-solid fa-database"></i>
                 <p>Database reservasi belum siap</p>
-                <p>Tabel <code>reservation_schedules</code> belum tersedia. Jalankan migration reservasi agar pengajuan dapat ditampilkan.</p>
+                <p>Tabel <code>reservation_schedules</code> belum tersedia. Jalankan migrasi reservasi agar pengajuan dapat ditampilkan.</p>
             </section>
         @elseif (! $reservationDetailsReady)
             <section class="empty-state modern-card">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <p>Struktur reservasi belum lengkap</p>
-                <p>Kolom detail reservasi belum tersedia. Jalankan migration detail reservasi terlebih dahulu.</p>
+                <p>Kolom detail reservasi belum tersedia. Jalankan migrasi detail reservasi terlebih dahulu.</p>
             </section>
         @elseif ($reservations->isEmpty())
             <section class="empty-state modern-card">
@@ -38,7 +37,6 @@
                 <p>{{ request()->get('search') ? 'Coba gunakan kata kunci lain.' : 'Pengajuan jadwal baru dari formulir reservasi akan muncul di halaman ini.' }}</p>
             </section>
         @else
-            @include('partials.Alerts')
             <div class="table-admin">
                 <table class="table table-striped table--reservation">
                     <thead>
@@ -53,7 +51,7 @@
                                 <td>{{ $reservation->meeting_room ?: '—' }}</td>
                                 <td class="aksi">
                                     @if ($reservation->document_link)<a class="edit" href="{{ $reservation->document_link }}" target="_blank" rel="noopener noreferrer" title="Lihat PDF" aria-label="Lihat PDF"><i class="fa-regular fa-file-pdf"></i></a>@endif
-                                    <a class="edit" href="{{ route('admin.reservations.edit', $reservation) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    <a class="edit" href="{{ route('admin.reservations.edit', $reservation) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                                     <a class="delete" href="#" data-bs-toggle="modal" data-bs-target="#confirmModal-{{ $reservation->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                                 </td>
                             </tr>
@@ -72,7 +70,7 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="confirmModalLabel-{{ $reservation->id }}">Konfirmasi</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                             </div>
                             <div class="modal-body">
                                 Apakah yakin menghapus reservasi ini beserta dokumen PDF-nya?

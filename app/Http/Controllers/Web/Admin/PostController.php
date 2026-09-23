@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PostStoreRequest;
 use App\Http\Requests\Admin\PostUpdateRequest;
+use App\Support\PostBodySanitizer;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Tag;
-use App\Models\PostTag;
-use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
+    public function __construct(private readonly PostBodySanitizer $bodies)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +25,7 @@ class PostController extends Controller
         $posts = Post::with('tags')->filter(request(['search']))->orderBy('updated_at', 'desc')->paginate(10)->withQueryString();
 
         // Return admin posts index page with data
-        return view("AdminInformasi.AdminPageInformasi", [
+        return view('admin.posts.index', [
             'posts' => $posts
         ]);
     }
@@ -32,15 +35,6 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-        /*
-        // Fetch tags data for input form
-        $tags = Tag::all();
-
-        // Return admin create post form with data
-        return view("AdminInformasi.AdminPageTambahInformasi", [
-            'tags' => $tags
-        ]);
-        */
         if ($request->input('viewGenerated') == true) {
             if ($request->input('selected')) {
                 $tags = Tag::where('name', '!=', 'S1 Informatika')
@@ -48,19 +42,19 @@ class PostController extends Controller
                 ->whereNotIn('id', $request->input('selected'))->get();
                 
                 $selectedTags = Tag::whereIn('id', $request->input('selected'))->get();
-                return view('AdminInformasi.TagLiveSearchResult', compact('tags', 'selectedTags'));
+                return view('admin.posts.tag-live-search-result', compact('tags', 'selectedTags'));
             }
 
             $tags = Tag::where('name', '!=', 'S1 Informatika')
                 ->where('name', 'like', '%' . $request->input('query') . '%')->get();
-            return view('AdminInformasi.TagLiveSearchResult', compact('tags'));
+            return view('admin.posts.tag-live-search-result', compact('tags'));
         }
 
         // Fetch tags data for input form
         $tags = Tag::where('name', '!=', 'S1 Informatika')->get();
 
         // Return admin create post form with data
-        return view("AdminInformasi.AdminPageTambahInformasi", [
+        return view('admin.posts.create', [
             'tags' => $tags
         ]);
     }
@@ -74,37 +68,15 @@ class PostController extends Controller
 
         $tags = array_unique($validated['tags']);
 
-        $tagDefault = Tag::where('name', "S1 Informatika")->first();
-
         // Store inputted post data in the database
         $post = Post::create([
             'title' => $validated['title'],
             'subtitle' => $validated['subtitle'],
-            'body' => $validated['body'],
+            'body' => $this->bodies->sanitize($validated['body']) ?? '',
         ]);
 
-        PostTag::create([
-            'post_id' => $post->id,
-            'tag_id' => $tagDefault->id
-        ]);
-
-        // Iterate inputted post's tags
-        foreach($tags as $tag) {
-            if (count(PostTag::where('post_id', $post->id)->where('tag_id', $tag)->get()) == 0) {
-            // Store PostTag data in the database
-                PostTag::create([
-                    'post_id' => $post->id,
-                    'tag_id' => $tag
-                ]);
-            }
-        }
-
-        $image = $validated['image'] ?? null;
-        if ($image) {
-            $post->image = Storage::disk('public')->putFile('posts', $image);
-        } else {
-            $post->image = null;
-        }
+        $post->syncTags($tags);
+        $post->replaceImage($validated['image'] ?? null);
 
         // Update record in database
         $post->save();
@@ -114,7 +86,7 @@ class PostController extends Controller
         // If not, return back with error
         $data = Post::where('id','=',$post->id)->get();
         if ($data) {
-            $request->session()->flash('success', 'Post berhasil ditambahkan!');
+            $request->session()->flash('success', 'Informasi berhasil ditambahkan!');
             return redirect()->route('admin.posts.index');
         } else {
             return back()->withErrors([
@@ -132,7 +104,7 @@ class PostController extends Controller
         $tags = Tag::where('name', '!=', 'S1 Informatika')->get();
 
         // Return admin edit post form view with data
-        return view("AdminInformasi.AdminPageEditInformasi", [
+        return view('admin.posts.edit', [
             'post' => $post,
             'tags' => $tags
         ]);
@@ -147,45 +119,13 @@ class PostController extends Controller
 
         $tags = array_unique($validated['tags']);
 
-        $tagDefault = Tag::where('name', "S1 Informatika")->first();
-
         // Update targeted post
         $post->title = $validated['title'];
         $post->subtitle = $validated['subtitle'];
-        $post->body = $validated['body'];
+        $post->body = $this->bodies->sanitize($validated['body']) ?? '';
 
-        $image = $validated['image'] ?? null;
-        if ($image) {
-            if ($post->hasImage()) {
-                Storage::disk('public')->delete($post->image);
-            }
-            $post->image = Storage::disk('public')->putFile('posts', $image);
-        } else if ($request->has('deleteGambar')) {
-            if ($post->hasImage()) {
-                Storage::disk('public')->delete($post->image);
-            }
-
-            $post->image = null;
-        }
-
-        // Delete previous PostTag data 
-        PostTag::where('post_id', $post->id)->delete();
-
-        PostTag::create([
-            'post_id' => $post->id,
-            'tag_id' => $tagDefault->id
-        ]);
-
-        // Iterate updated post's tags
-        foreach($tags as $tag) {
-            if (count(PostTag::where('post_id', $post->id)->where('tag_id', $tag)->get()) == 0) {
-                // Store updated PostTag data in the database
-                PostTag::create([
-                    'post_id' => $post->id,
-                    'tag_id' => $tag
-                ]);
-            }
-        }
+        $post->replaceImage($validated['image'] ?? null, $request->has('deleteGambar'));
+        $post->syncTags($tags);
 
         // Update record in database
         $post->updated_at = now();
@@ -196,7 +136,7 @@ class PostController extends Controller
         // If not, return back with error
         $data = Post::where('id','=',$post->id)->get();
         if ($data) {
-            $request->session()->flash('success', 'Post berhasil diupdate!');
+            $request->session()->flash('success', 'Informasi berhasil diubah!');
             return redirect()->route('admin.posts.index');
         } else {
             return back()->withErrors([
@@ -210,18 +150,11 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        if ($post->hasImage()) {
-            Storage::disk('public')->delete($post->image);
-        }
-        
-        // Delete PostTags data with targeted post id
-        PostTag::where('post_id', $post->id)->delete();
-
         // Delete targeted post from database
         $post->delete();
 
         // Redirect to admin post index page with success
-        request()->session()->flash('success', 'Post berhasil dihapus!');
+        request()->session()->flash('success', 'Informasi berhasil dihapus!');
         return redirect()->route('admin.posts.index');
     }
 }

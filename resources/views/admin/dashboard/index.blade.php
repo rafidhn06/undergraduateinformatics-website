@@ -1,4 +1,4 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
 @section('title', 'Statistik Mahasiswa')
 
@@ -7,28 +7,28 @@
         <div class="dashboard-heading">
             <h2 class="modern-page__heading">Statistik Mahasiswa</h2>
             <div class="dashboard-heading__actions">
-                <a class="modern-button modern-button--soft" href="{{ route('admin.datasets.create') }}">
-                    <i class="fa-solid fa-plus"></i> Tambah Chart Manual
+                <a class="modern-button modern-button--primary" href="{{ route('admin.datasets.create') }}">
+                    <i class="fa-solid fa-plus"></i> Tambah Grafik
                 </a>
-                <a class="modern-button modern-button--primary" href="{{ route('admin.dataset-imports.create') }}">
-                    <i class="fa-solid fa-file-arrow-up"></i> Upload Data Excel
+                <a class="modern-button modern-button--soft" href="{{ route('admin.dataset-imports.create') }}">
+                    <i class="fa-solid fa-file-arrow-up"></i> Unggah Data Excel
                 </a>
             </div>
         </div>
 
-        @include('partials.Alerts')
+        @include('partials.alerts')
 
         @if (! $dashboardTablesReady)
             <div class="empty-state modern-card">
                 <i class="fa-solid fa-database"></i>
                 <p>Database Statistik Mahasiswa belum siap</p>
-                <p>Tabel untuk menyimpan data Statistik Mahasiswa belum dibuat. Setelah migration dashboard dijalankan, gunakan tombol Upload Data Excel di atas.</p>
+                <p>Tabel untuk menyimpan data Statistik Mahasiswa belum dibuat. Setelah migrasi dashboard dijalankan, gunakan tombol Unggah Data Excel di atas.</p>
             </div>
         @elseif ($datasets->isEmpty())
             <div class="empty-state modern-card">
                 <i class="fa-regular fa-file-lines"></i>
                 <p>Belum ada data yang dipublikasikan</p>
-                <p>Upload file Excel atau tambah chart manual untuk menerbitkan data pada Statistik Mahasiswa.</p>
+                <p>Unggah file Excel atau tambah grafik manual untuk menerbitkan data pada Statistik Mahasiswa.</p>
             </div>
         @else
             <div class="chart-grid">
@@ -36,12 +36,9 @@
                     <article class="chart-card">
                         <div class="chart-card__head">
                             <h3 class="chart-card__title">{{ $dataset['title'] }}</h3>
-                            <a class="chart-card__edit" href="{{ route('admin.datasets.edit', ['dashboardDataset' => $dataset['id']]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                            <a class="chart-card__edit" href="{{ route('admin.datasets.edit', ['dashboardDataset' => $dataset['id']]) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                         </div>
                         <div class="chart-canvas"><canvas id="chart-{{ $dataset['id'] }}"></canvas></div>
-                        @if ($dataset['x_label'])
-                            <p class="chart-card__axis">{{ $dataset['x_label'] }}</p>
-                        @endif
                     </article>
                 @endforeach
             </div>
@@ -49,7 +46,7 @@
     </div>
 @endsection
 
-@include('AdminDashboard._chart-assets')
+@include('admin.dashboard._chart-assets')
 
 @push('scripts')
     <script>

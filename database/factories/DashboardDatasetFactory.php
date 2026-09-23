@@ -19,8 +19,6 @@ class DashboardDatasetFactory extends Factory
             'slug' => Str::slug($title).'-'.fake()->unique()->randomNumber(5),
             'sheet_name' => fake()->word(),
             'chart_type' => 'bar',
-            'x_label' => fake()->word(),
-            'y_label' => fake()->word(),
             'description' => null,
         ];
     }

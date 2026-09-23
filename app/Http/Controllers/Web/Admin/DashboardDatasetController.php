@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DashboardDatasetStoreRequest;
 use App\Http\Requests\Admin\DashboardDatasetUpdateRequest;
+use App\Http\Resources\DashboardDatasetResource;
 use App\Models\DashboardDataset;
 use App\Models\DashboardDatasetItem;
 use App\Models\DatasetImport;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class DashboardController extends Controller
+class DashboardDatasetController extends Controller
 {
     public function index(): View
     {
@@ -22,21 +23,14 @@ class DashboardController extends Controller
             && Schema::hasTable('dashboard_dataset_items');
 
         $datasets = $dashboardTablesReady
-            ? DashboardDataset::with(['items' => fn ($query) => $query->orderBy('sort_order')])
-                ->orderBy('id')
-                ->get()
-                ->map(fn (DashboardDataset $dataset) => [
-                    'id' => $dataset->id,
-                    'title' => $dataset->title,
-                    'chart_type' => $dataset->chart_type,
-                    'x_label' => $dataset->x_label,
-                    'y_label' => $dataset->y_label,
-                    'labels' => $dataset->items->pluck('label')->values(),
-                    'values' => $dataset->items->pluck('value')->values(),
-                ])
+            ? collect(DashboardDatasetResource::collection(
+                DashboardDataset::with(['items' => fn ($query) => $query->orderBy('sort_order')])
+                    ->orderBy('id')
+                    ->get()
+            )->resolve())
             : collect();
 
-        return view('AdminDashboard.index', [
+        return view('admin.dashboard.index', [
             'datasets' => $datasets,
             'dashboardTablesReady' => $dashboardTablesReady,
         ]);
@@ -44,14 +38,19 @@ class DashboardController extends Controller
 
     public function create(): View
     {
-        return view('AdminDashboard.create');
+        return view('admin.dashboard.create', [
+            'rows' => old('items', [['label' => '', 'value' => '']]),
+        ]);
     }
 
     public function edit(DashboardDataset $dashboardDataset): View
     {
         $dataset = $dashboardDataset->load('items');
 
-        return view('AdminDashboard.edit', ['dataset' => $dataset]);
+        return view('admin.dashboard.edit', [
+            'dataset' => $dataset,
+            'rows' => old('items', $dataset->items->map(fn ($item) => ['label' => $item->label, 'value' => $item->value])->all()),
+        ]);
     }
 
     public function store(DashboardDatasetStoreRequest $request): RedirectResponse
@@ -66,8 +65,6 @@ class DashboardController extends Controller
                 'slug' => $this->uniqueSlug($validatedData['title'], $usedSlugs),
                 'sheet_name' => $validatedData['title'],
                 'chart_type' => $validatedData['chart_type'],
-                'x_label' => $validatedData['x_label'] ?? '',
-                'y_label' => $validatedData['y_label'] ?? '',
                 'description' => null,
             ]);
 
@@ -81,7 +78,7 @@ class DashboardController extends Controller
             }
         });
 
-        return redirect()->route('admin.datasets.index')->with('success', 'Chart berhasil ditambahkan.');
+        return redirect()->route('admin.datasets.index')->with('success', 'Grafik berhasil ditambahkan.');
     }
 
     public function update(DashboardDatasetUpdateRequest $request, DashboardDataset $dashboardDataset): RedirectResponse
@@ -96,8 +93,6 @@ class DashboardController extends Controller
                 'slug' => Str::slug($validatedData['title']) . '-' . $dataset->id,
                 'sheet_name' => $validatedData['title'],
                 'chart_type' => $validatedData['chart_type'],
-                'x_label' => $validatedData['x_label'] ?? $dataset->x_label,
-                'y_label' => $validatedData['y_label'] ?? $dataset->y_label,
                 'description' => $dataset->description,
             ]);
 
@@ -113,7 +108,7 @@ class DashboardController extends Controller
             }
         });
 
-        return redirect()->route('admin.datasets.index')->with('success', 'Chart berhasil diperbarui.');
+        return redirect()->route('admin.datasets.index')->with('success', 'Grafik berhasil diperbarui.');
     }
 
     public function destroyAll(): RedirectResponse

@@ -14,7 +14,7 @@ class DatasetImportStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'excel_file' => ['required', 'file', 'mimes:xlsx,xls'],
+            'excel_file' => ['required', 'file', 'mimes:xlsx,xls', 'max:10240'],
         ];
     }
 
@@ -24,6 +24,7 @@ class DatasetImportStoreRequest extends FormRequest
             'excel_file.required' => 'File excel wajib diunggah.',
             'excel_file.file' => 'File excel harus berupa berkas.',
             'excel_file.mimes' => 'File excel harus berformat xlsx atau xls.',
+            'excel_file.max' => 'Ukuran file excel maksimal 10 MB.',
         ];
     }
 }

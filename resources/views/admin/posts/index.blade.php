@@ -1,6 +1,6 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'List Informasi')
+@section('title', 'Manajemen Informasi')
 
 @section('content')
     <div class="admin modern-page">
@@ -12,11 +12,11 @@
                 </a>
                 <form method="GET" action="{{ route('admin.posts.index') }}" role="search">
                     <input class="form-control" name="search" type="search" placeholder="Cari"
-                        value="{{ request()->get('search') }}" aria-label="Search">
+                        value="{{ request()->get('search') }}" aria-label="Pencarian">
                 </form>
             </div>
         </div>
-        @include('partials.Alerts')
+        @include('partials.alerts')
         <div class="table-admin">
             <table class="table table-striped table--posts">
                 <thead>
@@ -25,7 +25,7 @@
                         <th scope="col">Sub-Judul</th>
                         <th scope="col">Deskripsi</th>
                         <th scope="col">Gambar</th>
-                        <th scope="col">Tag</th>
+                        <th scope="col">Topik</th>
                         <th scope="col" class="text-end">Aksi</th>
                     </tr>
                 </thead>
@@ -40,7 +40,7 @@
                                 {{ $data->tags->pluck('name')->join(', ') }}
                             </td>
                             <td class="aksi"><a class="edit"
-                                    href="{{ route('admin.posts.edit', ['post' => $data]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    href="{{ route('admin.posts.edit', ['post' => $data]) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $data->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -49,7 +49,7 @@
                 </tbody>
             </table>
             @if ($posts->isEmpty())
-                @include('partials.Empty')
+                @include('partials.empty')
             @endif
         </div>
         @if ($posts->total() > 0)
@@ -64,7 +64,7 @@
                         <div class="modal-header">
                             <h5 class="modal-title" id="confirmModalLabel-{{ $data->id }}">Konfirmasi</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                                aria-label="Tutup"></button>
                         </div>
                         <div class="modal-body">
                             Apakah yakin dihapus?

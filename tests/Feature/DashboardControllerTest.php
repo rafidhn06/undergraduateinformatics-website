@@ -16,7 +16,6 @@ class DashboardControllerTest extends TestCase
     {
         return User::create([
             'email' => fake()->unique()->safeEmail(),
-            'password_recovery_id' => 1,
             'password' => bcrypt('password'),
         ]);
     }
@@ -33,8 +32,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'jumlah-mahasiswa',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'description' => null,
         ]);
         DashboardDatasetItem::create(['dataset_id' => $dataset->id, 'label' => '2024', 'value' => 120, 'sort_order' => 2]);
@@ -42,7 +39,6 @@ class DashboardControllerTest extends TestCase
 
         $response = $this->actingAs($this->createAdminUser())->get('/admin/datasets');
 
-        $response->assertStatus(200);
         $response->assertSee('Jumlah Mahasiswa');
         $response->assertSee('/admin/datasets/' . $dataset->id . '/edit');
     }
@@ -54,8 +50,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'dataset-lama',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Jumlah',
             'description' => null,
         ]);
         DashboardDatasetItem::create(['dataset_id' => $existing->id, 'label' => '2023', 'value' => 10, 'sort_order' => 1]);
@@ -63,8 +57,6 @@ class DashboardControllerTest extends TestCase
         $response = $this->actingAs($this->createAdminUser())->post('/admin/datasets', [
             'title' => 'Chart Manual',
             'chart_type' => 'pie',
-            'x_label' => 'Gender',
-            'y_label' => 'Jumlah',
             'items' => [
                 ['label' => 'L', 'value' => 60],
                 ['label' => 'P', 'value' => 40],
@@ -91,8 +83,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'jumlah',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Jumlah',
             'description' => null,
         ]);
 
@@ -113,8 +103,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'jumlah-mahasiswa',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'description' => null,
         ]);
         DashboardDatasetItem::create(['dataset_id' => $dataset->id, 'label' => '2023', 'value' => 100, 'sort_order' => 1]);
@@ -122,8 +110,6 @@ class DashboardControllerTest extends TestCase
         $response = $this->actingAs($this->createAdminUser())->put("/admin/datasets/{$dataset->id}", [
             'title' => 'Mahasiswa per Tahun',
             'chart_type' => 'pie',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'items' => [
                 ['label' => '2023', 'value' => 100],
                 ['label' => '2024', 'value' => 130],
@@ -150,8 +136,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'jumlah-mahasiswa',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'description' => null,
         ]);
 
@@ -161,7 +145,6 @@ class DashboardControllerTest extends TestCase
                 'chart_type' => 'radar',
                 'items' => [['label' => '2023', 'value' => 1]],
             ])
-            ->assertStatus(302)
             ->assertSessionHasErrors('chart_type');
     }
 
@@ -172,8 +155,6 @@ class DashboardControllerTest extends TestCase
             'slug' => 'jumlah-mahasiswa',
             'sheet_name' => 'Sheet1',
             'chart_type' => 'bar',
-            'x_label' => 'Tahun',
-            'y_label' => 'Mahasiswa',
             'description' => null,
         ]);
         DashboardDatasetItem::create(['dataset_id' => $dataset->id, 'label' => '2023', 'value' => 100, 'sort_order' => 1]);

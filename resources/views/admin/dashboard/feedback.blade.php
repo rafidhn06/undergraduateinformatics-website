@@ -1,11 +1,11 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'Manajemen Form Link')
+@section('title', 'Manajemen Tautan Form')
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Manajemen Form Link</h2>
-        @include('partials.Alerts')
+        <h2 class="modern-page__heading">Manajemen Tautan Form</h2>
+        @include('partials.alerts')
         <section class="modern-card">
             <form method="POST" action="{{ route('admin.form-links.update') }}">
                 @csrf
@@ -19,7 +19,7 @@
                 @error('feedback_link')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
-                <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $feedbackDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</small>
+                <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $feedbackDefinition?->fetched_at?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? 'belum pernah' }}</small>
             </form>
         </section>
 
@@ -37,7 +37,7 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </form>
-            <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $reservationDefinition?->fetched_at?->format('d M Y H:i') ?? 'belum pernah' }}</small>
+            <small class="text-muted d-block mt-2">Terakhir di-refresh: {{ $reservationDefinition?->fetched_at?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? 'belum pernah' }}</small>
         </section>
     </div>
 @endsection

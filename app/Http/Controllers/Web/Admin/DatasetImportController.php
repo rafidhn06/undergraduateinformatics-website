@@ -17,6 +17,10 @@ use Throwable;
 
 class DatasetImportController extends Controller
 {
+    public function __construct(private readonly ExcelExtractor $excel)
+    {
+    }
+
     public function create(): View
     {
         return view('dataset-imports.create');
@@ -25,7 +29,7 @@ class DatasetImportController extends Controller
     public function store(DatasetImportStoreRequest $request): RedirectResponse
     {
         try {
-            $datasets = app(ExcelExtractor::class)->extract($request->file('excel_file'));
+            $datasets = $this->excel->extract($request->file('excel_file'));
         } catch (Throwable $exception) {
             report($exception);
 
@@ -52,10 +56,10 @@ class DatasetImportController extends Controller
     {
         abort_if($datasetImport->expires_at->isPast(), 410);
 
-        return view('dataset-imports.show', ['import' => $datasetImport]);
+        return view('dataset-imports.show', ['import' => $datasetImport, 'staged' => $datasetImport->payload ?? []]);
     }
 
-    public function update(DatasetImportUpdateRequest $request, DatasetImport $datasetImport): RedirectResponse
+    public function confirm(DatasetImportUpdateRequest $request, DatasetImport $datasetImport): RedirectResponse
     {
         abort_if($datasetImport->expires_at->isPast(), 410);
         DB::transaction(function () use ($request) {
@@ -68,8 +72,6 @@ class DatasetImportController extends Controller
                     'slug' => Str::slug($dataset['title']),
                     'sheet_name' => $dataset['sheet_name'] ?? $dataset['title'],
                     'chart_type' => $dataset['chart_type'],
-                    'x_label' => $dataset['x_label'] ?? '',
-                    'y_label' => $dataset['y_label'] ?? '',
                 ]);
 
                 foreach (array_values($dataset['items']) as $index => $item) {
@@ -91,6 +93,6 @@ class DatasetImportController extends Controller
     {
         $datasetImport->delete();
 
-        return redirect()->route('admin.datasets.index')->with('success', 'Import dibatalkan.');
+        return redirect()->route('admin.datasets.index')->with('success', 'Impor dibatalkan.');
     }
 }

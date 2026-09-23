@@ -1,13 +1,13 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'Upload Data Statistik Mahasiswa')
+@section('title', 'Unggah Data Statistik Mahasiswa')
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Upload Data Statistik Mahasiswa</h2>
+        <h2 class="modern-page__heading">Unggah Data Statistik Mahasiswa</h2>
 
         <div class="form row form--wide">
-            @include('partials.Alerts')
+            @include('partials.alerts')
             <form method="POST" action="{{ route('admin.dataset-imports.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">

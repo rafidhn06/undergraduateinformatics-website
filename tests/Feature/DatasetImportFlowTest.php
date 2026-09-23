@@ -19,7 +19,6 @@ class DatasetImportFlowTest extends TestCase
     {
         return User::create([
             'email' => fake()->unique()->safeEmail(),
-            'password_recovery_id' => 1,
             'password' => bcrypt('password'),
         ]);
     }
@@ -51,6 +50,11 @@ class DatasetImportFlowTest extends TestCase
 
         $show = $this->get("/admin/dataset-imports/{$import->token}");
         $show->assertOk();
+        $show->assertSee('value="Mahasiswa"', false);
+        $show->assertSee('ds-editor__preview', false);
+        $show->assertSee('review-chart-0', false);
+        $show->assertSee('Tambah data', false);
+        $show->assertSee('Hapus baris', false);
 
         $confirm = $this->put("/admin/dataset-imports/{$import->token}", ['datasets' => []]);
         $confirm->assertRedirect('/admin/datasets');
