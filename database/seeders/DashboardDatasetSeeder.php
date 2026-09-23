@@ -16,8 +16,6 @@ class DashboardDatasetSeeder extends Seeder
                 'title' => 'Jumlah Mahasiswa per Angkatan',
                 'sheet_name' => 'Mahasiswa',
                 'chart_type' => 'bar',
-                'x_label' => 'Angkatan',
-                'y_label' => 'Jumlah Mahasiswa',
                 'description' => 'Jumlah mahasiswa aktif per angkatan.',
                 'items' => [
                     ['label' => '2022', 'value' => 240],
@@ -30,8 +28,6 @@ class DashboardDatasetSeeder extends Seeder
                 'title' => 'Mahasiswa per Provinsi Asal',
                 'sheet_name' => 'Mahasiswa',
                 'chart_type' => 'pie',
-                'x_label' => 'Provinsi',
-                'y_label' => 'Jumlah Mahasiswa',
                 'description' => 'Persebaran mahasiswa berdasarkan provinsi asal.',
                 'items' => [
                     ['label' => 'Jawa Barat', 'value' => 350],
@@ -45,8 +41,6 @@ class DashboardDatasetSeeder extends Seeder
                 'title' => 'Distribusi Mahasiswa per Gender',
                 'sheet_name' => 'Mahasiswa',
                 'chart_type' => 'pie',
-                'x_label' => 'Gender',
-                'y_label' => 'Jumlah Mahasiswa',
                 'description' => 'Proporsi mahasiswa berdasarkan gender.',
                 'items' => [
                     ['label' => 'Laki-laki', 'value' => 480],
@@ -57,8 +51,6 @@ class DashboardDatasetSeeder extends Seeder
                 'title' => 'Mahasiswa Aktif per Bulan',
                 'sheet_name' => 'Mahasiswa',
                 'chart_type' => 'line',
-                'x_label' => 'Bulan',
-                'y_label' => 'Jumlah Mahasiswa',
                 'description' => 'Jumlah mahasiswa aktif setiap bulan.',
                 'items' => [
                     ['label' => 'Jan', 'value' => 490],
@@ -78,8 +70,6 @@ class DashboardDatasetSeeder extends Seeder
                     'title' => $datasetData['title'],
                     'sheet_name' => $datasetData['sheet_name'],
                     'chart_type' => $datasetData['chart_type'],
-                    'x_label' => $datasetData['x_label'],
-                    'y_label' => $datasetData['y_label'],
                     'description' => $datasetData['description'],
                 ]
             );

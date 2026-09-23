@@ -9,7 +9,7 @@ class FeedbackLinkSeeder extends Seeder
 {
     public function run(): void
     {
-        $link = env('DUMMY_FORM_LINK', 'https://forms.office.com/r/cZuHFE5E3Z');
+        $link = config('forms.dummy_feedback_link');
 
         $existing = FeedbackLink::query()->first();
 

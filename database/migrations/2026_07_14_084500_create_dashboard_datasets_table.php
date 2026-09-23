@@ -26,9 +26,6 @@ return new class extends Migration
                 'pie'
             ])->default('bar');
 
-            $table->string('x_label');
-            $table->string('y_label');
-
             $table->text('description')->nullable();
 
             $table->timestamps();

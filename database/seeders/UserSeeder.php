@@ -12,7 +12,6 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'bif@telkomuniversity.ac.id'],
             [
-                'password_recovery_id' => 1,
                 'password' => 'akunadmin',
             ]
         );

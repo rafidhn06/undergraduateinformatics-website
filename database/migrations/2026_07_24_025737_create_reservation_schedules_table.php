@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('requested_by');
             $table->string('document_link')->nullable();
             $table->timestamps();
+
+            $table->unique(['date', 'shift']);
         });
     }
 

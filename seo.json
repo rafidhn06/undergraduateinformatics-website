@@ -26,7 +26,7 @@
             "description": "Sampaikan pengaduan, keluhan, atau aspirasi terkait layanan akademik maupun non-akademik Program Studi Sarjana Informatika Telkom University"
         },
         "reservation": {
-            "title": "Reservasi - Portal Informasi Sarjana Informatika",
+            "title": "Pertemuan - Portal Informasi Sarjana Informatika",
             "description": "Ajukan reservasi pertemuan dengan Program Studi Sarjana Informatika Telkom University"
         },
         "links": {
@@ -36,6 +36,10 @@
         "postSearch": {
             "title": "Cari Informasi - Portal Informasi Sarjana Informatika",
             "description": "Cari informasi perkuliahan peserta didik Program Studi Sarjana Informatika Telkom University."
+        },
+        "notFound": {
+            "title": "Halaman Tidak Ditemukan - Portal Informasi Sarjana Informatika",
+            "description": "Alamat mungkin salah atau sudah tidak tersedia."
         }
     }
 }

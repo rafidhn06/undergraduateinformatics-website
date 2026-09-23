@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Post;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 class PostSeeder extends Seeder
 {
@@ -13,14 +15,12 @@ class PostSeeder extends Seeder
             'Timeline Tugas Akhir' => [
                 'subtitle' => 'Timeline Tugas Akhir',
                 'body' => '<p>Berikut merupakan timeline dari Tugas Akhir</p>',
-                'image' => null,
                 'created_at' => '2024-01-02',
                 'updated_at' => '2024-01-02',
             ],
             'Panduan Tugas Akhir' => [
                 'subtitle' => 'Panduan Tugas Akhir',
                 'body' => '<p>Berikut panduan untuk Tugas Akhir, dokumennya dapat dilihat pada Menu <strong>Link Penting</strong></p>',
-                'image' => null,
                 'created_at' => '2024-01-02',
                 'updated_at' => '2024-01-03',
             ],
@@ -36,7 +36,6 @@ class PostSeeder extends Seeder
 <p><a href="https://info-bif.telkomuniversity.ac.id/links">https://info-bif.telkomuniversity.ac.id/links</a> atau</p>
 <p><strong>Hasil Registrasi Bayangan</strong></p>
 <p><strong>Form Feedback Hasil Registrasi</strong></p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-01-26',
                 'updated_at' => '2024-01-26',
             ],
@@ -63,7 +62,6 @@ class PostSeeder extends Seeder
 <p>IF-45-GAB03<br>SELASA 10:30 - 12:30 (A308A) KU1.03.11 BAHASA INGGRIS UNTUK PRESENTASI<br>KAMIS 12:30 - 14:30 (A207B) KU1.02.14 BAHASA INGGRIS UNTUK PRESENTASI</p>
 <p>IF-46-GABUP03<br>SELASA 08:30 - 10:30 KU3.04.20 BAHASA INGGRIS UNTUK PRESENTASI<br>KAMIS 10:30 - 12:30 KU3.04.19 BAHASA INGGRIS UNTUK PRESENTASI</p>
 <p>IF-46-GABUP05<br>KAMIS 10:30 - 12:30 (A310) KU1.03.14 BAHASA INGGRIS UNTUK PRESENTASI<br>SELASA 12:30 - 14:30 (A207A) KU1.02.13 BAHASA INGGRIS UNTUK PRESENTASI</p>',
-                'image' => null,
                 'created_at' => '2024-01-29',
                 'updated_at' => '2024-02-02',
             ],
@@ -91,7 +89,6 @@ class PostSeeder extends Seeder
 <p><a href="https://telkomuniversityofficial-my.sharepoint.com/:x:/g/personal/bif_telkomuniversity_ac_id/Eb1KSM_treBCuRwT0d6-QOsBIOYthhI00lvxV_7vG8o9wQ?e=KLSI4v">https://telkomuniversityofficial-my.sharepoint.com/:x:/g/personal/bif_telkomuniversity_ac_id/Eb1KSM_treBCuRwT0d6-QOsBIOYthhI00lvxV_7vG8o9wQ?e=KLSI4v</a></p>
 <p>Informasi lainnya seperti jadwal perkuliahan bisa diakses di INFO-BIF <a href="https://info-bif.telkomuniversity.ac.id/links">https://info-bif.telkomuniversity.ac.id/links</a></p>
 <p>Terima kasih sebelumnya 🙏</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-02-25',
                 'updated_at' => '2024-02-25',
             ],
@@ -112,7 +109,6 @@ class PostSeeder extends Seeder
 </ul>
 <p>Terima kasih</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-03-07',
                 'updated_at' => '2024-05-10',
             ],
@@ -149,7 +145,6 @@ class PostSeeder extends Seeder
 <li>Menyumbang buku ke Perpustakaan.</li>
 <li>Tidak sedang menjalani sanksi akademik</li>
 </ol>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-03-22',
                 'updated_at' => '2024-03-22',
             ],
@@ -178,7 +173,6 @@ class PostSeeder extends Seeder
 <p>Lulusan yang memenuhi persyaratan IPK untuk mendapatkan predikat kelulusan Dengan Pujian (Excellent/Cumlaude) tetapi tidak dapat memenuhi persyaratan tambahan sesuai waktu yang ditentukan Fakultas, maka predikat kelulusan yang diberikan adalah Sangat Memuaskan (Very Good).</p>
 <p>Demikian disampaikan atas perhatiannya diucapkan terima kasih.</p>
 <p>referensi: <a href="https://soc.telkomuniversity.ac.id/persyaratan-mahasiswa-dinyatakan-cumlaude-di-fakultas-informatika/">https://soc.telkomuniversity.ac.id/persyaratan-mahasiswa-dinyatakan-cumlaude-di-fakultas-informatika/</a></p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-03-22',
                 'updated_at' => '2024-05-14',
             ],
@@ -197,7 +191,6 @@ class PostSeeder extends Seeder
 <li>Status Rekap Nilai oleh Dosen bisa dilihat di excel Plotting Kelompok IuM.</li>
 </ol>
 <p>Terima kasih</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-06-02',
                 'updated_at' => '2024-06-23',
             ],
@@ -221,7 +214,6 @@ class PostSeeder extends Seeder
 <p><strong>Aplikasi SiPProp:</strong> <a href="https://apps-soc.telkomuniversity.ac.id">https://apps-soc.telkomuniversity.ac.id</a> (Login SSO 365)</p>
 <p>Sekian dan terima Kasih</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-08-09',
                 'updated_at' => '2024-08-09',
             ],
@@ -239,7 +231,6 @@ class PostSeeder extends Seeder
 </ol>
 <p>Demikian informasi ini kami sampaikan, terima kasih.</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-08-27',
                 'updated_at' => '2024-08-27',
             ],
@@ -295,7 +286,6 @@ class PostSeeder extends Seeder
 <li>WRAP Researchship - Perancangan dan Pengujian Riset (UFKXDEB) dengan bobot 4 SKS</li>
 <li>Penulisan Proposal IF-PROP-CITI</li>
 </ul>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2024-09-19',
                 'updated_at' => '2024-09-24',
             ],
@@ -313,7 +303,6 @@ class PostSeeder extends Seeder
 <p><strong>Buku Saku Kurikulum 2024</strong> <a href="https://tel-u.ac.id/ghksdggnbee2cx6qy9y-f8la91ssa4">https://tel-u.ac.id/ghksdggnbee2cx6qy9y-f8la91ssa4</a></p>
 <p>Terima kasih</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-01-23',
                 'updated_at' => '2025-01-23',
             ],
@@ -330,7 +319,6 @@ class PostSeeder extends Seeder
 <li>Pertanyaan di group ataupun pribadi tidak akan diresponse, silahkan melalui form yang telah disediakan tersebut.</li>
 </ol>
 <p>Terima kasih</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-01-29',
                 'updated_at' => '2025-01-29',
             ],
@@ -346,7 +334,6 @@ class PostSeeder extends Seeder
 <h2>Akses final ke SiProp untuk pengajuan calon dosen pembimbing diberikan untuk semua mahasiswa yang terdaftar di kelas penulisan Proposal Semester Genap TA 2024/25 pada saat registrasi berakhir dan semester genap dimulai.</h2>
 <p>Terima kasih</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-02-01',
                 'updated_at' => '2025-02-01',
             ],
@@ -382,7 +369,6 @@ class PostSeeder extends Seeder
 <p>Demikian informasi ini kami sampaikan, atas perhatiannya terima kasih.</p>
 <p>Prodi S-1 Informatika</p>
 <p>sumber informasi</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-06-04',
                 'updated_at' => '2025-06-05',
             ],
@@ -408,7 +394,6 @@ class PostSeeder extends Seeder
 <p><a href="https://telkomuniversityofficial-my.sharepoint.com/:x:/g/personal/bif_telkomuniversity_ac_id/EfGhBSA1xyNAlCpOUZ2TMtoBroEPlbQ734DPepzrkgW25A?e=QaJMcD">https://telkomuniversityofficial-my.sharepoint.com/:x:/g/personal/bif_telkomuniversity_ac_id/EfGhBSA1xyNAlCpOUZ2TMtoBroEPlbQ734DPepzrkgW25A?e=QaJMcD</a></p>
 <p>Salam,</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => null,
                 'created_at' => '2025-09-01',
                 'updated_at' => '2025-09-26',
             ],
@@ -447,7 +432,6 @@ class PostSeeder extends Seeder
 </table>
 <p>Demikian kami tuliskan informasi ini, atas perhatian dan kerja samanya terima kasih.</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-11-11',
                 'updated_at' => '2025-11-11',
             ],
@@ -469,7 +453,6 @@ class PostSeeder extends Seeder
 <p><a href="https://forms.cloud.microsoft/r/vPKFDLfsUV">https://forms.cloud.microsoft/r/vPKFDLfsUV</a></p>
 <p>Terima kasih</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2025-11-26',
                 'updated_at' => '2025-11-26',
             ],
@@ -493,7 +476,6 @@ class PostSeeder extends Seeder
 <p>8️⃣ Registrasi dinyatakan selesai apabila sudah CETAK KSM. Syarat bisa cetak KSM adalah sudah registrasi MK dan status pembayaran LUNAS/CREDIT.</p>
 <p>Demikian. Terimakasih.</p>
 <p>LAA FIF🙏🙂</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2026-01-27',
                 'updated_at' => '2026-02-02',
             ],
@@ -510,7 +492,6 @@ class PostSeeder extends Seeder
 <li>Rekening listrik untuk 1 (satu) bulan terakhir.</li>
 <li>Berkas pendukung lainnya.</li>
 </ol>',
-                'image' => null,
                 'created_at' => '2026-01-27',
                 'updated_at' => '2026-02-02',
             ],
@@ -531,7 +512,6 @@ class PostSeeder extends Seeder
 <p>🔖 Telepon: 08112162204</p>
 <p>🔖 WA: 082214161954</p>
 <p>🔖 Jam Layanan: 09.00 s/d 15.30</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2026-01-27',
                 'updated_at' => '2026-01-27',
             ],
@@ -630,7 +610,6 @@ class PostSeeder extends Seeder
 <p><a href="https://info-bif.telkomuniversity.ac.id/post/23">Informasi Registrasi, Pembayaran, Undur Diri, Cuti, Aktivasi Mahasiswa Semester Genap 2526</a></p>
 <p>Salam,</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => null,
                 'created_at' => '2026-01-29',
                 'updated_at' => '2026-02-12',
             ],
@@ -667,7 +646,6 @@ class PostSeeder extends Seeder
 <h2>Persamaan ketiganya adalah merupakan kegiatan intership yang mana selama pelaksanaan hingga selesai, status mahasiswa adalah aktif (bukan alumni karena baru lulus/sudah lama lulus, bukan cuti ataupun undur diri).</h2>
 <p>Karena durasi bervariasi, mohon dipastikan magang tidak mengganggu perkuliahan di Prodi yang dilaksanakan secara onsite.</p>
 <p>Notes: Informasi lebih lanjut silahkan baca buku Panduan KP FIF dan Panduan Magang Berdampak S-1 IF.</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2026-02-02',
                 'updated_at' => '2026-02-03',
             ],
@@ -722,7 +700,6 @@ class PostSeeder extends Seeder
 </table>
 <p>Terima kasih.</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2026-03-05',
                 'updated_at' => '2026-03-05',
             ],
@@ -735,7 +712,6 @@ class PostSeeder extends Seeder
 <p>Kontak dosen dapat diakses melalu bot fif di topic group yang sudah disediakan.</p>
 <p>Informasi lain terkait IUM dapat diakses melalui INFO-BIF menu LINK PENTING. (<a href="https://info-bif.telkomuniversity.ac.id/links">https://info-bif.telkomuniversity.ac.id/links</a> section 5)</p>
 <p>Update Pengumpulan berkas akan dilakukan via LMS, mohon dipastikan untuk join LMS.</p>',
-                'image' => null,
                 'created_at' => '2026-03-10',
                 'updated_at' => '2026-03-11',
             ],
@@ -751,7 +727,6 @@ class PostSeeder extends Seeder
 <p>📕 CP Pak Asep Fitri +62 822-1913-0102</p>
 <p>Salam,</p>
 <p>FIF</p>',
-                'image' => null,
                 'created_at' => '2026-04-02',
                 'updated_at' => '2026-04-02',
             ],
@@ -763,7 +738,6 @@ class PostSeeder extends Seeder
 <p>🎯 Informasi detail syarat berkas Tugas Akhir &amp; Yudisium dapat diakses pada link: <a href="https://linktr.ee/laaksoc">https://linktr.ee/laaksoc</a> (pilih menu Panduan TA &amp; Proposal)</p>
 <p>Salam,</p>
 <p>Prodi S-1 Informatika</p>',
-                'image' => null,
                 'created_at' => '2026-04-02',
                 'updated_at' => '2026-04-02',
             ],
@@ -779,7 +753,6 @@ class PostSeeder extends Seeder
 <p>Bedanya Kerja Praktik vs Magang Berdampak vs Magang Mandiri <a href="https://info-bif.telkomuniversity.ac.id/post/27">https://info-bif.telkomuniversity.ac.id/post/27</a></p>
 <p>Yuk, segera urus KP mu 🏃‍♂️‍➡️</p>
 <p>Salam, LAAK FIF</p>',
-                'image' => null,
                 'created_at' => '2026-04-02',
                 'updated_at' => '2026-04-10',
             ],
@@ -790,11 +763,15 @@ class PostSeeder extends Seeder
 <p>🎯 Informasi detail panduan teknis seminar internal, dapat diakse pada link berikut: <a href="https://tel-u.ac.id/mhs-panduanseminarinternal-s1if">https://tel-u.ac.id/mhs-panduanseminarinternal-s1if</a></p>
 <p>Terima kasih,</p>
 <p>Prodi S1 Informatika</p>',
-                'image' => 'images/placeholder.png',
                 'created_at' => '2026-04-23',
                 'updated_at' => '2026-04-23',
             ],
         ];
+
+        $sources = glob(database_path('seeders/assets/posts/*.jpg')) ?: [];
+        $titles = array_keys($posts);
+        shuffle($titles);
+        $withoutImage = array_flip(array_slice($titles, 0, 8));
 
         foreach ($posts as $title => $data) {
             $timestamps = [
@@ -802,6 +779,7 @@ class PostSeeder extends Seeder
                 'updated_at' => $data['updated_at'],
             ];
             unset($data['created_at'], $data['updated_at']);
+            $data['image'] = $this->resolvePostImage($title, $sources, $withoutImage);
 
             $post = Post::updateOrCreate(
                 ['title' => $title],
@@ -810,5 +788,25 @@ class PostSeeder extends Seeder
 
             Post::whereKey($post->id)->update($timestamps);
         }
+    }
+
+    private function resolvePostImage(string $title, array $sources, array $withoutImage): ?string
+    {
+        if (isset($withoutImage[$title]) || $sources === []) {
+            return null;
+        }
+
+        $source = Arr::random($sources);
+        $destination = 'images/posts/'.basename($source);
+
+        if (! Storage::disk('public')->exists($destination)) {
+            $contents = file_get_contents($source);
+
+            if ($contents !== false) {
+                Storage::disk('public')->put($destination, $contents);
+            }
+        }
+
+        return $destination;
     }
 }
