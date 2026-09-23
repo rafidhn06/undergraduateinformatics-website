@@ -14,9 +14,9 @@ class ImportantLinkResource extends JsonResource
             'name' => $this->name,
             'link' => $this->link,
             'updated_at' => $this->updated_at?->toIso8601String(),
-            'section' => $this->whenLoaded('important_section', fn () => [
-                'id' => $this->important_section->id,
-                'name' => $this->important_section->name,
+            'section' => $this->whenLoaded('importantSection', fn () => [
+                'id' => $this->importantSection->id,
+                'name' => $this->importantSection->name,
             ]),
         ];
     }

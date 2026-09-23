@@ -14,9 +14,9 @@ class ReservationSubmissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'answers' => ['required', 'array', 'min:1'],
-            'answers.*.questionId' => ['required', 'string'],
-            'answers.*.answer' => ['required'],
+            'answers' => ['required', 'array', 'min:1', 'max:50'],
+            'answers.*.questionId' => ['required', 'string', 'max:255'],
+            'answers.*.answer' => ['required', 'max:5000'],
         ];
     }
 
@@ -25,6 +25,9 @@ class ReservationSubmissionRequest extends FormRequest
         return [
             'answers.required' => 'Jawaban wajib diisi.',
             'answers.min' => 'Minimal satu jawaban wajib diisi.',
+            'answers.max' => 'Maksimal 50 jawaban.',
+            'answers.*.questionId.max' => 'ID pertanyaan maksimal 255 karakter.',
+            'answers.*.answer.max' => 'Jawaban maksimal 5000 karakter.',
         ];
     }
 }

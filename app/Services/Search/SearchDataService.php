@@ -2,12 +2,12 @@
 
 namespace App\Services\Search;
 
-use App\Http\Resources\PostSummaryResource;
 use App\Models\Post;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SearchDataService
 {
-    public function resolve(?string $q, int $page, int $perPage): array
+    public function resolve(?string $q, int $page, int $perPage): LengthAwarePaginator
     {
         $query = Post::query()
             ->with('tags')
@@ -25,15 +25,6 @@ class SearchDataService
 
         $posts = $query->paginate($perPage, ['*'], 'page', $page);
 
-        return [
-            'status' => 'success',
-            'data' => PostSummaryResource::collection($posts)->resolve(),
-            'meta' => [
-                'current_page' => $posts->currentPage(),
-                'per_page' => $posts->perPage(),
-                'total' => $posts->total(),
-                'last_page' => $posts->lastPage(),
-            ],
-        ];
+        return $posts;
     }
 }

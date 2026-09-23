@@ -13,7 +13,7 @@ class LinkResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'link' => $this->link,
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->updated_at?->toIso8601String(),
         ];
     }
 }

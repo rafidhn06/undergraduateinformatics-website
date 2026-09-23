@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Services\Posts\PostListQuery;
 use App\Services\Posts\PostsDataService;
-use App\Services\Search\SearchDataService;
+use App\Support\ApiResponse;
+use App\Support\NotFoundResponse;
 use App\Support\PageMeta;
+use App\Support\PageSeed;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,30 +16,35 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    public function __construct(
+        private readonly PostsDataService $posts,
+    ) {
+    }
+
     public function index(Request $request): View
     {
-        $q = $request->query('q');
-        $q = is_string($q) ? $q : null;
-        $page = max((int) $request->query('page', 1), 1);
-        $perPage = min(max((int) $request->query('per_page', 10), 1), 50);
-        $payload = app(SearchDataService::class)->resolve($q, $page, $perPage);
+        $query = PostListQuery::fromArray($request->query());
+        $payload = $this->posts->resolveList($query);
+        $params = array_filter([
+            'q' => $query->q,
+            'page' => $query->page,
+            'per_page' => $query->perPage,
+        ], fn ($value) => $value !== null && $value !== '');
 
-        return view('app', PageMeta::viewData($request, 'postSearch', [], $payload));
+        return view('app', PageMeta::viewData($request, 'postSearch', [], [
+            PageSeed::entry('/api/posts', $payload, $params),
+        ]));
     }
 
     public function show(Request $request, string $slugOrId): View|Response
     {
         try {
-            $postData = app(PostsDataService::class)->resolveDetail($slugOrId);
+            $post = $this->posts->resolveDetailPayload($slugOrId);
         } catch (ModelNotFoundException) {
-            return response()->view(
-                'app',
-                PageMeta::viewData($request, 'notFound', [], ['notFound' => true], null, null),
-                404
-            );
+            return NotFoundResponse::view($request);
         }
 
-        $post = $postData['data'];
+        $postData = ApiResponse::success($post);
 
         $title = $post['title'] . ' - ' . PageMeta::load()['defaultTitle'];
         $description = $post['subtitle'] ?? '';
@@ -58,6 +66,8 @@ class PostController extends Controller
             'dateModified' => $post['updated_at'],
         ];
 
-        return view('app', PageMeta::viewData($request, 'postDetail', $jsonLd, $postData, $title, $metaDescription, $ogImage));
+        return view('app', PageMeta::viewData($request, 'postDetail', $jsonLd, [
+            PageSeed::entry('/api/posts/'.$slugOrId, $postData),
+        ], $title, $metaDescription, $ogImage));
     }
 }

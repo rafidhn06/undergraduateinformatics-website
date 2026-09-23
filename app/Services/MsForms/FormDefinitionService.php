@@ -8,6 +8,10 @@ use App\Models\ReservationLink;
 
 final class FormDefinitionService
 {
+    public function __construct(private readonly MsFormsClient $msFormsClient)
+    {
+    }
+
     public function resolve(string $kind): array
     {
         $row = MsFormDefinition::query()->where('kind', $kind)->first();
@@ -17,6 +21,13 @@ final class FormDefinitionService
         }
 
         return $this->refresh($kind);
+    }
+
+    public function isConfigured(string $kind): bool
+    {
+        $target = $this->configuredLink($kind);
+
+        return $target !== null && $target !== '';
     }
 
     public function refresh(string $kind, ?string $link = null): array
@@ -46,9 +57,8 @@ final class FormDefinitionService
 
     private function fetch(string $link): array
     {
-        $client = app(MsFormsClient::class);
-        $target = $client->resolve($link);
-        $raw = $client->fetchFormDefinition($target);
+        $target = $this->msFormsClient->resolve($link);
+        $raw = $this->msFormsClient->fetchFormDefinition($target);
         $normalized = (new FormDefinitionNormalizer())->normalize($raw);
 
         return array_merge(['link' => $link], $normalized);

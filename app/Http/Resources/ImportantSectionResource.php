@@ -13,7 +13,7 @@ class ImportantSectionResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'order_number' => $this->order_number,
-            'links' => LinkResource::collection($this->important_links),
+            'links' => LinkResource::collection($this->importantLinks),
         ];
     }
 }

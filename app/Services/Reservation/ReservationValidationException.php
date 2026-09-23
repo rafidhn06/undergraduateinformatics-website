@@ -2,9 +2,7 @@
 
 namespace App\Services\Reservation;
 
-use RuntimeException;
-
-final class ReservationValidationException extends RuntimeException
+final class ReservationValidationException extends ReservationException
 {
     public function __construct(
         public readonly array $errors,

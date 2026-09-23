@@ -2,29 +2,33 @@
 
 namespace App\Exceptions;
 
+use App\Support\ApiResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
     protected $dontFlash = [
         'current_password',
         'password',
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (NotFoundHttpException|ModelNotFoundException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(ApiResponse::error('Data tidak ditemukan.'), 404);
+            }
+
+            if ($request->is('admin/*')) {
+                return response()->view('errors.404', ['title' => 'Halaman Tidak Ditemukan'], 404);
+            }
+
+            return null;
         });
     }
 }

@@ -10,15 +10,6 @@
             margin: 0px;
             padding: 0px;
             font-family: 'Times New Roman', Times, serif;
-            @php
-                $bgPath = public_path('images/beritaacara/bg-docs.png');
-                $bgBase64 = '';
-                if (file_exists($bgPath)) {
-                    $type = pathinfo($bgPath, PATHINFO_EXTENSION);
-                    $data = file_get_contents($bgPath);
-                    $bgBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-                }
-            @endphp
             background-image: url('{{ $bgBase64 }}');
             background-size: 100% 100%;
             background-repeat: no-repeat;

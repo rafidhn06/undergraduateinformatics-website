@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Support\PostBodySanitizer;
+use App\Support\PostImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class PostResource extends JsonResource
 {
@@ -15,8 +16,8 @@ class PostResource extends JsonResource
             'slug' => $this->slug,
             'title' => $this->title,
             'subtitle' => $this->subtitle,
-            'body' => $this->body,
-            'image' => $this->image && Storage::disk('public')->exists($this->image) ? asset('storage/'.$this->image) : null,
+            'body' => app(PostBodySanitizer::class)->sanitize($this->body),
+            'image' => PostImageUrl::for($this->image),
             'tags' => TagSummaryResource::collection($this->whenLoaded('tags')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\Tags\TagsDataService;
+use App\Support\ApiResponse;
+use App\Support\NotFoundResponse;
 use App\Support\PageMeta;
+use App\Support\PageSeed;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,9 +15,13 @@ use Illuminate\View\View;
 
 class TagController extends Controller
 {
+    public function __construct(private readonly TagsDataService $tags)
+    {
+    }
+
     public function index(Request $request): View
     {
-        $tagsData = app(TagsDataService::class)->resolve();
+        $tagsData = $this->tags->resolveListPayload();
 
         $page = PageMeta::page('tagList');
 
@@ -26,22 +33,20 @@ class TagController extends Controller
             'description' => $page['description'],
         ];
 
-        return view('app', PageMeta::viewData($request, 'tagList', $jsonLd, $tagsData));
+        return view('app', PageMeta::viewData($request, 'tagList', $jsonLd, [
+            PageSeed::entry('/api/tags', $tagsData),
+        ]));
     }
 
     public function show(Request $request, string $slugOrId): View|Response
     {
         try {
-            $tagData = app(TagsDataService::class)->resolveDetail($slugOrId);
+            $tag = $this->tags->resolveDetailPayload($slugOrId);
         } catch (ModelNotFoundException) {
-            return response()->view(
-                'app',
-                PageMeta::viewData($request, 'notFound', [], ['notFound' => true], null, null),
-                404
-            );
+            return NotFoundResponse::view($request);
         }
 
-        $tag = $tagData['data'];
+        $tagData = ApiResponse::success($tag);
 
         $title = $tag['name'] . ' - ' . PageMeta::load()['defaultTitle'];
         $description = $tag['description'] ?? '';
@@ -55,6 +60,8 @@ class TagController extends Controller
             'description' => $metaDescription,
         ];
 
-        return view('app', PageMeta::viewData($request, 'tagDetail', $jsonLd, $tagData, $title, $metaDescription));
+        return view('app', PageMeta::viewData($request, 'tagDetail', $jsonLd, [
+            PageSeed::entry('/api/tags/'.$slugOrId, $tagData),
+        ], $title, $metaDescription));
     }
 }

@@ -4,23 +4,25 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Services\MsForms\MsFormsException;
-use App\Services\Reservation\ReservationFormService;
-use App\Services\Reservation\ReservationFormUnavailableException;
-use App\Services\Reservation\ReservationMetadata;
+use App\Services\Reservation\ReservationIntake;
 use App\Support\PageMeta;
+use App\Support\PageSeed;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ReservationController extends Controller
 {
+    public function __construct(
+        private readonly ReservationIntake $intake,
+    ) {
+    }
+
     public function show(Request $request): View
     {
         $initialData = null;
 
         try {
-            $initialData = app(ReservationFormService::class)->resolve();
-        } catch (ReservationFormUnavailableException) {
-            $initialData = ['link' => null];
+            $initialData = $this->intake->formPayload();
         } catch (MsFormsException) {
             $initialData = null;
         }
@@ -29,7 +31,7 @@ class ReservationController extends Controller
             $initialData = ['link' => null];
         }
 
-        $initialData['reservation'] = app(ReservationMetadata::class)->build();
+        $initialData['reservation'] ??= $this->intake->reservationMetadata();
 
         $page = PageMeta::page('reservation');
 
@@ -42,8 +44,10 @@ class ReservationController extends Controller
         ];
 
         return view('app', PageMeta::viewData($request, 'reservation', $jsonLd, [
-            'status' => 'success',
-            'data' => $initialData,
+            PageSeed::entry('/api/reservation-form', [
+                'status' => 'success',
+                'data' => $initialData,
+            ]),
         ]));
     }
 }

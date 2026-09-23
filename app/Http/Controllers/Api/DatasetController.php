@@ -5,17 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DashboardDatasetResource;
 use App\Models\DashboardDataset;
+use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
 class DatasetController extends Controller
 {
-    public function index(): JsonResponse
+    public function __invoke(): JsonResponse
     {
-        $datasets = DashboardDataset::query()->with('items')->orderBy('id')->get();
+        $datasets = DashboardDataset::query()->with(['items' => fn ($query) => $query->orderBy('sort_order')])->orderBy('id')->get();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => DashboardDatasetResource::collection($datasets)->resolve(),
-        ]);
+        return response()->json(ApiResponse::success(DashboardDatasetResource::collection($datasets)->resolve()));
     }
 }

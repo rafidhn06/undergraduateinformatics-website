@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 
 class MsFormsClient
 {
-    private const ALLOWED_HOST_SUFFIXES = ['office.com', 'microsoft.com', 'microsoft'];
+    private const ALLOWED_HOST_SUFFIXES = ['office.com', 'microsoft.com', 'cloud.microsoft'];
 
     private const TARGET_CACHE_TTL = 15;
 

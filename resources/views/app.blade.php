@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-@php $seoDefaults = \App\Support\PageMeta::load(); @endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,11 +19,20 @@
     <link rel="manifest" href="/site.webmanifest" />
     @if(isset($jsonLd) && $jsonLd)
     <script type="application/ld+json">
-        {!! json_encode($jsonLd) !!}
+        @json($jsonLd)
     </script>
     @endif
     <script>
-        window.__INITIAL_DATA__ = {!! json_encode($initialData ?? null) !!};
+        window.__INITIAL_DATA__ = @json($initialData ?? null);
+    </script>
+    <script>
+        try {
+            const storedTheme = localStorage.getItem('public-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        } catch (error) {}
     </script>
 @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])

@@ -7,22 +7,26 @@ use App\Http\Requests\Api\FeedbackSubmissionRequest;
 use App\Models\FeedbackLink;
 use App\Services\MsForms\MsFormsClient;
 use App\Services\MsForms\MsFormsException;
+use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class FeedbackSubmissionController extends Controller
 {
+    public function __construct(private readonly MsFormsClient $forms)
+    {
+    }
+
     public function store(FeedbackSubmissionRequest $request): JsonResponse
     {
         $feedbackLink = FeedbackLink::query()->configured()->first();
 
         if (! $feedbackLink) {
-            return response()->json(['status' => 'error', 'message' => 'Feedback form is unavailable.'], 404);
+            return response()->json(ApiResponse::error('Feedback form is unavailable.'), 404);
         }
 
         try {
-            $client = app(MsFormsClient::class);
-            $target = $client->resolve($feedbackLink->link);
+            $target = $this->forms->resolve($feedbackLink->link);
             $msAnswers = array_map(
                 fn (array $answer) => [
                     'questionId' => $answer['questionId'],
@@ -31,13 +35,13 @@ class FeedbackSubmissionController extends Controller
                 $request->validated()['answers']
             );
             $now = now()->toIso8601String();
-            $client->submitAnswers($target, $msAnswers, $now);
+            $this->forms->submitAnswers($target, $msAnswers, $now);
 
-            return response()->json(['status' => 'success', 'data' => ['submitted_at' => $now]], 201);
+            return response()->json(ApiResponse::success(['submitted_at' => $now]), 201);
         } catch (MsFormsException $e) {
             Log::error('Feedback form submit failed: '.$e->getMessage());
 
-            return response()->json(['status' => 'error', 'message' => 'Failed to submit the form. Please try again later.'], 422);
+            return response()->json(ApiResponse::error('Failed to submit the form. Please try again later.'), 422);
         }
     }
 }

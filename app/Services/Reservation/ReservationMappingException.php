@@ -2,9 +2,7 @@
 
 namespace App\Services\Reservation;
 
-use RuntimeException;
-
-final class ReservationMappingException extends RuntimeException
+final class ReservationMappingException extends ReservationException
 {
     public function __construct(
         public readonly array $fields,

@@ -6,10 +6,14 @@ use Illuminate\Support\Carbon;
 
 final class ReservationAnswerMapper
 {
+    public function __construct(private readonly ReservationFormMapping $formMapping)
+    {
+    }
+
     public function map(array $answers): array
     {
-        $mapping = config('reservation.form_mapping', []);
-        $required = config('reservation.required_fields', []);
+        $mapping = $this->formMapping->mapping();
+        $required = $this->formMapping->requiredFields();
 
         $byQuestionId = [];
 
@@ -20,8 +24,8 @@ final class ReservationAnswerMapper
         $missing = [];
 
         foreach ($required as $field) {
-            $questionId = array_search($field, $mapping, true);
-            $value = $questionId !== false ? ($byQuestionId[$questionId] ?? null) : null;
+            $questionId = $this->formMapping->questionIdFor($field);
+            $value = $questionId !== null ? ($byQuestionId[$questionId] ?? null) : null;
 
             if ($value === null || $value === '' || $value === []) {
                 $missing[] = $field;
@@ -74,17 +78,7 @@ final class ReservationAnswerMapper
 
     private function normalizeShift(mixed $value): string
     {
-        $shift = (string) $value;
-
-        if (preg_match('/^(\d{2}:\d{2})/', $shift, $matches) === 1) {
-            $shift = $matches[1];
-        }
-
-        if (strlen($shift) === 5) {
-            $shift .= ':00';
-        }
-
-        return $shift;
+        return ReservationScheduleValidator::normalizeShift((string) $value);
     }
 
     private function normalizeText(mixed $value): string

@@ -16,7 +16,7 @@ class CSPHeader
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-        $response->header('Content-Security-Policy', "frame-ancestors 'none'");
+        $response->headers->set('Content-Security-Policy', "frame-ancestors 'none'");
 
         return $response;
     }
