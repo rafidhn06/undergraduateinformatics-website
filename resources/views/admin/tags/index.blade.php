@@ -1,27 +1,27 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'List Tag')
+@section('title', 'Topik Informasi')
 
 @section('content')
     <div class="admin modern-page">
         <div class="dashboard-heading">
-            <h2 class="modern-page__heading">Manajemen Tag Post Informasi</h2>
+            <h2 class="modern-page__heading">Manajemen Topik Informasi</h2>
             <div class="dashboard-heading__actions">
                 <a class="modern-button modern-button--primary" href="{{ route('admin.tags.create') }}">
-                    <i class="fa-solid fa-plus"></i> Tambah Tag
+                    <i class="fa-solid fa-plus"></i> Tambah Topik
                 </a>
                 <form method="GET" action="{{ route('admin.tags.index') }}" role="search">
                     <input class="form-control" name="search" type="search" placeholder="Cari"
-                        value="{{ request()->get('search') }}" aria-label="Search">
+                        value="{{ request()->get('search') }}" aria-label="Pencarian">
                 </form>
             </div>
         </div>
-        @include('partials.Alerts')
+        @include('partials.alerts')
         <div class="table-admin">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th scope="col">Nama Tag</th>
+                        <th scope="col">Nama Topik</th>
                         <th scope="col">Deskripsi</th>
                         {{-- <th scope="col">Gambar</th> --}}
                         <th scope="col" class="text-end">Aksi</th>
@@ -34,7 +34,7 @@
                             <td><div class="cell-clamp">{{ Str::limit($tag->description, 100) }}</div></td>
                             {{-- <td><img src="/images/imgCard.svg" alt=""></td> --}}
                             <td class="aksi">
-                                <a class="edit" href="{{ route('admin.tags.edit', ['tag' => $tag->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                <a class="edit" href="{{ route('admin.tags.edit', ['tag' => $tag->id]) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $tag->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -43,7 +43,7 @@
                 </tbody>
             </table>
             @if ($tags->isEmpty())
-                @include('partials.Empty')
+                @include('partials.empty')
             @endif
         </div>
         @if ($tags->total() > 0)
@@ -58,7 +58,7 @@
                         <div class="modal-header">
                             <h5 class="modal-title" id="confirmModalLabel-{{ $tag->id }}">Konfirmasi</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                                aria-label="Tutup"></button>
                         </div>
                         <div class="modal-body">
                             Apakah yakin dihapus?

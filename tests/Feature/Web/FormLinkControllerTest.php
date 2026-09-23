@@ -28,7 +28,6 @@ class FormLinkControllerTest extends TestCase
     {
         return User::create([
             'email' => fake()->unique()->safeEmail(),
-            'password_recovery_id' => 1,
             'password' => 'password',
         ]);
     }
@@ -45,9 +44,8 @@ class FormLinkControllerTest extends TestCase
 
         $response = $this->actingAs($this->createAdminUser())->get('/admin/form-links');
 
-        $response->assertStatus(200);
-        $response->assertViewIs('AdminDashboard.feedback');
-        $response->assertSee('Manajemen Form Link');
+        $response->assertViewIs('admin.dashboard.feedback');
+        $response->assertSee('Manajemen Tautan Form');
         $response->assertSee('https://example.com/forms');
         $response->assertSee('https://example.com/reservation');
     }

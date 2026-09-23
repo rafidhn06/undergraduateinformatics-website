@@ -1,40 +1,40 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'List Link Penting')
+@section('title', 'Manajemen Tautan Penting')
 
 @section('content')
     <div class="admin modern-page">
         <div class="dashboard-heading">
-            <h2 class="modern-page__heading">Manajemen Link Penting</h2>
+            <h2 class="modern-page__heading">Manajemen Tautan Penting</h2>
             <div class="dashboard-heading__actions">
                 <a class="modern-button modern-button--primary" href="{{ route('admin.links.create') }}">
-                    <i class="fa-solid fa-plus"></i> Tambah Link Penting
+                    <i class="fa-solid fa-plus"></i> Tambah Tautan Penting
                 </a>
                 <form method="GET" action="{{ route('admin.links.index') }}" role="search">
                     <input class="form-control" name="search" type="search" placeholder="Cari"
-                        value="{{ request()->get('search') }}" aria-label="Search">
+                        value="{{ request()->get('search') }}" aria-label="Pencarian">
                 </form>
             </div>
         </div>
-        @include('partials.Alerts')
+        @include('partials.alerts')
         <div class="table-admin">
             <table class="table table-striped table--links">
                 <thead>
                     <tr>
                         <th scope="col">Nama Section</th>
                         <th scope="col">Deskripsi</th>
-                        <th scope="col">Link</th>
+                        <th scope="col">Tautan</th>
                         <th scope="col" class="text-end">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($links as $link)
                         <tr>
-                            <td>{{ $link->important_section->name }}</td>
+                            <td>{{ $link->importantSection->name }}</td>
                             <td><div class="cell-clamp">{{ $link->name }}</div></td>
                             <td><div class="cell-clamp">{{ $link->link }}</div></td>
                             <td class="aksi"><a class="edit"
-                                    href="{{ route('admin.links.edit', ['importantLink' => $link->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    href="{{ route('admin.links.edit', ['importantLink' => $link->id]) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $link->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -43,7 +43,7 @@
                 </tbody>
             </table>
             @if ($links->isEmpty())
-                @include('partials.Empty')
+                @include('partials.empty')
             @endif
         </div>
         @if ($links->total() > 0)
@@ -59,7 +59,7 @@
                             <h5 class="modal-title" id="confirmModalLabel-{{ $link->id }}">
                                 Konfirmasi</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                                aria-label="Tutup"></button>
                         </div>
                         <div class="modal-body">
                             Apakah yakin dihapus?

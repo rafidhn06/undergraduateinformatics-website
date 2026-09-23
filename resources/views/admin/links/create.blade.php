@@ -1,19 +1,19 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'Tambah Link Penting')
+@section('title', 'Tambah Tautan Penting')
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Form Penambahan Link Penting</h2>
+        <h2 class="modern-page__heading">Form Tambah Tautan Penting</h2>
         <div class="form row">
-            @include('partials.Alerts')
+            @include('partials.alerts')
             <form method="POST" action="{{ route('admin.links.store') }}">
                 @csrf
                 <div class="mb-3">
-                    <label for="tag" class="form-label">
+                    <label for="section_id" class="form-label">
                         <h4>Pilih Section<span class="required-star">*</span></h4>
                     </label>
-                    <select class="form-select" aria-label="Default select example" name="section_id">
+                    <select id="section_id" class="form-select" aria-label="Pilih section" name="section_id">
                         @foreach ($sections as $section)
                             <option value="{{ $section->id }}">{{ $section->name }}</option>
                         @endforeach
@@ -27,12 +27,12 @@
                 </div>
                 <div class="mb-3">
                     <label for="link" class="form-label">
-                        <h4>Link<span class="required-star">*</span></h4>
+                        <h4>Tautan<span class="required-star">*</span></h4>
                     </label>
                     <input name="link" type="text" class="form-control" id="link" required>
                 </div>
                 <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="modern-button modern-button--primary">Submit</button>
+                    <button type="submit" class="modern-button modern-button--primary">Simpan</button>
                     <a href="{{ route('admin.links.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>

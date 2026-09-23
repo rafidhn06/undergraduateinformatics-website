@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ImportantSectionStoreRequest;
 use App\Http\Requests\Admin\ImportantSectionUpdateRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\SectionOrderUpdateRequest;
 use App\Models\ImportantSection;
 use App\Models\ImportantLink;
 
@@ -14,44 +14,25 @@ class ImportantSectionController extends Controller
     public function index()
     {
         $sections = ImportantSection::filter(request(['search']))
-            ->orderBy('name', 'asc')->with('important_links')->paginate(10)->withQueryString();
+            ->orderBy('name', 'asc')->with('importantLinks')->paginate(10)->withQueryString();
 
-        return view("AdminSection.AdminPageSection", [
+        return view('admin.sections.index', [
             'sections' => $sections
         ]);
     }
 
-    public function editOrder()
+    public function reorder()
     {
         $sections = ImportantSection::orderBy('order_number')->get();
 
-        return view("AdminSection.AdminPageChangeOrderSection", [
+        return view('admin.sections.reorder', [
             'sections' => $sections
         ]);
     }
 
-    public function updateAll(Request $request)
+    public function updateReorder(SectionOrderUpdateRequest $request)
     {
-        $orders = $request->input('order', []);
-
-        $sectionCount = ImportantSection::count();
-        $orderValues = array_values($orders);
-
-        foreach ($orders as $sectionId => $order) {
-            if (empty($order)) {
-                return back()->with('error', 'Semua urutan harus diisi!');
-            }
-        }
-
-        if (count($orderValues) !== count(array_unique($orderValues))) {
-            return back()->with('error', 'Urutan tidak boleh duplikat!');
-        }
-
-        foreach ($orderValues as $value) {
-            if ($value > $sectionCount) {
-                return back()->with('error', 'Urutan melebihi jumlah data section!');
-            }
-        }
+        $orders = $request->validated()['order'];
 
         foreach ($orders as $sectionId => $order) {
             ImportantSection::where('id', $sectionId)->update([
@@ -66,7 +47,7 @@ class ImportantSectionController extends Controller
 
     public function create()
     {
-        return view("AdminSection.AdminPageTambahSection");
+        return view('admin.sections.create');
     }
 
     public function store(ImportantSectionStoreRequest $request)
@@ -97,7 +78,7 @@ class ImportantSectionController extends Controller
     {
         $section = $importantSection;
 
-        return view("AdminSection.AdminPageEditSection", [
+        return view('admin.sections.edit', [
             'section' => $section
         ]);
 
@@ -118,7 +99,7 @@ class ImportantSectionController extends Controller
 
         $data = ImportantSection::where('id','=',$section->id)->get();
         if ($data) {
-            $request->session()->flash('success', 'Section berhasil diupdate!');
+            $request->session()->flash('success', 'Section berhasil diperbarui!');
             return redirect()->route('admin.sections.index');
         } else {
             return back()->withErrors([

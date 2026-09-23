@@ -1,23 +1,25 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'Tambah Section')
+@section('title', 'Ubah ' . $section->name)
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Form Penambahan Section</h2>
+        <h2 class="modern-page__heading">Form Ubah Section</h2>
         <div class="form row">
-            @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.sections.store') }}">
+            @include('partials.alerts')
+            <form method="POST" action="{{ route('admin.sections.update', ['importantSection' => $section->id]) }}">
                 @csrf
+                @method('PUT')
                 <div class="mb-3">
                     <label for="namasection" class="form-label">
                         <h4>Nama Section<span class="required-star">*</span></h4>
                     </label>
-                    <input name="name" type="text" class="form-control" id="namasection" required>
+                    <input name="name" type="text" class="form-control" id="namasection"
+                        value="{{ $section->name }}" required>
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="modern-button modern-button--primary">Submit</button>
+                    <button type="submit" class="modern-button modern-button--primary">Simpan</button>
                     <a href="{{ route('admin.sections.index') }}" class="modern-button modern-button--soft">Batal</a>
                 </div>
             </form>

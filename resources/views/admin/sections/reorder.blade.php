@@ -1,14 +1,14 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
 @section('title', 'Ganti Urutan Section')
 
 @section('content')
     <div class="admin modern-page">
-        <h2 class="modern-page__heading">Pergantian Urutan Section</h2>
+        <h2 class="modern-page__heading">Ganti Urutan Section</h2>
 
         <div class="form row">
-            @include('partials.Alerts')
-            <form method="POST" action="{{ route('admin.sections.updateAll') }}" id="section-order-form">
+            @include('partials.alerts')
+            <form method="POST" action="{{ route('admin.sections.reorder.update') }}" id="section-order-form">
                 @csrf
                 @method('PUT')
                 <div class="section-order-list" id="section-order-list">

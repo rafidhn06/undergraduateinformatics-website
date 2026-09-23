@@ -25,9 +25,9 @@ class ImportantLinkUpdateRequest extends FormRequest
         return [
             'section_id.required' => 'Section wajib dipilih.',
             'name.required' => 'Nama wajib diisi.',
-            'link.required' => 'Link wajib diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
-            'link.active_url' => 'Link harus berupa URL yang aktif.',
+            'link.required' => 'Tautan wajib diisi.',
+            'link.url' => 'Tautan harus berupa URL yang valid.',
+            'link.active_url' => 'Tautan harus berupa URL yang aktif.',
         ];
     }
 }

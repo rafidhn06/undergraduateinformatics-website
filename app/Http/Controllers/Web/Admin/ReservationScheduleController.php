@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\Shift;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ReservationScheduleStoreRequest;
+use App\Http\Requests\Admin\ReservationScheduleUpdateRequest;
 use App\Models\ReservationSchedule;
 use App\Services\Reservation\BeritaAcaraPdfGenerator;
-use Carbon\Carbon;
+use App\Services\Reservation\ReservationDocumentException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReservationScheduleController extends Controller
 {
+    public function __construct(private readonly BeritaAcaraPdfGenerator $documents)
+    {
+    }
+
     public function index(Request $request): View
     {
         $reservationTableReady = Schema::hasTable('reservation_schedules');
@@ -37,7 +45,7 @@ class ReservationScheduleController extends Controller
             $reservations = $query->paginate(10)->withQueryString();
         }
 
-        return view('AdminDashboard.reservation', [
+        return view('admin.dashboard.reservation', [
             'reservationTableReady' => $reservationTableReady,
             'reservationDetailsReady' => $reservationDetailsReady,
             'reservations' => $reservations,
@@ -46,23 +54,17 @@ class ReservationScheduleController extends Controller
 
     public function create(): View
     {
-        return view('AdminDashboard.reservation-create');
+        return view('admin.dashboard.reservation-create');
     }
 
     public function edit(ReservationSchedule $reservationSchedule): View
     {
-        return view('AdminDashboard.reservation-edit', ['reservation' => $reservationSchedule]);
+        return view('admin.dashboard.reservation-edit', ['reservation' => $reservationSchedule]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(ReservationScheduleStoreRequest $request): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->rules());
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        $data = $this->normalize($validator->validated());
+        $data = $this->normalize($request->validated());
 
         $isConflict = ReservationSchedule::where('date', $data['date'])
             ->where('shift', $data['shift'])
@@ -76,25 +78,23 @@ class ReservationScheduleController extends Controller
 
         $schedule = ReservationSchedule::create($data);
 
-        $documentLink = app(BeritaAcaraPdfGenerator::class)->generate($schedule);
-
-        if ($documentLink) {
-            $schedule->document_link = $documentLink;
-            $schedule->save();
+        try {
+            $this->documents->generate($schedule);
+        } catch (ReservationDocumentException $e) {
+            return redirect()->route('admin.reservations.index')
+                ->with('success', 'Reservasi berhasil dibuat.')
+                ->with('error', $e->getMessage());
         }
+
+        $schedule->document_link = route('admin.reservations.document', $schedule);
+        $schedule->save();
 
         return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil dibuat.');
     }
 
-    public function update(Request $request, ReservationSchedule $reservationSchedule): RedirectResponse
+    public function update(ReservationScheduleUpdateRequest $request, ReservationSchedule $reservationSchedule): RedirectResponse
     {
-        $validator = Validator::make($request->all(), $this->rules($reservationSchedule));
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-
-        $data = $this->normalize($validator->validated());
+        $data = $this->normalize($request->validated());
 
         $checkDate = $data['date'] ?? $reservationSchedule->date;
         $checkShift = $data['shift'] ?? $reservationSchedule->shift;
@@ -113,83 +113,75 @@ class ReservationScheduleController extends Controller
         $oldDocumentLink = $reservationSchedule->document_link;
         $reservationSchedule->update($data);
 
-        $documentLink = app(BeritaAcaraPdfGenerator::class)->generate($reservationSchedule);
-
-        if ($documentLink) {
-            if ($oldDocumentLink) {
-                $urlPath = parse_url($oldDocumentLink, PHP_URL_PATH);
-                if ($urlPath) {
-                    $oldFileName = basename($urlPath);
-                    $oldPath = public_path('beritaacara/'.$oldFileName);
-                    if (file_exists($oldPath) && is_file($oldPath)) {
-                        unlink($oldPath);
-                    }
-                }
-            }
-
-            $reservationSchedule->document_link = $documentLink;
-            $reservationSchedule->save();
+        try {
+            $this->documents->generate($reservationSchedule);
+        } catch (ReservationDocumentException $e) {
+            return redirect()->route('admin.reservations.index')
+                ->with('success', 'Reservasi berhasil diperbarui.')
+                ->with('error', $e->getMessage());
         }
+
+        $this->deleteLegacyDocumentFile($oldDocumentLink);
+
+        $reservationSchedule->document_link = route('admin.reservations.document', $reservationSchedule);
+        $reservationSchedule->save();
 
         return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil diperbarui.');
     }
 
     public function destroy(ReservationSchedule $reservationSchedule): RedirectResponse
     {
-        if ($reservationSchedule->document_link) {
-            $urlPath = parse_url($reservationSchedule->document_link, PHP_URL_PATH);
-            if ($urlPath) {
-                $oldFileName = basename($urlPath);
-                $oldPath = public_path('beritaacara/'.$oldFileName);
-                if (file_exists($oldPath) && is_file($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
-        }
+        $this->deleteDocumentFile($reservationSchedule);
 
         $reservationSchedule->delete();
 
         return redirect()->route('admin.reservations.index')->with('success', 'Reservasi berhasil dihapus.');
     }
 
-    private function rules(?ReservationSchedule $schedule = null): array
+    public function showDocument(ReservationSchedule $reservationSchedule): BinaryFileResponse|RedirectResponse
     {
-        $sometimes = $schedule ? 'sometimes|' : '';
-        $datePrefix = $schedule ? ['sometimes'] : [];
+        $path = 'beritaacara/berita_acara_' . $reservationSchedule->id . '.pdf';
 
-        return [
-            'date' => array_merge($datePrefix, [
-                'required',
-                'date',
-                function ($attribute, $value, $fail) {
-                    $day = Carbon::parse($value)->dayOfWeekIso;
-                    if (! in_array($day, [1, 2, 4, 5])) {
-                        $fail('Tanggal harus hari Senin, Selasa, Kamis, atau Jumat.');
-                    }
-                },
-            ]),
-            'shift' => $sometimes.'required|in:09:00,13:00,15:00,09:00:00,13:00:00,15:00:00',
-            'requested_by' => $sometimes.'required|string|max:255',
-            'document_link' => 'nullable|string|url|max:255',
-            'meeting_room' => 'nullable|string|max:255',
-            'study_program' => 'nullable|string|max:255',
-            'participants' => 'nullable|string|max:255',
-            'agenda' => 'nullable|string',
-            'city' => 'nullable|string|max:255',
-            'prodi_signature_name' => 'nullable|string|max:255',
-            'prodi_signature_position' => 'nullable|string|max:255',
-            'related_party_signature_name' => 'nullable|string|max:255',
-            'related_party_signature_position' => 'nullable|string|max:255',
-        ];
+        if (Storage::disk('local')->exists($path)) {
+            return response()->file(Storage::disk('local')->path($path));
+        }
+
+        if ($reservationSchedule->document_link) {
+            $urlPath = parse_url($reservationSchedule->document_link, PHP_URL_PATH);
+            if ($urlPath) {
+                $oldPath = public_path('beritaacara/' . basename($urlPath));
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    return redirect($reservationSchedule->document_link);
+                }
+            }
+        }
+
+        abort(404);
+    }
+
+    private function deleteDocumentFile(ReservationSchedule $reservationSchedule): void
+    {
+        Storage::disk('local')->delete('beritaacara/berita_acara_' . $reservationSchedule->id . '.pdf');
+        $this->deleteLegacyDocumentFile($reservationSchedule->document_link);
+    }
+
+    private function deleteLegacyDocumentFile(?string $documentLink): void
+    {
+        if ($documentLink) {
+            $urlPath = parse_url($documentLink, PHP_URL_PATH);
+            if ($urlPath) {
+                $oldPath = public_path('beritaacara/' . basename($urlPath));
+                if (file_exists($oldPath) && is_file($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+        }
     }
 
     private function normalize(array $data): array
     {
         if (isset($data['shift'])) {
-            $shift = $data['shift'];
-            if (strlen($shift) === 5) {
-                $data['shift'] = $shift.':00';
-            }
+            $data['shift'] = Shift::normalizeString($data['shift']);
         }
 
         return $data;

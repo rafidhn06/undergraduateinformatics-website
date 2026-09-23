@@ -1,25 +1,25 @@
-@extends('layouts.adminlayout')
+@extends('layouts.admin')
 
-@section('title', 'List Section')
+@section('title', 'Section Tautan Penting')
 
 @section('content')
     <div class="admin modern-page">
         <div class="dashboard-heading">
-            <h2 class="modern-page__heading">Manajemen Section Link Penting</h2>
+            <h2 class="modern-page__heading">Manajemen Section Tautan Penting</h2>
             <div class="dashboard-heading__actions">
-                <a class="modern-button modern-button--soft" href="{{ route('admin.sections.reorder') }}">
-                    <i class="fa-solid fa-sort"></i> Ganti Urutan Section
-                </a>
                 <a class="modern-button modern-button--primary" href="{{ route('admin.sections.create') }}">
                     <i class="fa-solid fa-plus"></i> Tambah Section
                 </a>
+                <a class="modern-button modern-button--soft" href="{{ route('admin.sections.reorder') }}">
+                    <i class="fa-solid fa-sort"></i> Ganti Urutan Section
+                </a>
                 <form method="GET" action="{{ route('admin.sections.index') }}" role="search">
                     <input class="form-control" name="search" type="search" placeholder="Cari"
-                        value="{{ request()->get('search') }}" aria-label="Search">
+                        value="{{ request()->get('search') }}" aria-label="Pencarian">
                 </form>
             </div>
         </div>
-        @include('partials.Alerts')
+        @include('partials.alerts')
         <div class="table-admin">
             <table class="table table-striped">
                 <thead>
@@ -33,7 +33,7 @@
                         <tr>
                             <td>{{ $section->name }}</td>
                             <td class="aksi"><a class="edit"
-                                    href="{{ route('admin.sections.edit', ['importantSection' => $section->id]) }}" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></a>
+                                    href="{{ route('admin.sections.edit', ['importantSection' => $section->id]) }}" title="Ubah" aria-label="Ubah"><i class="fa-solid fa-pen"></i></a>
                                 <a class="delete" href="#" data-bs-toggle="modal"
                                     data-bs-target="#confirmModal-{{ $section->id }}" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash"></i></a>
                             </td>
@@ -42,7 +42,7 @@
                 </tbody>
             </table>
             @if ($sections->isEmpty())
-                @include('partials.Empty')
+                @include('partials.empty')
             @endif
         </div>
         @if ($sections->total() > 0)
@@ -57,7 +57,7 @@
                         <div class="modal-header">
                             <h5 class="modal-title" id="confirmModalLabel-{{ $section->id }}">Konfirmasi</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                                aria-label="Tutup"></button>
                         </div>
                         <div class="modal-body">
                             Apakah yakin dihapus?

@@ -17,11 +17,11 @@ class ImportantLinkController extends Controller
             ->orderBy('important_sections.name')
             ->orderBy('important_links.name', 'desc')
             ->select('important_links.*')
-            ->with('important_section')
+            ->with('importantSection')
             ->paginate(10)
             ->withQueryString();
 
-        return view("AdminLinkPenting.AdminPageLink", [
+        return view('admin.links.index', [
             'links' => $links
         ]);
     }
@@ -32,10 +32,10 @@ class ImportantLinkController extends Controller
 
         if ($sections->isEmpty()) {
             return redirect()->route('admin.sections.create')
-                ->withError('Silahkan buat section link terlebih dahulu');
+                ->withError('Silakan buat section tautan terlebih dahulu');
         }
 
-        return view("AdminLinkPenting.AdminPageTambahLink", [
+        return view('admin.links.create', [
             'sections' => $sections
         ]);
     }
@@ -52,7 +52,7 @@ class ImportantLinkController extends Controller
 
         $data = ImportantLink::where('id','=',$link->id)->get();
         if ($data) {
-            $request->session()->flash('success', 'Link berhasil ditambahkan!');
+            $request->session()->flash('success', 'Tautan berhasil ditambahkan!');
             return redirect()->route('admin.links.index');
         } else {
             return back()->withError('Terdapat kesalahan');
@@ -61,11 +61,11 @@ class ImportantLinkController extends Controller
 
     public function edit(ImportantLink $importantLink)
     {
-        $importantLink->load('important_section');
+        $importantLink->load('importantSection');
         $sections = ImportantSection::query()->orderBy('name')->get();
         $link = $importantLink;
 
-        return view("AdminLinkPenting.AdminPageEditLink", [
+        return view('admin.links.edit', [
             'sections' => $sections,
             'link' => $link
         ]);
@@ -84,7 +84,7 @@ class ImportantLinkController extends Controller
 
         $data = ImportantLink::where('id','=',$link->id)->get();
         if ($data) {
-            $request->session()->flash('success', 'Link berhasil diupdate!');
+            $request->session()->flash('success', 'Tautan berhasil diperbarui!');
             return redirect()->route('admin.links.index');
         } else {
             return back()->withError('Terdapat kesalahan');
@@ -97,7 +97,7 @@ class ImportantLinkController extends Controller
 
         $link->delete();
 
-        request()->session()->flash('success', 'Link berhasil dihapus!');
+        request()->session()->flash('success', 'Tautan berhasil dihapus!');
         return redirect()->route('admin.links.index');
     }
 }
