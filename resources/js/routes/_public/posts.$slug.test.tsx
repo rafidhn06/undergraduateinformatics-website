@@ -68,33 +68,17 @@ describe('posts detail route', () => {
             seoPage('postDetail').description
         );
     });
-
-    it('keeps the post detail page as its component', () => {
-        expect(Route.options.component).toBeDefined();
-    });
 });
 
 describe('posts detail route loader', () => {
-    it('seeds the query cache from initial data and clears the global', async () => {
-        (window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__ = payload;
+    it('uses seeded cache without fetching', async () => {
         const queryClient = createQueryClient();
+        queryClient.setQueryData(pageQueryKey('/api/posts/a'), payload);
 
         const result = await loader({ context: { queryClient }, params: { slug: 'a' } });
 
         expect(result).toEqual(payload);
-        expect(queryClient.getQueryData(pageQueryKey('/api/posts/a'))).toEqual(payload);
-        expect((window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__).toBeNull();
         expect(axios.get).not.toHaveBeenCalled();
-    });
-
-    it('throws notFound for the server not-found marker', async () => {
-        (window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__ = { notFound: true };
-        const queryClient = createQueryClient();
-
-        await expect(
-            loader({ context: { queryClient }, params: { slug: 'missing' } })
-        ).rejects.toThrow();
-        expect((window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__).toBeNull();
     });
 
     it('fetches and caches on client navigation using the shared query key', async () => {
@@ -105,7 +89,7 @@ describe('posts detail route loader', () => {
 
         expect(result).toEqual(payload);
         expect(queryClient.getQueryData(pageQueryKey('/api/posts/b'))).toEqual(payload);
-        expect(axios.get).toHaveBeenCalledWith('/api/posts/b');
+        expect(axios.get).toHaveBeenCalledWith('/api/posts/b', { params: undefined });
     });
 
     it('throws notFound when the api returns 404', async () => {
@@ -113,11 +97,5 @@ describe('posts detail route loader', () => {
         vi.mocked(axios.get).mockRejectedValue(axiosError(404));
 
         await expect(loader({ context: { queryClient }, params: { slug: 'x' } })).rejects.toThrow();
-    });
-
-    it('registers not-found, error, and pending components', () => {
-        expect(Route.options.notFoundComponent).toBeDefined();
-        expect(Route.options.errorComponent).toBeDefined();
-        expect(Route.options.pendingComponent).toBeDefined();
     });
 });

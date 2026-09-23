@@ -1,14 +1,20 @@
-import { TextLink } from '@/components/TextLink';
+import { useMemo } from 'react';
+
+import { Link } from '@/components/Link';
 import { TocLayout } from '@/components/TocLayout';
 import { sectionId } from '@/lib/sectionId';
 
 import { type LinkSection } from './types';
 
 export function LinksContent({ sections }: { sections: LinkSection[] }) {
-    const tocItems = sections.map((section) => ({
-        id: sectionId('link-section', section.id),
-        label: section.name,
-    }));
+    const tocItems = useMemo(
+        () =>
+            sections.map((section) => ({
+                id: sectionId('link-section', section.id),
+                label: section.name,
+            })),
+        [sections]
+    );
 
     return (
         <TocLayout
@@ -31,7 +37,7 @@ export function LinksContent({ sections }: { sections: LinkSection[] }) {
                         <ul>
                             {section.links.map((link) => (
                                 <li key={link.id}>
-                                    <TextLink
+                                    <Link
                                         variant="underline"
                                         className="whitespace-normal no-underline"
                                         to={link.link}
@@ -39,7 +45,7 @@ export function LinksContent({ sections }: { sections: LinkSection[] }) {
                                         rel="noopener noreferrer"
                                     >
                                         {link.name}
-                                    </TextLink>
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

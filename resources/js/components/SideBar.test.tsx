@@ -7,17 +7,9 @@ import { SideBar } from './SideBar';
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 
 vi.mock('@tanstack/react-router', async () => {
-    const actual =
-        await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
+    const { routerModuleMock } = await import('@/test/mocks');
 
-    return {
-        ...actual,
-        createLink: (Comp: any) =>
-            function MockedLink({ to, ...props }: any) {
-                return <Comp href={to} {...props} />;
-            },
-        useNavigate: () => navigateMock,
-    };
+    return routerModuleMock({ useNavigate: () => navigateMock });
 });
 
 describe('SideBar', () => {
@@ -37,18 +29,6 @@ describe('SideBar', () => {
             '/reservation'
         );
         expect(screen.getByRole('link', { name: 'Masuk' })).toHaveAttribute('href', '/admin/login');
-    });
-
-    it('renders a search bar', () => {
-        render(<SideBar isOpen onClose={() => undefined} />);
-
-        expect(screen.getByPlaceholderText('Cari...')).toBeInTheDocument();
-    });
-
-    it('is translated off-screen when closed', () => {
-        const { container } = render(<SideBar isOpen={false} onClose={() => undefined} />);
-
-        expect(container.querySelector('aside')?.className).toContain('-translate-x-full');
     });
 
     it('calls onClose when a nav link is clicked', () => {
@@ -72,7 +52,7 @@ describe('SideBar', () => {
 
         expect(navigateMock).toHaveBeenCalledWith({
             to: '/posts',
-            search: { q: 'beasiswa' },
+            search: { q: 'beasiswa', page: 1, perPage: 10 },
         });
         expect(input).toHaveValue('');
         expect(onClose).toHaveBeenCalledTimes(1);

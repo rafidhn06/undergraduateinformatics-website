@@ -10,7 +10,7 @@ const DashboardCharts = lazy(() =>
 );
 
 export function HomeContent({ data }: { data: HomeData }) {
-    const { latest_posts, latest_links, dashboard } = data;
+    const { latestPosts, latestLinks, dashboard } = data;
 
     return (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-[39.375px] py-[39.375px] md:max-w-3xl md:gap-8.75 md:py-8.75 lg:max-w-4xl">
@@ -25,8 +25,8 @@ export function HomeContent({ data }: { data: HomeData }) {
             </section>
 
             <div className="grid gap-y-10 md:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)] md:gap-x-12 md:gap-y-9">
-                <LatestPosts posts={latest_posts} />
-                <LatestLinks links={latest_links} />
+                <LatestPosts posts={latestPosts} />
+                <LatestLinks links={latestLinks} />
             </div>
 
             <Suspense fallback={<DashboardChartsSkeleton />}>

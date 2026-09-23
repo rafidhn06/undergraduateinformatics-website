@@ -3,7 +3,7 @@ import { type PostSummary } from '@/types/post';
 import { type Tag } from '@/types/tag';
 
 export interface TagWithCount extends Tag {
-    posts_count: number;
+    postsCount: number;
 }
 
 export interface TagWithPosts extends Tag {

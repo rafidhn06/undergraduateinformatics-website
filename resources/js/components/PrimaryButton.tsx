@@ -3,7 +3,7 @@ import { type ComponentProps } from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 
-type PrimaryButtonProps = ComponentProps<typeof Button>;
+type PrimaryButtonProps = Omit<ComponentProps<typeof Button>, 'variant' | 'size'>;
 
 export function PrimaryButton({ className, ...props }: PrimaryButtonProps) {
     return (

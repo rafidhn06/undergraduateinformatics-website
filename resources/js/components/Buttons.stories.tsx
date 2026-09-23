@@ -1,11 +1,11 @@
 import type { Story } from '@ladle/react';
 
+import { Link } from './Link';
 import { PrimaryButton } from './PrimaryButton';
 import { RouterHarness } from './RouterHarness';
 import { SearchBar } from './SearchBar';
 import { SecondaryButton } from './SecondaryButton';
 import { TextButton } from './TextButton';
-import { TextLink } from './TextLink';
 
 export default {
     title: 'Primitives/Buttons',
@@ -23,18 +23,18 @@ export const TextButtonUnderline: Story = () => (
     <TextButton variant="underline">Isi Formulir Lagi</TextButton>
 );
 
-export const TextLinkFade: Story = () => (
+export const LinkFade: Story = () => (
     <RouterHarness>
-        <TextLink variant="fade" to="/">
+        <Link variant="fade" to="/">
             Kembali
-        </TextLink>
+        </Link>
     </RouterHarness>
 );
 
-export const TextLinkUnderline: Story = () => (
+export const LinkUnderline: Story = () => (
     <RouterHarness>
-        <TextLink variant="underline" to="/">
+        <Link variant="underline" to="/">
             Isi Formulir Lagi
-        </TextLink>
+        </Link>
     </RouterHarness>
 );

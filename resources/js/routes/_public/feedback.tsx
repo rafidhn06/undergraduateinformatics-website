@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { MsFormError } from '@/components/MsFormStates';
+import { MsFormError } from '@/components/MsFormStatus';
 import { FeedbackSkeleton } from '@/features/feedback/FeedbackStates';
 import { ensurePageData } from '@/hooks/usePageData';
 import { seoHead } from '@/lib/seo';

@@ -1,5 +1,5 @@
 import { ArticleContainer } from '@/components/ArticleContainer';
-import { TextLink } from '@/components/TextLink';
+import { Link } from '@/components/Link';
 
 import { type TagWithCount } from './types';
 
@@ -19,14 +19,14 @@ export function TagListContent({ tags }: { tags: TagWithCount[] }) {
                 <ul>
                     {tags.map((tag) => (
                         <li key={tag.id}>
-                            <TextLink
+                            <Link
                                 variant="underline"
                                 className="whitespace-normal no-underline"
                                 to="/tags/$slug"
                                 params={{ slug: tag.slug }}
                             >
-                                {tag.name} ({tag.posts_count})
-                            </TextLink>
+                                {tag.name} ({tag.postsCount})
+                            </Link>
                             {tag.description && (
                                 <p className="text-muted-foreground">{tag.description}</p>
                             )}

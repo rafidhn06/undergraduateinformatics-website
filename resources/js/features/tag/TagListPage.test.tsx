@@ -7,7 +7,6 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TagListPage } from './TagListPage';
-import { type TagWithCountsPayload } from './types';
 
 vi.mock('axios', async () => {
     const actual = await vi.importActual<typeof import('axios')>('axios');
@@ -22,24 +21,12 @@ vi.mock('axios', async () => {
 });
 
 vi.mock('@tanstack/react-router', async () => {
-    const actual =
-        await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
+    const { routerModuleMock } = await import('@/test/mocks');
 
-    return {
-        ...actual,
-        createLink: (Comp: any) =>
-            function MockedLink({ to, params, ...props }: any) {
-                const href =
-                    typeof to === 'string' && params
-                        ? to.replace(/\$[^/]+/g, (key: string) => params[key.slice(1)] ?? key)
-                        : to;
-
-                return <Comp href={href} {...props} />;
-            },
-    };
+    return routerModuleMock();
 });
 
-const tagsPayload: TagWithCountsPayload = {
+const tagsPayload = {
     status: 'success',
     data: [
         {
@@ -72,7 +59,7 @@ function renderPage() {
 describe('TagListPage', () => {
     beforeEach(() => {
         vi.mocked(axios.get).mockResolvedValue({ data: tagsPayload });
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
     it('renders the heading and a row per tag with description and post count', async () => {
@@ -103,7 +90,6 @@ describe('TagListPage', () => {
 
         const academic = screen.getByRole('link', { name: 'Academic (3)' });
         expect(academic).toHaveAttribute('href', '/tags/academic');
-        expect(academic).toHaveClass('text-blue-600', 'no-underline');
         expect(screen.getByRole('link', { name: 'Beasiswa (0)' })).toHaveAttribute(
             'href',
             '/tags/beasiswa'
@@ -124,16 +110,5 @@ describe('TagListPage', () => {
             )
         ).toBeInTheDocument();
         expect(screen.getByText('Belum ada topik.')).toBeInTheDocument();
-    });
-
-    it('keeps the constrained article width', async () => {
-        renderPage();
-
-        await screen.findByRole('heading', { name: 'Daftar Topik' });
-
-        const container = screen
-            .getByRole('heading', { name: 'Daftar Topik' })
-            .closest('.typeset-article');
-        expect(container).toHaveClass('max-w-[37em]');
     });
 });

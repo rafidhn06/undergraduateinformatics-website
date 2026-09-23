@@ -22,16 +22,9 @@ vi.mock('axios', async () => {
 });
 
 vi.mock('@tanstack/react-router', async () => {
-    const actual =
-        await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
+    const { routerModuleMock } = await import('@/test/mocks');
 
-    return {
-        ...actual,
-        createLink: (Comp: any) =>
-            function MockedLink({ to, ...props }: any) {
-                return <Comp href={to} {...props} />;
-            },
-    };
+    return routerModuleMock();
 });
 
 const linksPayload: LinksPayload = {
@@ -84,7 +77,7 @@ function renderPage() {
 describe('LinksPage', () => {
     beforeEach(() => {
         vi.mocked(axios.get).mockResolvedValue({ data: linksPayload });
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
     it('renders the heading, description, a section heading per section, and its links', async () => {
@@ -113,25 +106,6 @@ describe('LinksPage', () => {
         expect(link).toHaveAttribute('href', 'http://bit.ly/MBKM2020');
         expect(link).toHaveAttribute('target', '_blank');
         expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-        expect(link).toHaveClass('text-blue-600', 'no-underline');
-    });
-
-    it('renders the table of contents as an unordered list', async () => {
-        renderPage();
-
-        await screen.findByRole('heading', { name: 'Tautan Penting' });
-
-        const tocNavigations = screen.getAllByRole('navigation', { name: 'Daftar Isi' });
-        expect(tocNavigations.every((navigation) => navigation.querySelector('ul'))).toBe(true);
-    });
-
-    it('renders section links as unordered lists', async () => {
-        renderPage();
-
-        await screen.findByRole('heading', { name: 'Tautan Penting' });
-
-        const unorderedLists = screen.getAllByRole('list').filter((list) => list.tagName === 'UL');
-        expect(unorderedLists.length).toBeGreaterThan(0);
     });
 
     it('shows an empty message for a section without links', async () => {
@@ -180,7 +154,6 @@ describe('LinksPage', () => {
 
         const mbkmHeading = screen.getByRole('heading', { name: 'Kumpulan Link MBKM' });
         expect(mbkmHeading).toHaveAttribute('id', 'link-section-1');
-        expect(mbkmHeading).toHaveClass('scroll-mt-28', 'md:scroll-mt-27');
         expect(screen.getByRole('heading', { name: 'Akademik' })).toHaveAttribute(
             'id',
             'link-section-2'

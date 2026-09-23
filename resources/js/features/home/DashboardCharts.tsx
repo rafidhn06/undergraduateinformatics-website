@@ -71,13 +71,13 @@ export function DashboardCharts({ datasets }: DashboardChartsProps) {
                 </div>
                 <div className="mt-1 flex w-full items-center justify-between">
                     <div className="flex flex-1 justify-start gap-2">
-                        {datasets.map((_, index) => (
+                        {datasets.map((dataset, index) => (
                             <button
-                                key={index}
+                                key={dataset.id}
                                 type="button"
                                 className="flex h-10 flex-1 items-center"
                                 onClick={() => scrollTo(index)}
-                                aria-label={`Go to slide ${index + 1}`}
+                                aria-label={`Tampilkan grafik ${dataset.title}`}
                                 aria-current={index === selectedIndex ? 'true' : 'false'}
                             >
                                 <span
@@ -98,7 +98,7 @@ export function DashboardCharts({ datasets }: DashboardChartsProps) {
                             onClick={() => emblaApi?.scrollPrev()}
                             disabled={!canScrollPrev}
                             className="text-muted-foreground size-10 transition-opacity duration-300 disabled:opacity-30"
-                            aria-label="Previous slide"
+                            aria-label="Grafik sebelumnya"
                         >
                             <ChevronLeft className="size-6" />
                         </Button>
@@ -108,7 +108,7 @@ export function DashboardCharts({ datasets }: DashboardChartsProps) {
                             onClick={() => emblaApi?.scrollNext()}
                             disabled={!canScrollNext}
                             className="text-muted-foreground size-10 transition-opacity duration-300 disabled:opacity-30"
-                            aria-label="Next slide"
+                            aria-label="Grafik berikutnya"
                         >
                             <ChevronRight className="size-6" />
                         </Button>

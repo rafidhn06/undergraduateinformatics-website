@@ -25,7 +25,7 @@ const resultFixture: SearchResult = {
             tags: [{ id: 1, slug: 'beasiswa', name: 'Beasiswa' }],
         },
     ],
-    meta: { current_page: 2, per_page: 10, total: 42, last_page: 5 },
+    meta: { currentPage: 2, perPage: 10, total: 42, lastPage: 5 },
 };
 
 export default {

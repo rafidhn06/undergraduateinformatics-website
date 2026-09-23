@@ -18,7 +18,7 @@ export function ChartTooltip({ active, label, payload, unit }: ChartTooltipProps
     const item = payload[0];
 
     return (
-        <div className="border-border flex flex-col gap-0.5 rounded-md border bg-white px-3 py-2 text-xs text-black shadow-md">
+        <div className="border-border bg-popover text-popover-foreground flex flex-col gap-0.5 rounded-md border px-3 py-2 text-xs shadow-md">
             {label !== undefined && <span className="font-medium">{label}</span>}
             <span>
                 {item.name ? `${item.name}: ` : ''}

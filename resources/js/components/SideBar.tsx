@@ -29,7 +29,10 @@ export function SideBar({ isOpen, onClose }: SideBarProps) {
                         onChange={(event) => setSearchValue(event.target.value)}
                         className="w-full px-4 py-2"
                         onSubmit={(value) => {
-                            navigate({ to: '/posts', search: { q: value } });
+                            navigate({
+                                to: '/posts',
+                                search: { q: value, page: 1, perPage: 10 },
+                            });
                             setSearchValue('');
                             onClose();
                         }}

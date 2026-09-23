@@ -14,21 +14,18 @@ export function RouterHarness({ children }: RouterHarnessProps) {
         });
         const routeTree = rootRoute.addChildren([
             createRoute({ getParentRoute: () => rootRoute, path: '/' }),
-            createRoute({ getParentRoute: () => rootRoute, path: 'posts/$slug' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'posts' }),
+            createRoute({ getParentRoute: () => rootRoute, path: 'posts/$slug' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'tags' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'tags/$slug' }),
-            createRoute({ getParentRoute: () => rootRoute, path: 'explore' }),
-            createRoute({ getParentRoute: () => rootRoute, path: 'link' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'links' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'feedback' }),
             createRoute({ getParentRoute: () => rootRoute, path: 'reservation' }),
-            createRoute({ getParentRoute: () => rootRoute, path: 'admin' }),
         ]);
 
         return createRouter({
             routeTree,
-            history: createMemoryHistory({ initialEntries: ['/explore'] }),
+            history: createMemoryHistory({ initialEntries: ['/'] }),
         });
     }, [children]);
 

@@ -2,25 +2,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import axios, { AxiosError, type AxiosResponse } from 'axios';
+import { AxiosError, type AxiosResponse } from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { httpGet, httpPost } from '@/lib/http';
 import { type MsFormPayload } from '@/types/ms-forms';
 
 import { ReservationForm } from './ReservationForm';
 
-vi.mock('axios', async () => {
-    const actual = await vi.importActual<typeof import('axios')>('axios');
-
-    return {
-        ...actual,
-        default: {
-            ...actual.default,
-            get: vi.fn(),
-            post: vi.fn(),
-        },
-    };
-});
+vi.mock('@/lib/http', () => ({
+    httpGet: vi.fn(),
+    httpPost: vi.fn(),
+}));
 
 const reservationPayload: MsFormPayload = {
     link: 'https://forms.office.com/r/reservation123',
@@ -96,11 +89,13 @@ function renderForm() {
 
 describe('ReservationForm', () => {
     beforeEach(() => {
-        vi.mocked(axios.get).mockResolvedValue({
-            data: { status: 'success', data: { available: true } },
+        vi.mocked(httpGet).mockResolvedValue({
+            status: 'success',
+            data: { available: true },
         });
-        vi.mocked(axios.post).mockResolvedValue({
-            data: { status: 'success', message: 'Reservation submitted successfully.' },
+        vi.mocked(httpPost).mockResolvedValue({
+            status: 'success',
+            data: { submitted_at: '2026-09-10T09:00:00+07:00' },
         });
     });
 
@@ -117,20 +112,21 @@ describe('ReservationForm', () => {
                 'Reservasi hanya dapat dilakukan di hari Senin, Selasa, Kamis, dan Jumat.'
             )
         ).toBeInTheDocument();
-        expect(axios.post).not.toHaveBeenCalled();
+        expect(httpPost).not.toHaveBeenCalled();
     });
 
     it('shows the slot-full message under the shift field and scrolls only on submit', async () => {
         const scrollIntoView = vi.mocked(Element.prototype.scrollIntoView);
         scrollIntoView.mockClear();
 
-        vi.mocked(axios.get).mockImplementation((url) => {
+        vi.mocked(httpGet).mockImplementation((url) => {
             if (url === '/api/reservation-form/availability') {
                 return Promise.resolve({
-                    data: { status: 'success', data: { available: false } },
+                    status: 'success',
+                    data: { available: false },
                 });
             }
-            return Promise.resolve({ data: { status: 'success', data: { available: true } } });
+            return Promise.resolve({ status: 'success', data: { available: true } });
         });
 
         renderForm();
@@ -164,7 +160,7 @@ describe('ReservationForm', () => {
                 },
             },
         } as AxiosResponse;
-        vi.mocked(axios.post).mockRejectedValue(error);
+        vi.mocked(httpPost).mockRejectedValue(error);
 
         renderForm();
 
@@ -188,7 +184,7 @@ describe('ReservationForm', () => {
                 },
             },
         } as AxiosResponse;
-        vi.mocked(axios.post).mockRejectedValue(error);
+        vi.mocked(httpPost).mockRejectedValue(error);
 
         renderForm();
 
@@ -215,7 +211,7 @@ describe('ReservationForm', () => {
         await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
 
         await waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith('/api/reservation-submissions', {
+            expect(httpPost).toHaveBeenCalledWith('/api/reservation-submissions', {
                 answers: [
                     { questionId: 'nama', answer: 'Budi' },
                     { questionId: 'tanggal', answer: '2026-09-08' },

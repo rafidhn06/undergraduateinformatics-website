@@ -5,10 +5,11 @@ import { RouterHarness } from '@/components/RouterHarness';
 
 import { HomeContent } from './HomeContent';
 import { HomeSkeleton } from './HomeStates';
+import { dashboardDatasets } from './chart-fixtures';
 import { type HomeData } from './types';
 
 const homeFixture: HomeData = {
-    latest_posts: [
+    latestPosts: [
         {
             id: 1,
             slug: 'pengumuman-beasiswa-2026',
@@ -34,7 +35,7 @@ const homeFixture: HomeData = {
             tags: [{ id: 3, slug: 'mbkm', name: 'MBKM' }],
         },
     ],
-    latest_links: [
+    latestLinks: [
         {
             id: 7,
             name: 'Portal Akademik',
@@ -57,49 +58,12 @@ const homeFixture: HomeData = {
             section: { id: 3, name: 'MBKM' },
         },
     ],
-    dashboard: [
-        {
-            id: 1,
-            title: 'Mahasiswa per Angkatan',
-            chart_type: 'bar',
-            x_label: 'Angkatan',
-            y_label: 'Jumlah',
-            labels: ['2022', '2023', '2024', '2025'],
-            values: [240, 265, 289, 312],
-        },
-        {
-            id: 2,
-            title: 'Mahasiswa per Provinsi',
-            chart_type: 'pie',
-            x_label: 'Provinsi',
-            y_label: 'Jumlah',
-            labels: ['Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 'Banten', 'DKI Jakarta'],
-            values: [320, 148, 122, 76, 58],
-        },
-        {
-            id: 3,
-            title: 'Pertumbuhan Mahasiswa per Tahun',
-            chart_type: 'line',
-            x_label: 'Tahun',
-            y_label: 'Jumlah',
-            labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
-            values: [180, 205, 228, 240, 265, 289, 312],
-        },
-        {
-            id: 4,
-            title: 'Mahasiswa per Jalur Masuk',
-            chart_type: 'bar',
-            x_label: 'Jalur',
-            y_label: 'Jumlah',
-            labels: ['SNBT', 'SNBP', 'Mandiri'],
-            values: [140, 95, 77],
-        },
-    ],
+    dashboard: dashboardDatasets,
 };
 
 const emptyFixture: HomeData = {
-    latest_posts: [],
-    latest_links: [],
+    latestPosts: [],
+    latestLinks: [],
     dashboard: [],
 };
 

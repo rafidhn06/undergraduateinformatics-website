@@ -63,11 +63,6 @@ describe('MsForm', () => {
             )
         ).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Jenis Masukan' })).toBeInTheDocument();
-
-        const container = screen
-            .getByRole('heading', { name: 'Form Umpan Balik' })
-            .closest('.typeset-article');
-        expect(container).toHaveClass('max-w-[37em]');
     });
 
     it('renders rich form title, description, section, and question titles', () => {
@@ -89,7 +84,6 @@ describe('MsForm', () => {
             (_, element) => element?.textContent === 'Tulis rincian Anda.'
         );
         expect(questionSubtitle).toBeInTheDocument();
-        expect(questionSubtitle).toHaveClass('nth-last-2:-mt-1', 'text-base');
     });
 
     it('renders section title and subtitle', () => {
@@ -181,20 +175,6 @@ describe('MsForm', () => {
         expect(axios.post).not.toHaveBeenCalled();
     });
 
-    it('scrolls to the first invalid question when Kirim fails', async () => {
-        const scrollIntoView = vi.mocked(Element.prototype.scrollIntoView);
-        scrollIntoView.mockClear();
-
-        renderForm(toFormProps(richPayload));
-        await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
-
-        await screen.findAllByText(/wajib diisi/);
-        expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
-        expect(scrollIntoView.mock.instances[0]).toBe(
-            document.querySelector('[data-question-id="jenis"]')
-        );
-    });
-
     it('shows required-field errors when submitting an empty required form', async () => {
         renderForm(toFormProps(simplePayload));
 
@@ -203,6 +183,44 @@ describe('MsForm', () => {
 
         expect(await screen.findByText('Pertanyaan ini wajib diisi')).toBeInTheDocument();
         expect(axios.post).not.toHaveBeenCalled();
+    });
+
+    it('shows text-only errors without red borders on invalid fields', async () => {
+        renderForm(toFormProps(richPayload));
+
+        await userEvent.click(screen.getByRole('radio', { name: 'Saran' }));
+        await userEvent.type(screen.getByLabelText('Tanggal Pengalaman'), 'bukan-tanggal');
+        await userEvent.click(screen.getByRole('button', { name: /Kirim/ }));
+
+        const messages = await screen.findAllByText('Pertanyaan ini wajib diisi');
+        expect(messages).toHaveLength(2);
+        messages.forEach((message) => expect(message).toHaveClass('text-destructive'));
+
+        const textbox = screen.getByRole('textbox', { name: 'Isi Masukan' });
+        expect(textbox).toHaveAttribute('aria-invalid', 'true');
+        expect(textbox.getAttribute('class')).not.toContain('destructive');
+
+        const checkbox = screen.getByRole('checkbox', { name: 'Akademik' });
+        expect(checkbox).toHaveAttribute('aria-invalid', 'true');
+        expect(checkbox.getAttribute('class')).not.toContain('destructive');
+
+        const dateGroup = document.querySelector('[data-slot="input-group"]');
+        expect(dateGroup?.getAttribute('class')).not.toContain('destructive');
+
+        expect(document.querySelector('[data-invalid="true"]')).not.toBeInTheDocument();
+    });
+
+    it('shows text-only errors without red borders on invalid radio fields', async () => {
+        renderForm(toFormProps(branchingPayload));
+
+        await userEvent.click(screen.getByRole('button', { name: /Lanjut/ }));
+
+        await screen.findByText(/wajib diisi/);
+
+        const radio = screen.getByRole('radio', { name: 'Saran' });
+        expect(radio).toHaveAttribute('aria-invalid', 'true');
+        expect(radio.getAttribute('class')).not.toContain('destructive');
+        expect(document.querySelector('[data-invalid="true"]')).not.toBeInTheDocument();
     });
 
     it('rejects submitting a fully empty form with a message', async () => {

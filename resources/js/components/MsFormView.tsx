@@ -4,7 +4,7 @@ import { ArticleContainer } from '../components/ArticleContainer';
 import { type UseMsFormLogicReturn } from '../hooks/useMsFormLogic';
 import { type MsRichText } from '../types/ms-forms';
 import { MsFormField } from './MsFormField';
-import { MsFormSuccess } from './MsFormStates';
+import { MsFormSuccess } from './MsFormStatus';
 import { PrimaryButton } from './PrimaryButton';
 import { RichText } from './RichText';
 import { RichTextContent } from './RichTextContent';

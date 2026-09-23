@@ -1,4 +1,3 @@
-import { ArticleContainer } from '@/components/ArticleContainer';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function PostSkeleton() {
@@ -28,16 +27,5 @@ export function PostSkeleton() {
                 </div>
             </article>
         </div>
-    );
-}
-
-export function PostNotFound() {
-    return (
-        <ArticleContainer>
-            <h1>Informasi tidak ditemukan</h1>
-            <p className="text-muted-foreground">
-                Informasi mungkin sudah dihapus atau alamatnya salah.
-            </p>
-        </ArticleContainer>
     );
 }

@@ -8,16 +8,14 @@ export type ChartType = 'bar' | 'pie' | 'line';
 export interface DashboardDataset {
     id: number;
     title: string;
-    chart_type: ChartType;
-    x_label: string | null;
-    y_label: string | null;
+    chartType: ChartType;
     labels: string[];
     values: number[];
 }
 
 export interface HomeData {
-    latest_posts: PostSummary[];
-    latest_links: LinkSummary[];
+    latestPosts: PostSummary[];
+    latestLinks: LinkSummary[];
     dashboard: DashboardDataset[];
 }
 

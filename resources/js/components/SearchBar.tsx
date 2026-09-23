@@ -7,17 +7,16 @@ import { Input } from './ui/input';
 
 interface SearchBarProps extends Omit<ComponentProps<typeof Input>, 'onSubmit'> {
     onSubmit?: (value: string) => void;
-    variant?: 'filled' | 'underline';
 }
 
-export function SearchBar({
+function SearchBarBase({
     className,
     onSubmit,
     onKeyDown,
     onBlur,
-    variant = 'filled',
+    filled,
     ...props
-}: SearchBarProps) {
+}: SearchBarProps & { filled: boolean }) {
     const [isPointerSession, setIsPointerSession] = useState(false);
 
     return (
@@ -26,7 +25,7 @@ export function SearchBar({
             className={cn(
                 'has-focus-visible:global-ring relative flex w-48 items-center',
                 isPointerSession && 'no-ring',
-                variant === 'filled' ? 'bg-gray-100 px-3 py-1.5' : 'border-b px-0 py-1.5',
+                filled ? 'bg-muted px-3 py-1.5' : 'border-b px-0 py-1.5',
                 className
             )}
         >
@@ -46,9 +45,17 @@ export function SearchBar({
                         onSubmit?.(event.currentTarget.value);
                     }
                 }}
-                className="no-ring h-auto w-full border-none bg-transparent p-0 pr-8 text-lg md:text-base"
+                className="no-ring h-auto w-full border-none bg-transparent p-0 pr-8 text-lg md:text-base dark:bg-transparent"
             />
-            <Search className="absolute top-1/2 right-3 size-4 -translate-y-1/2 text-gray-400" />
+            <Search className="text-muted-foreground absolute top-1/2 right-3 size-4 -translate-y-1/2" />
         </div>
     );
+}
+
+export function SearchBar(props: SearchBarProps) {
+    return <SearchBarBase {...props} filled />;
+}
+
+export function SearchBox(props: SearchBarProps) {
+    return <SearchBarBase {...props} filled={false} />;
 }

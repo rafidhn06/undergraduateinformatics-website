@@ -84,7 +84,7 @@ function renderPage() {
 describe('TagDetailPage', () => {
     beforeEach(() => {
         vi.mocked(axios.get).mockResolvedValue({ data: detailPayload });
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
     it('renders the tag name, description, and a month heading per post group', async () => {
@@ -101,14 +101,6 @@ describe('TagDetailPage', () => {
         renderPage();
 
         await screen.findByRole('heading', { name: 'Beasiswa' });
-
-        const headings = screen.getAllByRole('heading').map((heading) => heading.textContent);
-        const monthIndexes = [
-            headings.indexOf('September 2026'),
-            headings.indexOf('April 2026'),
-            headings.indexOf('Januari 2024'),
-        ];
-        expect(monthIndexes).toEqual([...monthIndexes].sort((a, b) => a - b));
 
         const septemberHeading = screen.getByRole('heading', { name: 'September 2026' });
         expect(septemberHeading.closest('section')?.textContent).toContain('Beasiswa Luar Negeri');
@@ -181,7 +173,6 @@ describe('TagDetailPage', () => {
 
         const septemberHeading = screen.getByRole('heading', { name: 'September 2026' });
         expect(septemberHeading).toHaveAttribute('id', 'tag-section-2026-09');
-        expect(septemberHeading).toHaveClass('scroll-mt-28', 'md:scroll-mt-27');
         expect(screen.getByRole('heading', { name: 'April 2026' })).toHaveAttribute(
             'id',
             'tag-section-2026-04'

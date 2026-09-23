@@ -2,28 +2,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
+import { type PostListMeta } from '../post/page-data';
 import { SearchContent } from './SearchContent';
-import { type PostSearchMeta } from './types';
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 
 vi.mock('@tanstack/react-router', async () => {
-    const actual =
-        await vi.importActual<typeof import('@tanstack/react-router')>('@tanstack/react-router');
+    const { routerModuleMock } = await import('@/test/mocks');
 
-    return {
-        ...actual,
-        createLink: (Comp: any) =>
-            function MockedLink({ to, params, ...props }: any) {
-                const href =
-                    typeof to === 'string' && params
-                        ? to.replace(/\$[^/]+/g, (key: string) => params[key.slice(1)] ?? key)
-                        : to;
-
-                return <Comp href={href} {...props} />;
-            },
-        useNavigate: () => navigateMock,
-    };
+    return routerModuleMock({ useNavigate: () => navigateMock });
 });
 
 const posts = [
@@ -45,7 +32,7 @@ const posts = [
     },
 ];
 
-const meta: PostSearchMeta = { current_page: 2, per_page: 10, total: 2, last_page: 5 };
+const meta: PostListMeta = { currentPage: 2, perPage: 10, total: 2, lastPage: 5 };
 
 describe('SearchContent', () => {
     it('renders a search bar seeded with the query and the total result count', () => {
@@ -148,7 +135,7 @@ describe('SearchContent', () => {
         const { rerender } = render(
             <SearchContent
                 q="beasiswa"
-                result={{ posts, meta: { ...meta, current_page: 1 } }}
+                result={{ posts, meta: { ...meta, currentPage: 1 } }}
                 onSearch={vi.fn()}
                 onPageChange={vi.fn()}
             />
@@ -160,7 +147,7 @@ describe('SearchContent', () => {
         rerender(
             <SearchContent
                 q="beasiswa"
-                result={{ posts, meta: { ...meta, current_page: 5 } }}
+                result={{ posts, meta: { ...meta, currentPage: 5 } }}
                 onSearch={vi.fn()}
                 onPageChange={vi.fn()}
             />

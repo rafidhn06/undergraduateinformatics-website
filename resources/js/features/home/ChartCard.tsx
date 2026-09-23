@@ -16,9 +16,9 @@ export function ChartCard({ dataset }: ChartCardProps) {
 
     return (
         <div className="flex flex-col">
-            <h3 className="text-foreground font-heading min-w-0 truncate text-[20.25px] leading-[1.45] font-semibold md:text-[18px]">
+            <p className="text-foreground min-w-0 truncate text-lg leading-6 font-medium md:text-base">
                 {dataset.title}
-            </h3>
+            </p>
             <div
                 tabIndex={0}
                 onPointerDown={() => setIsPointerSession(true)}
@@ -29,13 +29,13 @@ export function ChartCard({ dataset }: ChartCardProps) {
                     isPointerSession && 'no-ring'
                 )}
             >
-                {dataset.chart_type === 'bar' && (
+                {dataset.chartType === 'bar' && (
                     <BarChart labels={dataset.labels} values={dataset.values} />
                 )}
-                {dataset.chart_type === 'pie' && (
+                {dataset.chartType === 'pie' && (
                     <PieChart labels={dataset.labels} values={dataset.values} />
                 )}
-                {dataset.chart_type === 'line' && (
+                {dataset.chartType === 'line' && (
                     <LineChart labels={dataset.labels} values={dataset.values} />
                 )}
             </div>

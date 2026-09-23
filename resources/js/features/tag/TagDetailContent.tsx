@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { PostCard } from '@/components/PostCard';
 import { TocLayout } from '@/components/TocLayout';
 import { sectionId } from '@/lib/sectionId';
@@ -6,7 +8,7 @@ import { groupPostsByMonth } from './groupPostsByMonth';
 import { type TagWithPosts } from './types';
 
 export function TagDetailContent({ tag }: { tag: TagWithPosts }) {
-    const groups = groupPostsByMonth(tag.posts);
+    const groups = useMemo(() => groupPostsByMonth(tag.posts), [tag.posts]);
 
     const tocItems = groups.map((group) => ({
         id: sectionId('tag-section', group.key),

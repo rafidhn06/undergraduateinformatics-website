@@ -1,5 +1,5 @@
+import { Link } from '@/components/Link';
 import { PostCard } from '@/components/PostCard';
-import { TextLink } from '@/components/TextLink';
 import { type PostSummary } from '@/types/post';
 
 interface LatestPostsProps {
@@ -10,13 +10,14 @@ export function LatestPosts({ posts }: LatestPostsProps) {
     return (
         <section aria-labelledby="latest-posts-heading" className="flex flex-col">
             <h2 id="latest-posts-heading">
-                <TextLink
+                <Link
                     variant="fade"
                     to="/posts"
-                    className="font-heading text-[22.5px] leading-[1.4] font-semibold md:text-[20px]"
+                    search={{ q: undefined, page: 1, perPage: 10 }}
+                    className="font-heading text-foreground hover:text-muted-foreground text-[22.5px] leading-[1.4] font-semibold md:text-[20px]"
                 >
                     Informasi Terbaru
-                </TextLink>
+                </Link>
             </h2>
             {posts.length === 0 ? (
                 <p role="status" className="text-muted-foreground mt-[22.5px] md:mt-5">

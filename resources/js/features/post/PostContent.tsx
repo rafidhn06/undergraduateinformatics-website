@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
+import { Link } from '@/components/Link';
 import { RichText } from '@/components/RichText';
-import { TextLink } from '@/components/TextLink';
 import { type Post } from '@/types/post';
 
 import { isUpdated } from './types';
@@ -28,7 +28,7 @@ export function PostContent({ post }: PostContentProps) {
                 {post.tags.length > 0 && (
                     <div className="flex flex-wrap items-center gap-x-3">
                         {post.tags.map((tag) => (
-                            <TextLink
+                            <Link
                                 key={tag.id}
                                 variant="fade"
                                 to="/tags/$slug"
@@ -36,7 +36,7 @@ export function PostContent({ post }: PostContentProps) {
                                 className="text-muted-foreground hover:text-foreground border-0 text-lg leading-[31.5px] no-underline md:text-base md:leading-7"
                             >
                                 {tag.name}
-                            </TextLink>
+                            </Link>
                         ))}
                     </div>
                 )}

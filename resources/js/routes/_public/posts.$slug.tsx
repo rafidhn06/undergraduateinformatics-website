@@ -1,43 +1,17 @@
-import { createFileRoute, notFound, useParams } from '@tanstack/react-router';
-
-import axios from 'axios';
+import { createFileRoute, useParams } from '@tanstack/react-router';
 
 import { ErrorState } from '@/components/ErrorState';
+import { NotFoundPage } from '@/components/NotFoundPage';
 import { PostPage } from '@/features/post/PostPage';
-import { PostNotFound, PostSkeleton } from '@/features/post/PostStates';
+import { PostSkeleton } from '@/features/post/PostStates';
 import { type PostPayload } from '@/features/post/types';
-import { isSuccessPayload, pageQueryKey } from '@/hooks/usePageData';
-import { isNotFoundError } from '@/lib/errors';
 import { seoHead, seoTitle } from '@/lib/seo';
 
+import { ensureDetailPageData } from './detail-loader';
+
 export const Route = createFileRoute('/_public/posts/$slug')({
-    loader: async ({ context, params }) => {
-        const endpoint = `/api/posts/${params.slug}`;
-        const initialData = (window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__;
-
-        if (isSuccessPayload<PostPayload['data']>(initialData)) {
-            context.queryClient.setQueryData(pageQueryKey(endpoint), initialData);
-            clearInitialData();
-            return initialData;
-        }
-
-        if (initialData !== undefined && initialData !== null) {
-            clearInitialData();
-            throw notFound();
-        }
-
-        try {
-            return await context.queryClient.ensureQueryData<PostPayload>({
-                queryKey: pageQueryKey(endpoint),
-                queryFn: () => axios.get<PostPayload>(endpoint).then((response) => response.data),
-            });
-        } catch (error) {
-            if (isNotFoundError(error)) {
-                throw notFound();
-            }
-            throw error;
-        }
-    },
+    loader: ({ context, params }) =>
+        ensureDetailPageData<PostPayload>(context.queryClient, `/api/posts/${params.slug}`),
     head: ({ loaderData }) => {
         const post = loaderData?.data;
 
@@ -50,7 +24,7 @@ export const Route = createFileRoute('/_public/posts/$slug')({
     pendingMs: 0,
     pendingMinMs: 0,
     errorComponent: PostErrorComponent,
-    notFoundComponent: PostNotFound,
+    notFoundComponent: NotFoundPage,
     component: PostRouteComponent,
 });
 
@@ -61,8 +35,4 @@ function PostRouteComponent() {
 
 function PostErrorComponent() {
     return <ErrorState />;
-}
-
-function clearInitialData() {
-    (window as { __INITIAL_DATA__?: unknown }).__INITIAL_DATA__ = null;
 }

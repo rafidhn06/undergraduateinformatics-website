@@ -101,9 +101,9 @@ describe('ReservationPage', () => {
             data: { status: 'success', data: formPayload },
         });
         vi.mocked(axios.post).mockResolvedValue({
-            data: { status: 'success', message: 'Reservation submitted successfully.' },
+            data: { status: 'success', data: { submitted_at: '2026-09-10T09:00:00+07:00' } },
         });
-        delete (window as any).__INITIAL_DATA__;
+        delete window.__INITIAL_DATA__;
     });
 
     it('renders the form title, description, and questions', async () => {

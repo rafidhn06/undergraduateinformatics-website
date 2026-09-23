@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 import { ChartTooltip } from './chart-tooltip';
-import { useChartTooltip } from './use-chart-tooltip';
+import { useChartTooltip } from './useChartTooltip';
 
 vi.mock('@/hooks/useMediaQuery', () => ({
     useMediaQuery: vi.fn(),

@@ -27,6 +27,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { type MsFormQuestion, type MsFormValues } from '../types/ms-forms';
 import { RichTextContent } from './RichTextContent';
 
+const NEUTRAL_INVALID_CONTROL_CLASS =
+    'aria-invalid:border-input aria-invalid:ring-0 aria-invalid:ring-transparent dark:aria-invalid:border-input dark:aria-invalid:ring-0 dark:aria-invalid:ring-transparent';
+
+const NEUTRAL_INVALID_GROUP_CLASS =
+    'has-[[data-slot][aria-invalid=true]]:border-input has-[[data-slot][aria-invalid=true]]:ring-0 has-[[data-slot][aria-invalid=true]]:ring-transparent dark:has-[[data-slot][aria-invalid=true]]:ring-0 dark:has-[[data-slot][aria-invalid=true]]:ring-transparent';
+
 interface DateFieldInputProps {
     id: string;
     value: string;
@@ -41,7 +47,7 @@ function DateFieldInput({ id, value, onChange, invalid }: DateFieldInputProps) {
     );
 
     return (
-        <InputGroup>
+        <InputGroup className={NEUTRAL_INVALID_GROUP_CLASS}>
             <InputGroupInput
                 id={id}
                 value={value}
@@ -107,7 +113,7 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
                 control={control}
                 name={question.id}
                 render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
+                    <Field>
                         <FieldLabel htmlFor={question.id} className="sr-only">
                             {question.title.text}
                         </FieldLabel>
@@ -117,6 +123,7 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
                                 id={question.id}
                                 rows={3}
                                 aria-invalid={fieldState.invalid}
+                                className={NEUTRAL_INVALID_CONTROL_CLASS}
                             />
                         ) : (
                             <DateFieldInput
@@ -139,7 +146,7 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
                 control={control}
                 name={question.id}
                 render={({ field, fieldState }) => (
-                    <FieldSet data-invalid={fieldState.invalid}>
+                    <FieldSet>
                         <FieldLegend variant="label" className="sr-only">
                             {question.title.text}
                         </FieldLegend>
@@ -151,13 +158,11 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
                                         key={choice.value}
                                         htmlFor={`${question.id}-${choice.value}`}
                                     >
-                                        <Field
-                                            orientation="horizontal"
-                                            data-invalid={fieldState.invalid}
-                                        >
+                                        <Field orientation="horizontal">
                                             <Checkbox
                                                 id={`${question.id}-${choice.value}`}
                                                 aria-invalid={fieldState.invalid}
+                                                className={NEUTRAL_INVALID_CONTROL_CLASS}
                                                 checked={values.includes(choice.value)}
                                                 onCheckedChange={(checked) =>
                                                     field.onChange(
@@ -187,7 +192,7 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
             control={control}
             name={question.id}
             render={({ field, fieldState }) => (
-                <FieldSet data-invalid={fieldState.invalid}>
+                <FieldSet>
                     <FieldLegend variant="label" className="sr-only" id={`${question.id}-title`}>
                         {question.title.text}
                     </FieldLegend>
@@ -208,11 +213,12 @@ export function MsFormField({ question, control }: MsFormFieldProps) {
                                     }
                                 }}
                             >
-                                <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+                                <Field orientation="horizontal">
                                     <RadioGroupItem
                                         value={choice.value}
                                         id={`${question.id}-${choice.value}`}
                                         aria-invalid={fieldState.invalid}
+                                        className={NEUTRAL_INVALID_CONTROL_CLASS}
                                     />
                                     <RichTextContent content={choice.label} as="span" />
                                 </Field>

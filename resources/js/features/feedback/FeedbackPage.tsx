@@ -1,5 +1,5 @@
 import { MsForm } from '@/components/MsForm';
-import { MsFormUnavailable } from '@/components/MsFormStates';
+import { MsFormUnavailable } from '@/components/MsFormStatus';
 import { useMsForm } from '@/hooks/useMsForm';
 
 export function FeedbackPage() {

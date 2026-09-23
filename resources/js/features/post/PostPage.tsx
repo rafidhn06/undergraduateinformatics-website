@@ -1,8 +1,8 @@
 import { PostContent } from './PostContent';
-import { usePost } from './usePost';
+import { usePostDetail } from './page-data';
 
 export function PostPage({ slug }: { slug: string }) {
-    const { data: post } = usePost(slug);
+    const { data: post } = usePostDetail(slug);
 
     return <PostContent post={post} />;
 }

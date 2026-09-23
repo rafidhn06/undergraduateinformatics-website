@@ -3,7 +3,7 @@ import { type ComponentProps } from 'react';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 
-type SecondaryButtonProps = ComponentProps<typeof Button>;
+type SecondaryButtonProps = Omit<ComponentProps<typeof Button>, 'variant' | 'size'>;
 
 export function SecondaryButton({ className, ...props }: SecondaryButtonProps) {
     return (

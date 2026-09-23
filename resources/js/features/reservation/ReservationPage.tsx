@@ -1,4 +1,4 @@
-import { MsFormUnavailable } from '@/components/MsFormStates';
+import { MsFormUnavailable } from '@/components/MsFormStatus';
 import { useMsForm } from '@/hooks/useMsForm';
 import { type ReservationFormPayload } from '@/types/ms-forms';
 

@@ -1,6 +1,6 @@
 import { ArticleContainer } from '@/components/ArticleContainer';
 import { PostCard } from '@/components/PostCard';
-import { SearchBar } from '@/components/SearchBar';
+import { SearchBox } from '@/components/SearchBar';
 import { TextButton } from '@/components/TextButton';
 
 import { type SearchResult } from './types';
@@ -18,10 +18,9 @@ export function SearchContent({ q, result, onSearch, onPageChange }: SearchConte
 
     return (
         <ArticleContainer>
-            <SearchBar
+            <SearchBox
                 key={q ?? 'no-query'}
                 defaultValue={q}
-                variant="underline"
                 className="w-full"
                 onSubmit={onSearch}
             />
@@ -48,19 +47,19 @@ export function SearchContent({ q, result, onSearch, onPageChange }: SearchConte
                         <TextButton
                             variant="fade"
                             className="justify-self-start border-0"
-                            disabled={meta.current_page <= 1}
-                            onClick={() => onPageChange(meta.current_page - 1)}
+                            disabled={meta.currentPage <= 1}
+                            onClick={() => onPageChange(meta.currentPage - 1)}
                         >
                             Kembali
                         </TextButton>
                         <span className="text-muted-foreground text-lg leading-[31.5px] md:text-base md:leading-7">
-                            {meta.current_page} dari {meta.last_page}
+                            {meta.currentPage} dari {meta.lastPage}
                         </span>
                         <TextButton
                             variant="fade"
                             className="justify-self-end border-0"
-                            disabled={meta.current_page >= meta.last_page}
-                            onClick={() => onPageChange(meta.current_page + 1)}
+                            disabled={meta.currentPage >= meta.lastPage}
+                            onClick={() => onPageChange(meta.currentPage + 1)}
                         >
                             Lanjut
                         </TextButton>

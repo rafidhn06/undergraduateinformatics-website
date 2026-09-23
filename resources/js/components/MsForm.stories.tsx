@@ -4,7 +4,7 @@ import type { Story, StoryDefault } from '@ladle/react';
 
 import { type MsFormQuestion, type MsFormSection, type MsRichText } from '../types/ms-forms';
 import { MsForm } from './MsForm';
-import { MsFormError, MsFormSuccess, MsFormUnavailable } from './MsFormStates';
+import { MsFormError, MsFormSuccess, MsFormUnavailable } from './MsFormStatus';
 import {
     SUBMIT_LABEL,
     branchingPayload,

@@ -1,5 +1,5 @@
+import { Link } from '@/components/Link';
 import { LinkCard } from '@/components/LinkCard';
-import { TextLink } from '@/components/TextLink';
 import { type LinkSummary } from '@/types/link';
 
 interface LatestLinksProps {
@@ -10,13 +10,13 @@ export function LatestLinks({ links }: LatestLinksProps) {
     return (
         <section aria-labelledby="latest-links-heading" className="flex flex-col">
             <h2 id="latest-links-heading">
-                <TextLink
+                <Link
                     variant="fade"
                     to="/links"
-                    className="font-heading text-[22.5px] leading-[1.4] font-semibold md:text-[20px]"
+                    className="font-heading text-foreground hover:text-muted-foreground text-[22.5px] leading-[1.4] font-semibold md:text-[20px]"
                 >
                     Tautan Terbaru
-                </TextLink>
+                </Link>
             </h2>
             {links.length === 0 ? (
                 <p role="status" className="text-muted-foreground mt-[22.5px] md:mt-5">

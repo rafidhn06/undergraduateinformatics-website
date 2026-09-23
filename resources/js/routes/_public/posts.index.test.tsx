@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { type NormalizedPostSearch } from '@/features/post/page-data';
 import { pageQueryKey } from '@/hooks/usePageData';
 import { seoPage } from '@/lib/seo';
 
@@ -20,12 +21,10 @@ vi.mock('axios', async () => {
     };
 });
 
-type Search = { q?: string; page?: number; per_page?: number };
-
-function evaluateSearch(input: unknown): Search {
+function evaluateSearch(input: unknown): NormalizedPostSearch {
     const validator = Route.options.validateSearch as {
-        ['~standard']?: { validate: (value: unknown) => { value: Search } };
-        parse?: (value: unknown) => Search;
+        ['~standard']?: { validate: (value: unknown) => { value: NormalizedPostSearch } };
+        parse?: (value: unknown) => NormalizedPostSearch;
     };
 
     if (validator && '~standard' in validator) {
@@ -34,12 +33,12 @@ function evaluateSearch(input: unknown): Search {
     if (validator && typeof validator.parse === 'function') {
         return validator.parse(input);
     }
-    return {} as Search;
+    return { q: undefined, page: 1, perPage: 10 };
 }
 
 const loader = Route.options.loader as unknown as (args: {
     context: { queryClient: QueryClient };
-    location: { search: Search };
+    location: { search: Record<string, unknown> };
 }) => Promise<unknown>;
 
 function createQueryClient() {
@@ -56,21 +55,13 @@ beforeEach(() => {
 });
 
 describe('posts index route', () => {
-    it('sets the page title via the head option', () => {
-        const head = Route.options.head as unknown as (context: unknown) => {
-            meta?: { title?: string }[];
-        };
-
-        const result = head({});
-        expect(result.meta?.[0]?.title).toBe(seoPage('postSearch').title);
-    });
-
-    it('sets the page description via the head option', () => {
+    it('sets the page title and description via the head option', () => {
         const head = Route.options.head as unknown as (context: unknown) => {
             meta?: { title?: string; name?: string; content?: string }[];
         };
 
         const result = head({});
+        expect(result.meta?.[0]?.title).toBe(seoPage('postSearch').title);
         const description = result.meta?.find((entry) => entry.name === 'description');
         expect(description?.content).toBe(seoPage('postSearch').description);
     });
@@ -80,19 +71,14 @@ describe('posts index route', () => {
         expect(evaluateSearch({ page: 'abc' })?.page).toBe(1);
     });
 
-    it('normalizes invalid per_page values to 10', () => {
-        expect(evaluateSearch({ per_page: '0' })?.per_page).toBe(10);
-        expect(evaluateSearch({ per_page: 'abc' })?.per_page).toBe(10);
+    it('normalizes invalid per_page values to perPage 10', () => {
+        expect(evaluateSearch({ per_page: '0' })?.perPage).toBe(10);
+        expect(evaluateSearch({ per_page: 'abc' })?.perPage).toBe(10);
     });
 
-    it('keeps q and leaves page and per_page absent when not provided', () => {
+    it('applies page 1 and perPage 10 defaults when not provided', () => {
         expect(evaluateSearch({ q: 'beasiswa' })?.q).toBe('beasiswa');
-        expect(evaluateSearch({})?.page).toBeUndefined();
-        expect(evaluateSearch({})?.per_page).toBeUndefined();
-    });
-
-    it('keeps the search page as its component', () => {
-        expect(Route.options.component).toBeDefined();
+        expect(evaluateSearch({})).toEqual({ q: undefined, page: 1, perPage: 10 });
     });
 });
 

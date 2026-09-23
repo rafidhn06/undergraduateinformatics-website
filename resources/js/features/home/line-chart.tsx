@@ -10,7 +10,7 @@ import {
 
 import { chartColor } from './chart-color';
 import { ChartTooltip } from './chart-tooltip';
-import { useChartTooltip } from './use-chart-tooltip';
+import { useChartTooltip } from './useChartTooltip';
 
 interface LineChartProps {
     labels: string[];

@@ -11,13 +11,11 @@ import {
 
 import { chartColor } from './chart-color';
 import { ChartTooltip } from './chart-tooltip';
-import { useChartTooltip } from './use-chart-tooltip';
+import { useChartTooltip } from './useChartTooltip';
 
 interface BarChartProps {
     labels: string[];
     values: number[];
-    xLabel?: string | null;
-    yLabel?: string | null;
 }
 
 export function BarChart({ labels, values }: BarChartProps) {

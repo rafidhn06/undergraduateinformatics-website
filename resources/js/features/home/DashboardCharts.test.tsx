@@ -35,18 +35,14 @@ const datasets: DashboardDataset[] = [
     {
         id: 1,
         title: 'Mahasiswa per Angkatan',
-        chart_type: 'bar',
-        x_label: 'Angkatan',
-        y_label: 'Jumlah',
+        chartType: 'bar',
         labels: ['2022'],
         values: [240],
     },
     {
         id: 2,
         title: 'Mahasiswa per Provinsi',
-        chart_type: 'pie',
-        x_label: 'Provinsi',
-        y_label: 'Jumlah',
+        chartType: 'pie',
         labels: ['Jawa Barat'],
         values: [350],
     },
@@ -88,8 +84,8 @@ describe('DashboardCharts', () => {
 
         render(<DashboardCharts datasets={datasets} />);
 
-        expect(screen.queryByLabelText('Previous slide')).not.toBeInTheDocument();
-        expect(screen.queryByLabelText('Next slide')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Grafik sebelumnya')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Grafik berikutnya')).not.toBeInTheDocument();
     });
 
     it('renders carousel navigation on mobile', () => {
@@ -97,8 +93,8 @@ describe('DashboardCharts', () => {
 
         render(<DashboardCharts datasets={datasets} />);
 
-        expect(screen.getByLabelText('Previous slide')).toBeInTheDocument();
-        expect(screen.getByLabelText('Next slide')).toBeInTheDocument();
+        expect(screen.getByLabelText('Grafik sebelumnya')).toBeInTheDocument();
+        expect(screen.getByLabelText('Grafik berikutnya')).toBeInTheDocument();
     });
 
     it('navigates the carousel from the buttons', () => {
@@ -106,29 +102,29 @@ describe('DashboardCharts', () => {
 
         render(<DashboardCharts datasets={datasets} />);
 
-        fireEvent.click(screen.getByLabelText('Next slide'));
+        fireEvent.click(screen.getByLabelText('Grafik berikutnya'));
         expect(mockApi.scrollNext).toHaveBeenCalled();
 
-        fireEvent.click(screen.getByLabelText('Previous slide'));
+        fireEvent.click(screen.getByLabelText('Grafik sebelumnya'));
         expect(mockApi.scrollPrev).toHaveBeenCalled();
     });
 
-    it('renders an indicator per slide and marks the current one', () => {
+    it('renders an indicator per grafik and marks the current one', () => {
         vi.mocked(useMediaQuery).mockReturnValue(false);
 
         render(<DashboardCharts datasets={datasets} />);
 
-        const indicators = screen.getAllByLabelText(/Go to slide/);
+        const indicators = screen.getAllByLabelText(/Tampilkan grafik/);
         expect(indicators).toHaveLength(2);
         expect(indicators[0]).toHaveAttribute('aria-current', 'true');
     });
 
-    it('scrolls to the selected slide when an indicator is clicked', () => {
+    it('scrolls to the selected grafik when an indicator is clicked', () => {
         vi.mocked(useMediaQuery).mockReturnValue(false);
 
         render(<DashboardCharts datasets={datasets} />);
 
-        fireEvent.click(screen.getAllByLabelText(/Go to slide/)[1]);
+        fireEvent.click(screen.getAllByLabelText(/Tampilkan grafik/)[1]);
         expect(mockApi.scrollTo).toHaveBeenCalledWith(1);
     });
 });
