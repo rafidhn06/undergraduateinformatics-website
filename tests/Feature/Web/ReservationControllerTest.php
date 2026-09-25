@@ -66,7 +66,7 @@ class ReservationControllerTest extends TestCase
     {
         $response = $this->get('/reservation');
 
-        $response->assertSee('Reservasi - Portal Informasi Sarjana Informatika', false);
+        $response->assertSee('Pertemuan - Portal Informasi Sarjana Informatika', false);
         $response->assertSee('property="og:title"', false);
         $response->assertSee('property="og:description"', false);
         $response->assertSee('application/ld+json', false);
