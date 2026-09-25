@@ -5,9 +5,8 @@ import { NotFoundPage } from '@/components/NotFoundPage';
 import { PostPage } from '@/features/post/PostPage';
 import { PostSkeleton } from '@/features/post/PostStates';
 import { type PostPayload } from '@/features/post/types';
+import { ensureDetailPageData } from '@/hooks/usePageData';
 import { seoHead, seoTitle } from '@/lib/seo';
-
-import { ensureDetailPageData } from './detail-loader';
 
 export const Route = createFileRoute('/_public/posts/$slug')({
     loader: ({ context, params }) =>

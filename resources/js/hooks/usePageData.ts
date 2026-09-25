@@ -4,7 +4,9 @@ import {
     type UseSuspenseQueryResult,
     useSuspenseQuery,
 } from '@tanstack/react-query';
+import { notFound } from '@tanstack/react-router';
 
+import { isNotFoundError } from '../lib/errors';
 import { httpGet } from '../lib/http';
 
 export type QueryParams = Record<string, string | number | undefined>;
@@ -92,5 +94,17 @@ export function ensurePageData<TData = unknown>(
     return queryClient.ensureQueryData<TData>({
         queryKey: pageQueryKey(apiEndpoint, params),
         queryFn: () => fetchPageData<TData>(apiEndpoint, params),
+    });
+}
+
+export function ensureDetailPageData<TData = unknown>(
+    queryClient: QueryClient,
+    endpoint: string
+): Promise<TData> {
+    return ensurePageData<TData>(queryClient, endpoint).catch((error: unknown) => {
+        if (isNotFoundError(error)) {
+            throw notFound();
+        }
+        throw error;
     });
 }

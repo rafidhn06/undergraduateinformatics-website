@@ -5,9 +5,8 @@ import { NotFoundPage } from '@/components/NotFoundPage';
 import { TagDetailPage } from '@/features/tag/TagDetailPage';
 import { TagDetailSkeleton } from '@/features/tag/TagDetailStates';
 import { type TagWithPostsPayload } from '@/features/tag/types';
+import { ensureDetailPageData } from '@/hooks/usePageData';
 import { seoHead, seoTitle } from '@/lib/seo';
-
-import { ensureDetailPageData } from './detail-loader';
 
 export const Route = createFileRoute('/_public/tags/$slug')({
     loader: ({ context, params }) =>
