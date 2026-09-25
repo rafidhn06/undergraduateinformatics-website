@@ -222,6 +222,7 @@
     }
     html {
         @apply font-sans;
+        scrollbar-gutter: stable;
     }
     .active\:not-aria-\[haspopup\]\:translate-y-px:active:not([aria-haspopup]):not(
             .allow-translate
