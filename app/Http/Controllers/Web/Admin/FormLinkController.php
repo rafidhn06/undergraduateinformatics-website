@@ -41,11 +41,11 @@ class FormLinkController extends Controller
             try {
                 $this->forms->refresh('feedback', $validated['feedback_link']);
             } catch (MsFormsException) {
-                return redirect()->route('admin.form-links.show')->with('warning', 'Link tersimpan, tetapi refresh definisi gagal. Coba lagi.');
+                return redirect()->route('admin.form-links.show')->with('warning', 'Tautan tersimpan, tetapi definisi gagal dimuat ulang. Coba lagi.');
             }
             $feedbackDefinition = MsFormDefinition::query()->where('kind', 'feedback')->first();
             if ($feedbackDefinition && $feedbackDefinition->fetched_at) {
-                $message .= ' Definisi di-refresh pada ' . $feedbackDefinition->fetched_at->timezone('Asia/Jakarta')->format('d M Y H:i') . '.';
+                $message .= ' Definisi dimuat ulang pada ' . $feedbackDefinition->fetched_at->timezone('Asia/Jakarta')->format('d M Y H:i') . '.';
             }
         }
 
@@ -55,11 +55,11 @@ class FormLinkController extends Controller
             try {
                 $this->forms->refresh('reservation', $validated['reservation_link']);
             } catch (MsFormsException) {
-                return redirect()->route('admin.form-links.show')->with('warning', 'Link tersimpan, tetapi refresh definisi gagal. Coba lagi.');
+                return redirect()->route('admin.form-links.show')->with('warning', 'Tautan tersimpan, tetapi definisi gagal dimuat ulang. Coba lagi.');
             }
             $reservationDefinition = MsFormDefinition::query()->where('kind', 'reservation')->first();
             if ($reservationDefinition && $reservationDefinition->fetched_at) {
-                $message .= ' Definisi di-refresh pada ' . $reservationDefinition->fetched_at->timezone('Asia/Jakarta')->format('d M Y H:i') . '.';
+                $message .= ' Definisi dimuat ulang pada ' . $reservationDefinition->fetched_at->timezone('Asia/Jakarta')->format('d M Y H:i') . '.';
             }
         }
 
