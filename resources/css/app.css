@@ -64,7 +64,7 @@
 }
 
 #nprogress .peg {
-    box-shadow: none;
+    @apply shadow-none;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -206,7 +206,7 @@
     }
 
     [data-rich-text] table::-webkit-scrollbar {
-        display: none;
+        @apply hidden;
     }
 }
 
@@ -221,8 +221,7 @@
         @apply bg-background text-foreground;
     }
     html {
-        @apply font-sans;
-        scrollbar-gutter: stable;
+        @apply font-sans scrollbar-gutter-stable;
     }
     .active\:not-aria-\[haspopup\]\:translate-y-px:active:not([aria-haspopup]):not(
             .allow-translate

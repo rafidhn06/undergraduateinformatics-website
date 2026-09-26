@@ -15,7 +15,7 @@
     <link href="/css/fonts/figtree.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
-<body>
+<body class="not-found-page">
     <div class="not-found">
         <div class="not-found-inner">
             <h1 class="not-found-title">Halaman Tidak Ditemukan</h1>
