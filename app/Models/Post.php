@@ -115,7 +115,17 @@ class Post extends Model
 
     public function clearImage(): void
     {
-        if ($this->hasImage()) {
+        if (!$this->hasImage()) {
+            return;
+        }
+
+        $shared = static::where('image', $this->image);
+
+        if ($this->exists) {
+            $shared->where('id', '!=', $this->id);
+        }
+
+        if ($shared->doesntExist()) {
             Storage::disk('public')->delete($this->image);
         }
 

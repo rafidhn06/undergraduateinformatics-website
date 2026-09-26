@@ -779,7 +779,13 @@ class PostSeeder extends Seeder
                 'updated_at' => $data['updated_at'],
             ];
             unset($data['created_at'], $data['updated_at']);
-            $data['image'] = $this->resolvePostImage($title, $sources, $withoutImage);
+            $existing = Post::where('title', $title)->first();
+
+            if ($existing && $existing->image && Storage::disk('public')->exists($existing->image)) {
+                unset($data['image']);
+            } else {
+                $data['image'] = $this->resolvePostImage($title, $sources, $withoutImage);
+            }
 
             $post = Post::updateOrCreate(
                 ['title' => $title],

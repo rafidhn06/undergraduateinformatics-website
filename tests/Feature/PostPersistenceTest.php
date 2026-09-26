@@ -102,4 +102,28 @@ class PostPersistenceTest extends TestCase
 
         Storage::disk('public')->assertMissing($path);
     }
+
+    public function test_replace_image_keeps_file_shared_with_another_post(): void
+    {
+        Storage::disk('public')->put('posts/shared.jpg', 'shared-bytes');
+        $first = Post::create(['title' => 'Pertama', 'subtitle' => 'Sub', 'body' => '<p>Body</p>', 'image' => 'posts/shared.jpg']);
+        $second = Post::create(['title' => 'Kedua', 'subtitle' => 'Sub', 'body' => '<p>Body</p>', 'image' => 'posts/shared.jpg']);
+
+        $first->replaceImage(UploadedFile::fake()->image('baru.jpg'));
+        $first->save();
+
+        Storage::disk('public')->assertExists('posts/shared.jpg');
+        $this->assertSame('posts/shared.jpg', $second->fresh()->image);
+    }
+
+    public function test_deleting_post_keeps_file_shared_with_another_post(): void
+    {
+        Storage::disk('public')->put('posts/shared.jpg', 'shared-bytes');
+        $first = Post::create(['title' => 'Pertama', 'subtitle' => 'Sub', 'body' => '<p>Body</p>', 'image' => 'posts/shared.jpg']);
+        Post::create(['title' => 'Kedua', 'subtitle' => 'Sub', 'body' => '<p>Body</p>', 'image' => 'posts/shared.jpg']);
+
+        $first->delete();
+
+        Storage::disk('public')->assertExists('posts/shared.jpg');
+    }
 }

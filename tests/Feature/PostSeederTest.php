@@ -46,4 +46,38 @@ class PostSeederTest extends TestCase
             );
         }
     }
+
+    public function test_seeder_preserves_existing_usable_images(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('posts/custom.jpg', 'custom-bytes');
+        Post::create([
+            'title' => 'Kerja Praktik 2026',
+            'subtitle' => 'Sub',
+            'body' => '<p>Body</p>',
+            'image' => 'posts/custom.jpg',
+        ]);
+
+        $this->seed(PostSeeder::class);
+
+        $this->assertSame('posts/custom.jpg', Post::where('title', 'Kerja Praktik 2026')->first()->image);
+        Storage::disk('public')->assertExists('posts/custom.jpg');
+    }
+
+    public function test_seeder_replaces_missing_image_files(): void
+    {
+        Storage::fake('public');
+        Post::create([
+            'title' => 'Kerja Praktik 2026',
+            'subtitle' => 'Sub',
+            'body' => '<p>Body</p>',
+            'image' => 'posts/gone.jpg',
+        ]);
+
+        $this->seed(PostSeeder::class);
+
+        $image = Post::where('title', 'Kerja Praktik 2026')->first()->image;
+        $this->assertNotSame('posts/gone.jpg', $image);
+        $this->assertTrue($image === null || Storage::disk('public')->exists($image));
+    }
 }
