@@ -86,4 +86,28 @@ class DeployFinalizeTest extends TestCase
         $this->assertFileDoesNotExist($target . '/stale.txt');
         $this->assertFileExists($link . '/keep.txt');
     }
+
+    public function test_reports_php_serving_when_symlink_is_unavailable(): void
+    {
+        $base = sys_get_temp_dir() . '/deploy-test-' . uniqid();
+        $target = $base . '/app-storage';
+        $link = $base . '/public-html/storage';
+        mkdir($target, 0777, true);
+        mkdir(dirname($link) . '/storage', 0777, true);
+        file_put_contents(dirname($link) . '/storage/stale.txt', 'stale');
+
+        $probe = new class extends \App\Http\Controllers\Internal\DeployController
+        {
+            protected function symlinkAvailable(): bool
+            {
+                return false;
+            }
+        };
+        $method = new \ReflectionMethod($probe, 'ensureStorageLink');
+        $result = $method->invoke($probe, $link, $target);
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame('php-serving', $result['detail']);
+        $this->assertFileDoesNotExist($link);
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use ZipArchive;
 
 class DeployController extends Controller
@@ -232,6 +233,12 @@ class DeployController extends Controller
             File::deleteDirectory($link);
         }
 
+        if (!$this->symlinkAvailable()) {
+            $serving = Route::has('storage.file');
+
+            return ['ok' => $serving, 'detail' => $serving ? 'php-serving' : 'storage unreachable'];
+        }
+
         try {
             $linked = @\symlink($target, $link);
         } catch (\Throwable) {
@@ -279,6 +286,11 @@ class DeployController extends Controller
         $now = microtime(true);
         $steps[] = ['name' => $name, 'ok' => $ok, 'detail' => $detail, 'duration_ms' => (int) round(($now - $clock) * 1000)];
         $clock = $now;
+    }
+
+    protected function symlinkAvailable(): bool
+    {
+        return function_exists('symlink');
     }
 
     private function pointsAt(string $link, string $target): bool
