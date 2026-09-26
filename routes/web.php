@@ -20,6 +20,7 @@ use App\Http\Controllers\Web\FallbackController;
 use App\Http\Controllers\Web\PostController as WebPostController;
 use App\Http\Controllers\Web\PostSearchRedirectController;
 use App\Http\Controllers\Web\ReservationController;
+use App\Http\Controllers\Web\StorageFileController;
 use App\Http\Controllers\Web\TagController as WebTagController;
 use Illuminate\Support\Facades\Route;
 
@@ -74,5 +75,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 Route::post('/internal/deploy', [DeployController::class, 'run'])->middleware('throttle:5,1');
+
+Route::get('/storage/{path}', StorageFileController::class)->where('path', '.*')->name('storage.file');
 
 Route::fallback(FallbackController::class);
