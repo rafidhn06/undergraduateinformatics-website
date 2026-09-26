@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Internal;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Seeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -39,6 +40,15 @@ class DeployController extends Controller
         if (!class_exists(ZipArchive::class)) {
             return response()->json(['ok' => false, 'error' => 'Zip support missing'], 422);
         }
+
+        $seedClass = $request->input('seed_class');
+        $seedClass = is_string($seedClass) && $seedClass !== '' ? $seedClass : null;
+
+        if ($seedClass !== null && !$this->isSeedable($seedClass)) {
+            return response()->json(['ok' => false, 'error' => 'Invalid seeder class'], 422);
+        }
+
+        $pendingMigrations = $this->pendingMigrationCount();
 
         $steps = [];
         $clock = microtime(true);
@@ -107,9 +117,14 @@ class DeployController extends Controller
         $this->recordStep($steps, $clock, 'storage-link', $link['ok'], $link['detail']);
 
         $seeded = ['ok' => true, 'detail' => 'Skipped'];
-        if ($run('seed') && $ready($migrated)) {
+        $seedRequested = $seedClass !== null || (!$quick && $request->boolean('seed')) || ($quick && $run('seed'));
+        if ($seedRequested && $ready($migrated)) {
             try {
-                Artisan::call('db:seed', ['--force' => true]);
+                if ($seedClass !== null) {
+                    Artisan::call('db:seed', ['--class' => $seedClass, '--force' => true]);
+                } else {
+                    Artisan::call('db:seed', ['--force' => true]);
+                }
                 $seeded = ['ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)];
             } catch (\Throwable $throwable) {
                 $seeded = ['ok' => false, 'detail' => substr($throwable->getMessage(), 0, 2000)];
@@ -143,7 +158,7 @@ class DeployController extends Controller
             'steps' => collect($steps)->map(fn ($step) => $step['name'] . ':' . ($step['ok'] ? 'ok' : 'fail'))->values()->all(),
         ]);
 
-        return response()->json(['ok' => $succeeded, 'steps' => $steps], $succeeded ? 200 : 500);
+        return response()->json(['ok' => $succeeded, 'pending_migrations' => $pendingMigrations, 'steps' => $steps], $succeeded ? 200 : 500);
     }
 
     private function runSeed(Request $request): JsonResponse
@@ -238,6 +253,25 @@ class DeployController extends Controller
         }
 
         return ['ok' => false, 'detail' => 'link failed: storage unreachable'];
+    }
+
+    private function isSeedable(string $class): bool
+    {
+        return class_exists($class)
+            && is_subclass_of($class, Seeder::class)
+            && str_starts_with($class, 'Database\\Seeders\\');
+    }
+
+    private function pendingMigrationCount(): int
+    {
+        try {
+            $ran = app('migration.repository')->getRan();
+            $files = app('migrator')->getMigrationFiles(database_path('migrations'));
+
+            return count(array_diff(array_keys($files), $ran));
+        } catch (\Throwable) {
+            return -1;
+        }
     }
 
     private function recordStep(array &$steps, float &$clock, string $name, bool $ok, string $detail): void
