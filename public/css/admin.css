@@ -220,6 +220,13 @@ button.admin-nav__link { width: 100%; background: transparent; cursor: pointer; 
 .admin .form-control[type="file"] { min-height: auto; padding: 8px 12px; line-height: 1.5; }
 .admin textarea.form-control { min-height: 180px; }
 .admin .form-control:focus, .admin .form-select:focus { border-color: #c77a82; box-shadow: 0 0 0 3px var(--admin-ring); }
+.admin .ck.ck-editor { --ck-color-base-border: #e5e7eb; --ck-color-focus-border: #c77a82; --ck-border-radius: 8px; }
+.admin .ck.ck-toolbar, .admin .ck.ck-editor__main > .ck-editor__editable { border-color: #e5e7eb; }
+.admin .ck.ck-editor__top .ck-sticky-panel .ck-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-width: 0; }
+.admin .ck-rounded-corners .ck.ck-editor__main > .ck-editor__editable, .admin .ck.ck-editor__main > .ck-editor__editable { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; border-top-left-radius: 0; border-top-right-radius: 0; }
+.admin .ck.ck-editor:focus-within .ck.ck-toolbar, .admin .ck.ck-editor:focus-within .ck.ck-editor__main > .ck-editor__editable { border-color: #c77a82; }
+.admin .ck.ck-editor:focus-within { border-radius: 8px; box-shadow: 0 0 0 3px var(--admin-ring); }
+.admin .ck.ck-editor__main > .ck-editor__editable.ck-focused { border-color: #c77a82; box-shadow: none; }
 .admin .form-label h4, .admin .form-label { color: #374151; font-size: .85rem; font-weight: 700; }
 .required-star { color: #dc2626; margin-left: 3px; font-weight: 700; }
 .admin .form form .mb-3 { margin-bottom: 16px; }
@@ -235,7 +242,7 @@ button.admin-nav__link { width: 100%; background: transparent; cursor: pointer; 
 .admin-content .admin-toast, .admin-auth .admin-toast { padding-right: 3rem; }
 .admin-content .admin-toast__close, .admin-auth .admin-toast__close { position: absolute; top: 0; right: 0; z-index: 2; padding: 1.25rem 1rem; background-size: 0.75em auto; }
 .admin-content .admin-toast__close:focus, .admin-auth .admin-toast__close:focus { outline: 0; box-shadow: none; }
-.admin-content .admin-toast__close:focus-visible, .admin-auth .admin-toast__close:focus-visible { opacity: 1; background: rgb(0 0 0 / 8%); }
+.admin-content .admin-toast__close:focus-visible, .admin-auth .admin-toast__close:focus-visible { opacity: 1; background-color: rgb(0 0 0 / 8%); }
 
 @keyframes admin-toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes admin-toast-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
