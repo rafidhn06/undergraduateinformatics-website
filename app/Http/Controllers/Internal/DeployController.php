@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
@@ -40,23 +41,39 @@ class DeployController extends Controller
         }
 
         $steps = [];
+        $clock = microtime(true);
+
+        register_shutdown_function(function () {
+            try {
+                Artisan::call('up');
+            } catch (\Throwable) {
+            }
+        });
+
+        $only = array_values(array_filter((array) $request->input('only', []), 'is_string'));
+        $quick = $only !== [];
+        $run = fn (string $step): bool => !$quick || in_array($step, $only, true);
+        $ready = fn (array $step): bool => $quick || $step['ok'];
 
         try {
             Artisan::call('down', ['--render' => 'errors::503']);
         } catch (\Throwable $throwable) {
-            $steps[] = ['name' => 'down', 'ok' => false, 'detail' => substr($throwable->getMessage(), 0, 500)];
+            $this->recordStep($steps, $clock, 'down', false, substr($throwable->getMessage(), 0, 500));
         }
 
-        $extractedApp = $this->extractArchive($appArchive, $appPath);
-        $steps[] = ['name' => 'extract-app', 'ok' => $extractedApp['ok'], 'detail' => $extractedApp['detail']];
-
-        $extractedPublic = ['ok' => false, 'detail' => 'Skipped'];
-        if ($extractedApp['ok']) {
-            $extractedPublic = $this->extractArchive($publicArchive, $publicPath);
+        $extractedApp = ['ok' => true, 'detail' => 'Skipped'];
+        if ($run('extract-app')) {
+            $extractedApp = $this->extractArchive($appArchive, $appPath);
         }
-        $steps[] = ['name' => 'extract-public', 'ok' => $extractedPublic['ok'], 'detail' => $extractedPublic['detail']];
+        $this->recordStep($steps, $clock, 'extract-app', $extractedApp['ok'], $extractedApp['detail']);
 
-        if ($extractedApp['ok'] && $extractedPublic['ok'] && !$rollback) {
+        $extractedPublic = ['ok' => true, 'detail' => 'Skipped'];
+        if ($run('extract-public') && $extractedApp['ok']) {
+            $extractedPublic = $this->extractArchive($publicArchive, $publicPath, true);
+        }
+        $this->recordStep($steps, $clock, 'extract-public', $extractedPublic['ok'], $extractedPublic['detail']);
+
+        if ($run('backup') && $extractedApp['ok'] && $extractedPublic['ok'] && !$rollback) {
             try {
                 $backupApp = $directory . '/app-prev.zip';
                 $backupPublic = $directory . '/public-prev.zip';
@@ -66,14 +83,14 @@ class DeployController extends Controller
                 if (is_file($publicArchive) && !is_file($backupPublic)) {
                     copy($publicArchive, $backupPublic);
                 }
-                $steps[] = ['name' => 'backup', 'ok' => true, 'detail' => 'Previous archives retained'];
+                $this->recordStep($steps, $clock, 'backup', true, 'Previous archives retained');
             } catch (\Throwable $throwable) {
-                $steps[] = ['name' => 'backup', 'ok' => false, 'detail' => substr($throwable->getMessage(), 0, 500)];
+                $this->recordStep($steps, $clock, 'backup', false, substr($throwable->getMessage(), 0, 500));
             }
         }
 
-        $migrated = ['ok' => false, 'detail' => 'Skipped'];
-        if ($extractedApp['ok'] && $extractedPublic['ok']) {
+        $migrated = ['ok' => true, 'detail' => 'Skipped'];
+        if ($run('migrate') && $ready($extractedApp) && $ready($extractedPublic)) {
             try {
                 Artisan::call('migrate', ['--force' => true]);
                 $migrated = ['ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)];
@@ -81,16 +98,16 @@ class DeployController extends Controller
                 $migrated = ['ok' => false, 'detail' => substr($throwable->getMessage(), 0, 2000)];
             }
         }
-        $steps[] = ['name' => 'migrate', 'ok' => $migrated['ok'], 'detail' => $migrated['detail']];
+        $this->recordStep($steps, $clock, 'migrate', $migrated['ok'], $migrated['detail']);
 
-        $link = ['ok' => false, 'detail' => 'Skipped'];
-        if ($migrated['ok']) {
+        $link = ['ok' => true, 'detail' => 'Skipped'];
+        if ($run('storage-link') && $ready($migrated)) {
             $link = $this->ensureStorageLink();
         }
-        $steps[] = ['name' => 'storage-link', 'ok' => $link['ok'], 'detail' => $link['detail']];
+        $this->recordStep($steps, $clock, 'storage-link', $link['ok'], $link['detail']);
 
-        $seeded = ['ok' => false, 'detail' => 'Skipped'];
-        if ($migrated['ok']) {
+        $seeded = ['ok' => true, 'detail' => 'Skipped'];
+        if ($run('seed') && $ready($migrated)) {
             try {
                 Artisan::call('db:seed', ['--force' => true]);
                 $seeded = ['ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)];
@@ -98,15 +115,15 @@ class DeployController extends Controller
                 $seeded = ['ok' => false, 'detail' => substr($throwable->getMessage(), 0, 2000)];
             }
         }
-        $steps[] = ['name' => 'seed', 'ok' => $seeded['ok'], 'detail' => $seeded['detail']];
+        $this->recordStep($steps, $clock, 'seed', $seeded['ok'], $seeded['detail']);
 
-        if ($migrated['ok']) {
+        if ($run('caches') && $ready($migrated)) {
             foreach (['config:clear', 'config:cache', 'route:cache', 'view:cache'] as $command) {
                 try {
                     Artisan::call(str_contains($command, ':') ? explode(':', $command)[0] . ':' . explode(':', $command)[1] : $command);
-                    $steps[] = ['name' => $command, 'ok' => true, 'detail' => substr((string) Artisan::output(), 0, 500)];
+                    $this->recordStep($steps, $clock, $command, true, substr((string) Artisan::output(), 0, 500));
                 } catch (\Throwable $throwable) {
-                    $steps[] = ['name' => $command, 'ok' => false, 'detail' => substr($throwable->getMessage(), 0, 500)];
+                    $this->recordStep($steps, $clock, $command, false, substr($throwable->getMessage(), 0, 500));
                 }
             }
         }
@@ -114,7 +131,7 @@ class DeployController extends Controller
         try {
             Artisan::call('up');
         } catch (\Throwable $throwable) {
-            $steps[] = ['name' => 'up', 'ok' => false, 'detail' => substr($throwable->getMessage(), 0, 500)];
+            $this->recordStep($steps, $clock, 'up', false, substr($throwable->getMessage(), 0, 500));
         }
 
         $succeeded = collect($steps)->every(fn ($step) => $step['ok'] === true);
@@ -144,7 +161,7 @@ class DeployController extends Controller
         return response()->json(['ok' => true, 'steps' => [['name' => 'seed', 'ok' => true, 'detail' => substr((string) Artisan::output(), 0, 2000)]]]);
     }
 
-    private function extractArchive(string $archive, string $target): array
+    private function extractArchive(string $archive, string $target, bool $preserveStorageLink = false): array
     {
         $zip = new ZipArchive();
         $opened = $zip->open($archive);
@@ -153,19 +170,25 @@ class DeployController extends Controller
             return ['ok' => false, 'detail' => 'Cannot open archive'];
         }
 
+        $entries = [];
+
         for ($index = 0; $index < $zip->numFiles; $index++) {
             $name = (string) $zip->getNameIndex($index);
             if ($name === '' || str_starts_with($name, '/') || str_contains($name, '..')) {
                 $zip->close();
                 return ['ok' => false, 'detail' => 'Unsafe entry: ' . substr($name, 0, 200)];
             }
+            if ($preserveStorageLink && ($name === 'storage' || str_starts_with($name, 'storage/'))) {
+                continue;
+            }
+            $entries[] = $name;
         }
 
         if (!is_dir($target)) {
             mkdir($target, 0755, true);
         }
 
-        $extracted = $zip->extractTo($target);
+        $extracted = $zip->extractTo($target, $entries);
         $zip->close();
 
         if (!$extracted) {
@@ -175,63 +198,64 @@ class DeployController extends Controller
         return ['ok' => true, 'detail' => 'Extracted ' . basename($archive)];
     }
 
-    private function ensureStorageLink(): array
+    private function ensureStorageLink(?string $link = null, ?string $target = null): array
     {
-        $link = (string) public_path('storage');
-        $target = (string) storage_path('app/public');
-
-        if (is_link($link) && is_dir($link)) {
-            return ['ok' => true, 'detail' => 'exists'];
-        }
+        $link ??= (string) public_path('storage');
+        $target ??= (string) storage_path('app/public');
 
         if (!is_dir($target)) {
             mkdir($target, 0755, true);
         }
 
-        if (!is_link($link) && !is_file($link) && !is_dir($link)) {
-            $linked = @symlink($target, $link);
-            if ($linked) {
-                return ['ok' => true, 'detail' => 'symlink'];
-            }
+        if ($this->pointsAt($link, $target)) {
+            return ['ok' => true, 'detail' => 'exists'];
+        }
+
+        if (is_link($link) || is_file($link)) {
+            @unlink($link);
+        } elseif (is_dir($link)) {
+            File::deleteDirectory($link);
+        }
+
+        try {
+            $linked = @\symlink($target, $link);
+        } catch (\Throwable) {
+            $linked = false;
+        }
+
+        if ($linked && $this->pointsAt($link, $target)) {
+            return ['ok' => true, 'detail' => 'symlink'];
         }
 
         try {
             Artisan::call('storage:link');
-            if (is_link($link) || is_dir($link)) {
-                return ['ok' => true, 'detail' => 'storage:link'];
-            }
         } catch (\Throwable $throwable) {
-            return ['ok' => true, 'detail' => 'copy-fallback:' . substr($throwable->getMessage(), 0, 200)];
+            return ['ok' => false, 'detail' => 'link failed:' . substr($throwable->getMessage(), 0, 200)];
         }
 
-        $copied = $this->copyDirectory($target, $link);
-
-        if ($copied) {
-            return ['ok' => true, 'detail' => 'copy-fallback'];
+        if ($this->pointsAt($link, $target)) {
+            return ['ok' => true, 'detail' => 'storage:link'];
         }
 
-        return ['ok' => false, 'detail' => 'Storage link unavailable'];
+        return ['ok' => false, 'detail' => 'link failed: storage unreachable'];
     }
 
-    private function copyDirectory(string $source, string $destination): bool
+    private function recordStep(array &$steps, float &$clock, string $name, bool $ok, string $detail): void
     {
-        if (!is_dir($destination)) {
-            mkdir($destination, 0755, true);
+        $now = microtime(true);
+        $steps[] = ['name' => $name, 'ok' => $ok, 'detail' => $detail, 'duration_ms' => (int) round(($now - $clock) * 1000)];
+        $clock = $now;
+    }
+
+    private function pointsAt(string $link, string $target): bool
+    {
+        if (!is_link($link)) {
+            return false;
         }
 
-        foreach ((array) scandir($source) as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-            $from = $source . '/' . $entry;
-            $to = $destination . '/' . $entry;
-            if (is_dir($from)) {
-                $this->copyDirectory($from, $to);
-            } else {
-                copy($from, $to);
-            }
-        }
+        $resolvedLink = realpath($link);
+        $resolvedTarget = realpath($target);
 
-        return true;
+        return $resolvedLink !== false && $resolvedTarget !== false && $resolvedLink === $resolvedTarget;
     }
 }

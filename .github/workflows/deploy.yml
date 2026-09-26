@@ -38,7 +38,7 @@ jobs:
           (cd /tmp/deploy-pkg/app-stage && zip -qr /tmp/deploy-pkg/app.zip .)
       - name: Package public archive
         run: |
-          rsync -a --delete ./public/ /tmp/deploy-pkg/public-stage/
+          rsync -a --delete --exclude='storage' ./public/ /tmp/deploy-pkg/public-stage/
           php -r '$p = "/tmp/deploy-pkg/public-stage/index.php"; $s = file_get_contents($p); $s = str_replace("__DIR__.'"'"'/../vendor/autoload.php'"'"'", "__DIR__.'"'"'/../app/vendor/autoload.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../bootstrap/app.php'"'"'", "__DIR__.'"'"'/../app/bootstrap/app.php'"'"'", $s); $s = str_replace("__DIR__.'"'"'/../storage/framework/maintenance.php'"'"'", "__DIR__.'"'"'/../app/storage/framework/maintenance.php'"'"'", $s); file_put_contents($p, $s);'
           grep -q "app/vendor/autoload.php" /tmp/deploy-pkg/public-stage/index.php
           grep -q "app/bootstrap/app.php" /tmp/deploy-pkg/public-stage/index.php
