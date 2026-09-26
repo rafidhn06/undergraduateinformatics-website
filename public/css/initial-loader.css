@@ -1,11 +1,15 @@
 .sk-loading {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
+    min-height: 100svh;
     gap: 1.25rem;
+    text-align: center;
     font-family: 'Plus Jakarta Sans Variable', sans-serif;
 }
 

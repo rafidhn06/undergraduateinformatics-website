@@ -6,8 +6,8 @@ export function NotFoundPage() {
     const navigate = useNavigate();
 
     return (
-        <div className="flex min-h-screen items-center justify-center px-4 supports-[min-height:100dvh]:min-h-dvh">
-            <div className="max-w-[37em]">
+        <div className="flex min-h-screen flex-col items-center justify-center px-4 supports-[min-height:100dvh]:min-h-dvh supports-[min-height:100svh]:min-h-svh">
+            <div className="box-border w-full max-w-[600px]">
                 <h1 className="text-foreground text-3xl leading-tight font-semibold">
                     Halaman Tidak Ditemukan
                 </h1>

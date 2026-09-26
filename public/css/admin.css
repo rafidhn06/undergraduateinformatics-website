@@ -418,8 +418,8 @@ button.admin-nav__link { width: 100%; background: transparent; cursor: pointer; 
     .ds-row__value { flex-basis: 96px; }
 }
 
-.not-found { display: flex; min-height: 100vh; min-height: 100dvh; align-items: center; justify-content: center; padding-left: 1rem; padding-right: 1rem; background: #fff; color: #1f2937; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; }
-.not-found-inner { max-width: 37em; }
+.not-found { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; min-height: 100dvh; min-height: 100svh; padding-left: 1rem; padding-right: 1rem; background: #fff; color: #1f2937; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; }
+.not-found-inner { box-sizing: border-box; width: 100%; max-width: 600px; }
 .not-found-title { margin: 0; font-size: 1.875rem; font-weight: 600; line-height: 1.25; }
 .not-found-desc { margin: 1.125rem 0 0; color: #6b7280; font-size: 1.125rem; line-height: 1.6; }
 .not-found-actions { margin-top: 1.125rem; }
