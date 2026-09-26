@@ -5,22 +5,15 @@ namespace App\Services\MsForms;
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class MsFormsClient
 {
     private const ALLOWED_HOST_SUFFIXES = ['office.com', 'microsoft.com', 'cloud.microsoft'];
 
-    private const TARGET_CACHE_TTL = 15;
-
     public function resolve(string $link): ResolvedFormTarget
     {
-        return Cache::remember(
-            'msforms-target:'.md5($link),
-            now()->addMinutes(self::TARGET_CACHE_TTL),
-            fn () => $this->resolveUncached($link)
-        );
+        return $this->resolveUncached($link);
     }
 
     private function resolveUncached(string $link): ResolvedFormTarget
