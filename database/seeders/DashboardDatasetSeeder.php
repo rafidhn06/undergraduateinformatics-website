@@ -64,7 +64,7 @@ class DashboardDatasetSeeder extends Seeder
         ];
 
         foreach ($datasets as $datasetData) {
-            $dataset = DashboardDataset::updateOrCreate(
+            $dataset = DashboardDataset::firstOrCreate(
                 ['slug' => Str::slug($datasetData['title'])],
                 [
                     'title' => $datasetData['title'],

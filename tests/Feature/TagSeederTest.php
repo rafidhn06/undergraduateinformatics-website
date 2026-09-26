@@ -50,4 +50,15 @@ class TagSeederTest extends TestCase
             $this->assertSame($count, $tag->posts_count);
         }
     }
+
+    public function test_seeder_preserves_existing_tag_details(): void
+    {
+        Tag::create(['name' => 'Nama Admin', 'slug' => 'mbkm', 'description' => 'Deskripsi admin']);
+
+        $this->seed(\Database\Seeders\TagSeeder::class);
+
+        $tag = Tag::where('slug', 'mbkm')->first();
+        $this->assertSame('Nama Admin', $tag->name);
+        $this->assertSame('Deskripsi admin', $tag->description);
+    }
 }

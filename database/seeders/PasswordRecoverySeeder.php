@@ -16,7 +16,7 @@ class PasswordRecoverySeeder extends Seeder
             return;
         }
 
-        PasswordRecovery::updateOrCreate(
+        PasswordRecovery::firstOrCreate(
             ['user_id' => $userId],
             [
                 'first_question' => 'Pertanyaan pertama adalah?',

@@ -38,4 +38,22 @@ class DashboardDatasetSeederTest extends TestCase
             DashboardDataset::query()->orderBy('id')->distinct()->pluck('chart_type')->sort()->values()->all()
         );
     }
+
+    public function test_dashboard_dataset_seeder_preserves_existing_datasets(): void
+    {
+        DashboardDataset::create([
+            'title' => 'Judul Admin',
+            'slug' => 'jumlah-mahasiswa-per-angkatan',
+            'sheet_name' => 'Sheet Admin',
+            'chart_type' => 'line',
+            'description' => 'Deskripsi admin',
+        ]);
+
+        $this->seed(DashboardDatasetSeeder::class);
+
+        $dataset = DashboardDataset::where('slug', 'jumlah-mahasiswa-per-angkatan')->first();
+        $this->assertSame('Judul Admin', $dataset->title);
+        $this->assertSame('line', $dataset->chart_type);
+        $this->assertSame('Deskripsi admin', $dataset->description);
+    }
 }

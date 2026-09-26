@@ -13,12 +13,8 @@ class ReservationLinkSeeder extends Seeder
 
         $existing = ReservationLink::query()->first();
 
-        if ($existing !== null) {
-            $existing->update(['link' => $link]);
-
-            return;
+        if ($existing === null) {
+            ReservationLink::create(['link' => $link]);
         }
-
-        ReservationLink::create(['link' => $link]);
     }
 }

@@ -25,7 +25,7 @@ class ImportantSectionSeeder extends Seeder
         ];
 
         foreach ($sections as $sectionData) {
-            ImportantSection::updateOrCreate(
+            ImportantSection::firstOrCreate(
                 ['name' => $sectionData['name']],
                 ['order_number' => $sectionData['order_number']]
             );

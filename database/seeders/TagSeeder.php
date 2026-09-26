@@ -20,7 +20,7 @@ class TagSeeder extends Seeder
         ];
 
         foreach ($tags as $tagData) {
-            Tag::updateOrCreate(
+            Tag::firstOrCreate(
                 ['slug' => $tagData['slug']],
                 ['name' => $tagData['name'], 'description' => $tagData['description']]
             );

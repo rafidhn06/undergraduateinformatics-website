@@ -13,12 +13,8 @@ class FeedbackLinkSeeder extends Seeder
 
         $existing = FeedbackLink::query()->first();
 
-        if ($existing !== null) {
-            $existing->update(['link' => $link]);
-
-            return;
+        if ($existing === null) {
+            FeedbackLink::create(['link' => $link]);
         }
-
-        FeedbackLink::create(['link' => $link]);
     }
 }
